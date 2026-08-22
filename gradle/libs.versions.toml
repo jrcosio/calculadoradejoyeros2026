@@ -21,6 +21,7 @@ navigationCompose = "2.9.8"
 
 # Kotlin libs
 coroutines = "1.11.0"
+serializationJson = "1.9.0"
 
 # Test
 junit = "4.13.2"
@@ -66,6 +67,7 @@ koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
 # --- Coroutines ---
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 
 # --- Test ---
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -77,5 +79,6 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
