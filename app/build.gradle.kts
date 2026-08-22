@@ -30,8 +30,16 @@ android {
             }
         }
         release {
+            // R8: ofusca y reduce. Sin esto no hay mapping que subir y Crashlytics
+            // no tiene nada que desofuscar.
             optimization {
-                enable = false
+                enable = true
+            }
+            // Sube el mapping de R8 a Crashlytics para que los stack traces de
+            // producción lleguen legibles. Es el valor por defecto, explícito aquí
+            // para que se vea junto a la línea que activa la ofuscación.
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
             }
         }
     }

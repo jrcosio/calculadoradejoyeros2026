@@ -126,6 +126,33 @@ El `applicationId` es `com.jrblanco.calculadoradejoyeros2021` aunque el repo se 
 `...2026`: el `google-services.json` está registrado contra ese package y cambiarlo
 obliga a dar de alta una app Android nueva en Firebase.
 
+## Builds de release
+
+`release` tiene R8 activado (`optimization { enable = true }`). El bloque
+`uploadCrashlyticsMappingFileRelease` corre **dentro de `assembleRelease`**, así que el
+mapping se sube a Crashlytics solo y los stack traces de producción llegan
+desofuscados con nombre de fichero y número de línea.
+
+- **No añadas `-keepattributes SourceFile,LineNumberTable`**: R8 ya guarda esa
+  información en el propio mapping. Está verificado con `retrace`, y esa regla sería
+  ruido heredado de ProGuard.
+- Las reglas de R8 van en `app/src/main/keepRules/*.keep`. AGP 9 las recoge solas: en
+  este proyecto no existe `proguardFiles` ni `proguard-rules.pro`.
+- **No hay `signingConfig` de release todavía**: `assembleRelease` produce
+  `app-release-unsigned.apk`. Para probar un release en el emulador hay que firmarlo a
+  mano; hace falta un keystore antes de poder publicar.
+
+```bash
+# probar un release localmente (firma con la clave de debug, no vale para publicar)
+$ANDROID_HOME/build-tools/37.0.0/apksigner sign --ks ~/.android/debug.keystore \
+  --ks-pass pass:android --key-pass pass:android --out /tmp/rel.apk \
+  app/build/outputs/apk/release/app-release-unsigned.apk
+
+# desofuscar un stack trace a mano
+$ANDROID_HOME/cmdline-tools/latest/bin/retrace \
+  app/build/outputs/mapping/release/mapping.txt traza.txt
+```
+
 ## Commits
 
 Conventional Commits (`feat:`, `fix:`, `build:`, `test:`, `docs:`, `chore:`,
