@@ -7,6 +7,7 @@ local.properties
 
 # Log/OS Files
 *.log
+.DS_Store
 
 # Android Studio generated files and folders
 captures/
@@ -15,6 +16,7 @@ captures/
 *.aab
 *.apk
 output-metadata.json
+.kotlin/
 
 # IntelliJ
 *.iml
@@ -32,3 +34,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Claude Code local overrides (personal, not shared)
+.claude/settings.local.json
