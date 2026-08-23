@@ -39,6 +39,18 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySize
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
 
 /**
+ * Una opción del selector: su etiqueta y el color con el que se pinta al estar activa.
+ *
+ * El acento va por opción y no por fila porque hay selectores donde cada valor tiene
+ * su propio color —el color del oro se elige en el tono de ese oro— y otros donde
+ * todas comparten el dorado, que es el valor por defecto.
+ */
+data class OpcionSegmento(
+    val etiqueta: String,
+    val acento: Color = JewelryColors.GoldPrimary,
+)
+
+/**
  * Fila de opciones excluyentes: una y solo una activa, marcada con una píldora en el
  * color de acento y un check.
  *
@@ -49,11 +61,10 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
  */
 @Composable
 fun SelectorSegmentado(
-    opciones: List<String>,
+    opciones: List<OpcionSegmento>,
     seleccionada: Int,
     onSeleccion: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    acento: Color = JewelryColors.GoldPrimary,
 ) {
     val marco = RoundedCornerShape(JewelryRadius.Small)
     Row(
@@ -64,11 +75,11 @@ fun SelectorSegmentado(
             .padding(3.dp)
             .selectableGroup(),
     ) {
-        opciones.forEachIndexed { indice, etiqueta ->
+        opciones.forEachIndexed { indice, opcion ->
             Segmento(
-                etiqueta = etiqueta,
+                etiqueta = opcion.etiqueta,
                 activa = indice == seleccionada,
-                acento = acento,
+                acento = opcion.acento,
                 onClick = { onSeleccion(indice) },
                 modifier = Modifier.weight(1f),
             )

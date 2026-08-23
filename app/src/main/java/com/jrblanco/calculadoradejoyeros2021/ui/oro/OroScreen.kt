@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
@@ -56,6 +57,7 @@ import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalLiga
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryScaffold
+import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
@@ -136,7 +138,8 @@ fun OroContent(
                 titulo = stringResource(R.string.oro_seccion_ley),
             )
             SelectorSegmentado(
-                opciones = LeyOro.entries.map { stringResource(it.etiquetaRes) },
+                // Todas las leyes en dorado: lo que distingue a una ley no es un color.
+                opciones = LeyOro.entries.map { OpcionSegmento(stringResource(it.etiquetaRes)) },
                 seleccionada = uiState.ley.ordinal,
                 onSeleccion = { onLeySeleccionada(LeyOro.entries[it]) },
             )
@@ -150,10 +153,12 @@ fun OroContent(
                 titulo = stringResource(R.string.oro_seccion_color),
             )
             SelectorSegmentado(
-                opciones = ColorOro.entries.map { stringResource(it.etiquetaRes) },
+                // Cada color de oro se elige en su propio tono.
+                opciones = ColorOro.entries.map {
+                    OpcionSegmento(stringResource(it.etiquetaRes), it.acento)
+                },
                 seleccionada = uiState.color.ordinal,
                 onSeleccion = { onColorSeleccionado(ColorOro.entries[it]) },
-                acento = JewelryColors.TealPrimary,
             )
 
             uiState.resultado?.let { resultado ->
@@ -520,6 +525,15 @@ private val ColorOro.etiquetaRes: Int
         ColorOro.BLANCO -> R.string.oro_color_blanco
         ColorOro.ROSA -> R.string.oro_color_rosa
         ColorOro.ROJO -> R.string.oro_color_rojo
+    }
+
+/** El tono con el que se pinta cada color de oro al seleccionarlo. */
+private val ColorOro.acento: Color
+    get() = when (this) {
+        ColorOro.AMARILLO -> JewelryColors.GoldPrimary
+        ColorOro.BLANCO -> JewelryColors.TealPrimary
+        ColorOro.ROSA -> JewelryColors.RoseGold
+        ColorOro.ROJO -> JewelryColors.RedGold
     }
 
 private data class MetalPresentacion(

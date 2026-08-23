@@ -190,3 +190,18 @@ en cada checkpoint y validar la historia sola.
   `oro_favoritos_proximamente`. La cantidad introducida no viaja en ningún evento.
 - **T039**: `app-release-unsigned.apk` = 7,3 MB (las dos imágenes nuevas suman ~460 KB
   en recursos). R8 no rompe el motor.
+
+---
+
+## Fase 8 — Enmienda: cada color de oro se elige en su tono
+
+Retoque pedido por el autor tras la verificación: el selector de color pintaba las
+cuatro opciones en teal; ahora cada una usa el tono de su oro.
+
+- [X] T040 Añadir a `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/theme/Color.kt` los tokens `RoseGold` (`0xFFEB90A8`) y `RedGold` (`0xFFE85D45`), aclarados respecto al oro rosa y rojo reales para que el texto oscuro de la píldora siga contrastando. Amarillo reutiliza `GoldPrimary` y blanco se queda en `TealPrimary`, que es el que gustaba.
+- [X] T041 Mover el acento de `SelectorSegmentado` de la fila a la opción: nuevo `data class OpcionSegmento(etiqueta, acento = GoldPrimary)` en `ui/components/SelectorSegmentado.kt`, y en `ui/oro/OroScreen.kt` mapear `ColorOro.acento` (amarillo → dorado, blanco → teal, rosa → `RoseGold`, rojo → `RedGold`). Las leyes siguen todas en dorado usando el valor por defecto: lo que distingue a una ley no es un color. La API de `OroContent` no cambia, así que los tests siguen valiendo tal cual.
+
+**Verificado** (emulador Pixel_10): las cuatro píldoras se pintan en su tono con el
+check y la etiqueta legibles en oscuro sobre cada uno; 44 tests unitarios y 22
+instrumentados siguen en verde. La tarjeta de resultados se mantiene en teal, como el
+mockup.

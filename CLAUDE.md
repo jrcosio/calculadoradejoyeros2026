@@ -95,7 +95,9 @@ ya formateado en el `UiState`.
   del color de acento (dorado por defecto). Nació privada en Info como `TarjetaDorada`;
   la comparten Info y la calculadora de oro (que la usa también en teal).
 - **`SelectorSegmentado`** — fila de opciones excluyentes con píldora degradada y check
-  en el acento. Hecho a mano: `SegmentedButton` de Material impone su geometría.
+  en el acento. Hecho a mano: `SegmentedButton` de Material impone su geometría. El
+  acento va **por opción** (`OpcionSegmento`), que es lo que permite elegir cada color de
+  oro en su propio tono; con el valor por defecto toda la fila sale dorada.
 
 `JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
 `NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
