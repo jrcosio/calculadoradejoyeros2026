@@ -19,7 +19,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
  */
 @Composable
 fun JewelryScaffold(
-    onInfo: () -> Unit,
+    onInfo: (() -> Unit)?,
     modifier: Modifier = Modifier,
     title: String? = null,
     onBack: (() -> Unit)? = null,

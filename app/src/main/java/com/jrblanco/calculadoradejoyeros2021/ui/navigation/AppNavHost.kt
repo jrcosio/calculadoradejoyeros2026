@@ -12,6 +12,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryBottomBar
 import com.jrblanco.calculadoradejoyeros2021.ui.components.MainTab
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeModule
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeScreen
+import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.welcome.WelcomeScreen
 
@@ -102,8 +103,10 @@ fun AppNavHost(
             PlaceholderScreen(stringResource(R.string.modulo_herramientas_titulo), "herramientas", onInfo, onBack = onBack)
         }
 
+        // --- Otros ---
+
         composable<Route.AcercaDe> {
-            PlaceholderScreen(stringResource(R.string.pantalla_acerca_de), "acerca_de", onInfo, onBack = onBack)
+            InfoScreen(onBack = onBack)
         }
     }
 }

@@ -10,7 +10,7 @@
 
     <!-- Módulos del menú principal -->
     <string name="modulo_oro_titulo">Aleaciones de ORO</string>
-    <string name="modulo_oro_descripcion">Cálculos básicos para obtener aleaciones de oro de 22K, 18K, 14K, 12K y 9K.</string>
+    <string name="modulo_oro_descripcion">Cálculos básicos para obtener aleaciones de oro de 18K, 14K, 12K y 9K.</string>
     <string name="modulo_oro_imagen">Dos lingotes de oro marcados con el símbolo Au</string>
 
     <string name="modulo_plata_titulo">Aleaciones de PLATA</string>
@@ -35,6 +35,20 @@
     <string name="topbar_atras">Volver</string>
 
     <!-- Pantallas aún sin desarrollar -->
-    <string name="pantalla_acerca_de">Acerca de</string>
     <string name="placeholder_pendiente">Pantalla en construcción</string>
+
+    <!-- Pantalla de información -->
+    <string name="info_titulo">Información</string>
+    <string name="info_perfil_nombre">José Ramón Blanco</string>
+    <string name="info_perfil_descripcion">Tecnología y tradición se unen en una aplicación creada por José Ramón Blanco, desarrollador y joyero artesano, con el propósito de ofrecer herramientas útiles, modernas y accesibles a profesionales de la joyería de todo el mundo.</string>
+    <string name="info_perfil_etiquetas">Tech Lead I+D  |  AI Engineer  |  AI-Driven Developer\nLLMs  |  Mobile Dev  |  Python</string>
+    <string name="info_perfil_foto">Fotografía de José Ramón Blanco</string>
+    <string name="info_linkedin_titulo">LinkedIn</string>
+    <string name="info_instagram_titulo">Instagram</string>
+    <string name="info_enlace_abrir">Abrir en el navegador</string>
+    <string name="info_blanco_joyeros_titulo">Blanco Joyeros</string>
+    <string name="info_blanco_joyeros_descripcion">Colaboración y referencia del sector joyero.</string>
+    <string name="info_blanco_joyeros_logo">Logotipo de Blanco Joyeros</string>
+    <string name="info_blanco_joyeros_imagen">Alianza de diamantes junto a una lupa de joyero</string>
+    <string name="info_version">Versión %1$s</string>
 </resources>
