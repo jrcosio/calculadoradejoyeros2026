@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +46,7 @@ import com.jrblanco.calculadoradejoyeros2021.BuildConfig
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.ui.components.DiamondDivider
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryScaffold
+import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryRadius
@@ -178,7 +178,7 @@ private fun Titulo(modifier: Modifier = Modifier) {
 /** Quién ha hecho la app: foto, nombre, propósito y perfil profesional. */
 @Composable
 private fun PerfilCard(modifier: Modifier = Modifier) {
-    TarjetaDorada(modifier) {
+    TarjetaAcento(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(R.drawable.foto_jrblanco),
@@ -225,7 +225,7 @@ private fun PerfilCard(modifier: Modifier = Modifier) {
 /** Mención a la joyería. Es informativa: no se puede pulsar y no lo aparenta. */
 @Composable
 private fun BlancoJoyerosCard(modifier: Modifier = Modifier) {
-    TarjetaDorada(modifier) {
+    TarjetaAcento(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(R.drawable.logo_blanco_joyeros),
@@ -384,35 +384,6 @@ private fun InfoEnlace.urlVisible(): String = url.removePrefix("https://www.")
  */
 private val AcentoLinkedIn = Color(0xFF3BA5E0)
 private val AcentoInstagram = Color(0xFFE8497F)
-
-/**
- * Envoltorio de tarjeta con el lenguaje visual de `ModuleCard`: esquina grande, degradado
- * que arranca del acento y se apaga, y filete del acento.
- */
-@Composable
-private fun TarjetaDorada(
-    modifier: Modifier = Modifier,
-    contenido: @Composable ColumnScope.() -> Unit,
-) {
-    val shape = RoundedCornerShape(JewelryRadius.Large)
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        JewelryColors.GoldPrimary.copy(alpha = 0.14f),
-                        JewelryColors.Surface,
-                        JewelryColors.Surface,
-                    ),
-                ),
-                shape,
-            )
-            .border(1.dp, JewelryColors.GoldPrimary.copy(alpha = 0.65f), shape)
-            .padding(JewelrySpacing.Md),
-        content = contenido,
-    )
-}
 
 @Preview(showBackground = true, widthDp = 411, heightDp = 891)
 @Composable

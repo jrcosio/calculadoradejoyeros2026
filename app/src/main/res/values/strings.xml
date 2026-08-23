@@ -51,4 +51,30 @@
     <string name="info_blanco_joyeros_logo">Logotipo de Blanco Joyeros</string>
     <string name="info_blanco_joyeros_imagen">Alianza de diamantes junto a una lupa de joyero</string>
     <string name="info_version">Versión %1$s</string>
+
+    <!-- Calculadora de aleaciones de oro -->
+    <string name="oro_entrada_titulo">Introduce el oro de 24K</string>
+    <string name="oro_entrada_unidad">gr</string>
+    <string name="oro_entrada_imagen">Dos lingotes de oro fino de 999 milésimas</string>
+    <string name="oro_seccion_ley">Tipo de oro</string>
+    <string name="oro_seccion_color">Color del oro</string>
+    <string name="oro_ley_18k">18 K</string>
+    <string name="oro_ley_14k">14 K</string>
+    <string name="oro_ley_12k">12 K</string>
+    <string name="oro_ley_9k">9 K</string>
+    <string name="oro_color_amarillo">Amarillo</string>
+    <string name="oro_color_blanco">Blanco</string>
+    <string name="oro_color_rosa">Rosa</string>
+    <string name="oro_color_rojo">Rojo</string>
+    <string name="oro_metal_plata">Plata fina</string>
+    <string name="oro_metal_cobre">Cobre</string>
+    <string name="oro_metal_paladio">Paladio</string>
+    <string name="oro_metal_plata_imagen">Dos lingotes de plata fina</string>
+    <string name="oro_metal_cobre_imagen">Dos lingotes de cobre marcados con el símbolo Cu</string>
+    <string name="oro_metal_paladio_imagen">Dos lingotes de paladio marcados con el símbolo Pd</string>
+    <string name="oro_total">Total de oro %1$s:</string>
+    <string name="oro_aviso_12k">500‰ / 12 K se incluye únicamente como referencia técnica de cálculo. No es una de las leyes oficiales de oro previstas para comercialización en España.</string>
+    <string name="oro_limpiar">Limpiar</string>
+    <string name="oro_guardar_favoritos">Guardar en favoritos</string>
+    <string name="oro_proximamente">Próximamente</string>
 </resources>

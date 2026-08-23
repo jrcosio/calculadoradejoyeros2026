@@ -83,3 +83,15 @@ val TitleSerif = TextStyle(
     fontSize = 44.sp,
     lineHeight = 48.sp,
 )
+
+/**
+ * Cifra protagonista de las calculadoras: la cantidad que se teclea y los gramos de
+ * cada metal. Fuera de [Typography] por el mismo motivo que [TitleSerif]: no es un rol
+ * de Material. En Manrope — la serif sigue reservada a la portada.
+ */
+val CifraGrande = TextStyle(
+    fontFamily = Manrope,
+    fontWeight = FontWeight.Bold,
+    fontSize = 34.sp,
+    lineHeight = 40.sp,
+)

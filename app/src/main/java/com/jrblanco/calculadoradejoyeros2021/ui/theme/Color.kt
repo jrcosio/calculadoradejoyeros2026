@@ -34,6 +34,13 @@ object JewelryColors {
     val TealPrimary = Color(0xFF14B8B8)
     val TealDark = Color(0xFF087D82)
 
+    // Colores de aleación: cada oro se selecciona en su propio tono. El amarillo usa
+    // [GoldPrimary] y el blanco [TealPrimary]; estos dos son los que faltaban.
+    // Aclarados respecto al oro rosa y rojo reales para que el texto oscuro que va
+    // encima de la píldora siga contrastando.
+    val RoseGold = Color(0xFFEB90A8)
+    val RedGold = Color(0xFFE85D45)
+
     // Texto
     val TextPrimary = Color(0xFFF7F7F5)
     val TextSecondary = Color(0xFFB8BEC3)
