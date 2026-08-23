@@ -162,10 +162,12 @@ fun OroContent(
             )
 
             uiState.resultado?.let { resultado ->
-                TarjetaAcento(acento = JewelryColors.TealPrimary) {
+                // Los resultados acompañan al color del oro que se está calculando.
+                val acento = uiState.color.acento
+                TarjetaAcento(acento = acento) {
                     resultado.metales.forEachIndexed { indice, metal ->
                         if (indice > 0) Spacer(Modifier.height(JewelrySpacing.Md))
-                        FilaMetal(metal)
+                        FilaMetal(metal, acento)
                     }
                 }
 
@@ -386,6 +388,7 @@ private fun CabeceraSeccion(
 @Composable
 private fun FilaMetal(
     metal: MetalCalculado,
+    acento: Color,
     modifier: Modifier = Modifier,
 ) {
     val presentacion = metal.metal.presentacion()
@@ -412,6 +415,8 @@ private fun FilaMetal(
         )
 
         LineaPunteada(
+            // Apagada para que guíe el ojo sin competir con la cifra.
+            color = acento.copy(alpha = 0.55f),
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = JewelrySpacing.Sm),
@@ -420,7 +425,7 @@ private fun FilaMetal(
         Text(
             text = metal.gramosFormateados,
             style = CifraGrande.copy(fontSize = 26.sp, lineHeight = 32.sp),
-            color = JewelryColors.TealPrimary,
+            color = acento,
         )
 
         Spacer(Modifier.width(JewelrySpacing.Xs))
@@ -435,10 +440,13 @@ private fun FilaMetal(
 
 /** Línea de puntos que guía el ojo del nombre del metal a su cifra. */
 @Composable
-private fun LineaPunteada(modifier: Modifier = Modifier) {
+private fun LineaPunteada(
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
     Canvas(modifier = modifier.height(2.dp)) {
         drawLine(
-            color = JewelryColors.TealDark,
+            color = color,
             start = Offset(0f, center.y),
             end = Offset(size.width, center.y),
             strokeWidth = 2.dp.toPx(),

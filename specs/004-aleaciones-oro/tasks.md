@@ -202,7 +202,9 @@ cuatro opciones en teal; ahora cada una usa el tono de su oro.
 - [X] T040 Añadir a `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/theme/Color.kt` los tokens `RoseGold` (`0xFFEB90A8`) y `RedGold` (`0xFFE85D45`), aclarados respecto al oro rosa y rojo reales para que el texto oscuro de la píldora siga contrastando. Amarillo reutiliza `GoldPrimary` y blanco se queda en `TealPrimary`, que es el que gustaba.
 - [X] T041 Mover el acento de `SelectorSegmentado` de la fila a la opción: nuevo `data class OpcionSegmento(etiqueta, acento = GoldPrimary)` en `ui/components/SelectorSegmentado.kt`, y en `ui/oro/OroScreen.kt` mapear `ColorOro.acento` (amarillo → dorado, blanco → teal, rosa → `RoseGold`, rojo → `RedGold`). Las leyes siguen todas en dorado usando el valor por defecto: lo que distingue a una ley no es un color. La API de `OroContent` no cambia, así que los tests siguen valiendo tal cual.
 
+- [X] T042 Extender el tono del oro elegido a la tarjeta de resultados en `ui/oro/OroScreen.kt`: `TarjetaAcento` toma `uiState.color.acento`, y `FilaMetal` recibe ese acento para la cifra y para la línea de puntos (al 55 % de opacidad, para que guíe sin competir con la cifra); `LineaPunteada` pasa a recibir su color en lugar de tenerlo cableado. La tarjeta de total, las unidades «gr» y los botones se quedan en dorado: es el color de «valor y acción principal» de la paleta, y con amarillo seleccionado las dos tarjetas se siguen distinguiendo por composición y borde.
+
 **Verificado** (emulador Pixel_10): las cuatro píldoras se pintan en su tono con el
-check y la etiqueta legibles en oscuro sobre cada uno; 44 tests unitarios y 22
-instrumentados siguen en verde. La tarjeta de resultados se mantiene en teal, como el
-mockup.
+check y la etiqueta legibles en oscuro sobre cada uno, y la tarjeta de resultados
+acompaña al color elegido (comprobado en amarillo, rosa y rojo, con el total siempre
+en dorado); 44 tests unitarios y 22 instrumentados siguen en verde.
