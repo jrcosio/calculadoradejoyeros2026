@@ -10,6 +10,10 @@ import kotlinx.serialization.Serializable
  */
 sealed interface Route {
 
+    /** Portada. Destino inicial en cada arranque. */
+    @Serializable
+    data object Welcome : Route
+
     @Serializable
     data object Home : Route
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        Padre oscuro. Antes heredaba de Theme.Material.Light.NoActionBar, que pintaba
-        de blanco el splash del sistema en Android 12+ y provocaba un fogonazo justo
-        antes de la portada azul marino.
+        Android 12+ dibuja su propio splash con el icono del lanzador. Sin esto usaría
+        windowBackground del tema del sistema y volvería el destello claro.
     -->
     <style name="Theme.Calculadoradejoyeros2021" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/brand_splash_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_splash_background</item>
     </style>
 </resources>
