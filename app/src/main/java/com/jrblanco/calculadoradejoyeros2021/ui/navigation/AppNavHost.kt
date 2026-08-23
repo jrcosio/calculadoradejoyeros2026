@@ -13,6 +13,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.MainTab
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeModule
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
+import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.welcome.WelcomeScreen
 
@@ -91,7 +92,7 @@ fun AppNavHost(
         // --- Secciones de módulo: pantalla completa, con flecha de retroceso ---
 
         composable<Route.Oro> {
-            PlaceholderScreen(stringResource(R.string.modulo_oro_titulo), "oro", onInfo, onBack = onBack)
+            OroScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Plata> {
             PlaceholderScreen(stringResource(R.string.modulo_plata_titulo), "plata", onInfo, onBack = onBack)
