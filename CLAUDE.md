@@ -62,8 +62,17 @@ Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
 fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/FirebaseModule.kt`,
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
+La capa `domain/` dejó de estar vacía con la feature 004: el motor de aleaciones de oro
+vive en `domain/model/` (recetas en `RecetasOro` como **única fuente de verdad**, con
+`BigDecimal` construido desde literales `String`) y `domain/usecase/` (cálculo directo e
+inverso, registrados en `domainModule` con `factoryOf`). El motor no redondea pasos
+intermedios y sus divisiones redondean **a favor de la ley** (nunca por debajo de la
+objetivo); el redondeo a 3 decimales es exclusivo del ViewModel.
+
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
 es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
+`ui/oro/` es el tercero: formulario reactivo sobre un motor de dominio, con el estado
+ya formateado en el `UiState`.
 
 ### Componentes compartidos
 
@@ -82,6 +91,11 @@ es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces ex
 - **`DiamondDivider`** (en `Ornamentos.kt`) — filete dorado con rombo al centro. Nació
   privado en la portada; lo comparten ahora la portada y las tarjetas de información.
   `widthFraction` lo ajusta al hueco: 0.7 en pantalla completa, 1 dentro de una tarjeta.
+- **`TarjetaAcento`** (en `Tarjetas.kt`) — envoltorio de tarjeta con degradado y borde
+  del color de acento (dorado por defecto). Nació privada en Info como `TarjetaDorada`;
+  la comparten Info y la calculadora de oro (que la usa también en teal).
+- **`SelectorSegmentado`** — fila de opciones excluyentes con píldora degradada y check
+  en el acento. Hecho a mano: `SegmentedButton` de Material impone su geometría.
 
 `JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
 `NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
@@ -100,7 +114,7 @@ nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 ### Pantallas aún sin desarrollar
 
 `ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-seis destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
+cinco destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
 estable para telemetría, que no debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
 
