@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">calculadoradejoyeros2021</string>
+    <string name="app_name">Calculadora de Joyeros</string>
+
+    <!-- Pantalla de inicio -->
+    <string name="welcome_title">Calculadora\nde Joyeros</string>
+    <string name="welcome_subtitle">Precisión y cálculo para tu taller</string>
+    <string name="welcome_start">Comenzar</string>
+    <string name="welcome_developer">Desarrollado por José Ramón Blanco</string>
+    <string name="welcome_logo_description">Logotipo de Calculadora de Joyeros: un lingote de oro sobre un calibre y un teclado de calculadora</string>
 </resources>

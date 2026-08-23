@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!--
+        Colores del sistema (XML), solo para lo que Compose no controla: el fondo de
+        ventana y el splash del sistema. La paleta de la app vive en
+        ui/theme/Color.kt, que es la fuente de verdad.
+
+        Este azul es el del fondo_taller, no el Background #071018 de la design spec:
+        así el arranque encadena con la portada sin cambio de tono.
+    -->
+    <color name="brand_splash_background">#FF0C1A2B</color>
 </resources>
