@@ -165,8 +165,9 @@ en cada checkpoint y validar la historia sola.
 
 - **Puertas de calidad**: `:app:testDebugUnitTest` en verde (44 tests: 15 del motor, 13 de
   `OroViewModel`, más los de las features 001–003 y `KoinModulesTest` verificando el
-  `domainModule` estrenado); `:app:assembleDebug`, `:app:lint` (sin avisos nuevos; los 9
-  existentes son preexistentes del proyecto), `:app:connectedDebugAndroidTest` (22 tests,
+  `domainModule` estrenado); `:app:assembleDebug`, `:app:lint` (sin avisos nuevos; los 11
+  que salen son preexistentes del proyecto: versiones de dependencias, iconos del
+  launcher y manifiesto), `:app:connectedDebugAndroidTest` (22 tests,
   9 nuevos de `OroScreenTest`) y `:app:assembleRelease` con subida de mapping a
   Crashlytics, todo en verde.
 - **T035 visual**: pantalla verificada contra el mockup en emulador — tarjeta de entrada
