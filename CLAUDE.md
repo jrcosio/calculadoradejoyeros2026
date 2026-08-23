@@ -55,7 +55,7 @@ Todo cuelga de `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/`.
 |---|---|---|
 | `domain/` | `model/`, `repository/` (interfaces), `usecase/` | `android.*`, `androidx.*`, `com.google.firebase.*`, `data.*` |
 | `data/` | `source/remote/`, `source/local/`, `repository/` (implementaciones) | `ui.*` |
-| `ui/` | `navigation/`, una carpeta por pantalla, `theme/` | `data.*` |
+| `ui/` | `navigation/`, `theme/`, `components/` (reutilizables), `placeholder/`, y una carpeta por pantalla | `data.*` |
 | `core/` | `di/` (módulos Koin), `ui/UiState.kt`, `util/DispatcherProvider.kt` | — |
 
 Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
@@ -63,6 +63,39 @@ fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/Fir
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva.
+
+### Componentes compartidos
+
+`ui/components/` tiene el armazón que usan todas las pantallas salvo la portada:
+
+- **`JewelryScaffold`** — barra superior, contenido y barra inferior opcional. **Cada
+  pantalla declara aquí su propio *chrome***; no hay un `Scaffold` global que deduzca
+  las barras husmeando la ruta actual.
+- **`JewelryTopBar`** — sin `title` pinta el logo centrado (zonas principales); con
+  `title` y `onBack` pinta flecha y nombre de sección.
+- **`JewelryBottomBar`** — solo en Home, Favoritos y Ajustes. `MainTab` es su enum de
+  destinos.
+- **`ModuleCard`** — tarjeta del menú, con color de acento por módulo.
+
+`JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
+`NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
+impone un contenedor opaco que taparía el fondo. Ambos están escritos a mano a
+propósito.
+
+### Iconos
+
+**`material-icons` no está en el classpath**: Material 3 1.4.0 dejó de arrastrarlo, así
+que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawable`
+(`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`), de trazo
+1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Si necesitas uno
+nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
+
+### Pantallas aún sin desarrollar
+
+`ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
+siete destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
+estable para telemetría, que no debe traducirse). Cuando un destino reciba su feature
+real, cambia solo su cableado en `AppNavHost`.
 
 ### Contrato de ViewModel
 
