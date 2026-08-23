@@ -7,4 +7,34 @@
     <string name="welcome_start">Comenzar</string>
     <string name="welcome_developer">Desarrollado por José Ramón Blanco</string>
     <string name="welcome_logo_description">Logotipo de Calculadora de Joyeros: un lingote de oro sobre un calibre y un teclado de calculadora</string>
+
+    <!-- Módulos del menú principal -->
+    <string name="modulo_oro_titulo">Aleaciones de ORO</string>
+    <string name="modulo_oro_descripcion">Cálculos básicos para obtener aleaciones de oro de 22K, 18K, 14K, 12K y 9K.</string>
+    <string name="modulo_oro_imagen">Dos lingotes de oro marcados con el símbolo Au</string>
+
+    <string name="modulo_plata_titulo">Aleaciones de PLATA</string>
+    <string name="modulo_plata_descripcion">Cálculos básicos para obtener aleaciones de plata.</string>
+    <string name="modulo_plata_imagen">Dos lingotes de plata marcados con el símbolo Ag</string>
+
+    <string name="modulo_soldaduras_titulo">Soldaduras de Oro y Plata</string>
+    <string name="modulo_soldaduras_descripcion">Calcula las aleaciones de soldadura de ley y otras propiedades.</string>
+    <string name="modulo_soldaduras_imagen">Soplete de joyero encendido</string>
+
+    <string name="modulo_herramientas_titulo">Herramientas</string>
+    <string name="modulo_herramientas_descripcion">Calculadoras especializadas y utilidades para joyería.</string>
+    <string name="modulo_herramientas_imagen">Calibre digital, lupa de joyero, pinzas y un útil de taller</string>
+
+    <!-- Barra inferior -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favoritos">Favoritos</string>
+    <string name="nav_ajustes">Ajustes</string>
+
+    <!-- Barra superior -->
+    <string name="topbar_info">Información de la app</string>
+    <string name="topbar_atras">Volver</string>
+
+    <!-- Pantallas aún sin desarrollar -->
+    <string name="pantalla_acerca_de">Acerca de</string>
+    <string name="placeholder_pendiente">Pantalla en construcción</string>
 </resources>

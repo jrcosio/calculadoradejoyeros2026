@@ -1,67 +1,64 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.home
 
 import app.cash.turbine.test
-import com.jrblanco.calculadoradejoyeros2021.core.util.DispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
 
-    private val testDispatcher = StandardTestDispatcher()
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
 
-    private val dispatchers = object : DispatcherProvider {
-        override val main: CoroutineDispatcher = testDispatcher
-        override val io: CoroutineDispatcher = testDispatcher
-        override val default: CoroutineDispatcher = testDispatcher
-    }
-
-    @Before
-    fun setUp() {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `arranca en estado no listo y pasa a listo con el titulo`() = runTest(testDispatcher) {
-        val viewModel = HomeViewModel(analytics, dispatchers)
+    fun `expone los cuatro modulos en el orden del menu`() = runTest {
+        val viewModel = HomeViewModel(analytics)
 
         viewModel.uiState.test {
-            val initial = awaitItem()
-            assertTrue("El estado inicial no debe estar listo", !initial.isReady)
-
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            val ready = awaitItem()
-            assertTrue(ready.isReady)
-            assertEquals("Calculadora de Joyeros", ready.title)
+            assertEquals(
+                listOf(
+                    HomeModule.ORO,
+                    HomeModule.PLATA,
+                    HomeModule.SOLDADURAS,
+                    HomeModule.HERRAMIENTAS,
+                ),
+                awaitItem().modules,
+            )
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `registra la vista de pantalla al abrirse`() = runTest(testDispatcher) {
-        HomeViewModel(analytics, dispatchers)
-        testDispatcher.scheduler.advanceUntilIdle()
+    fun `registra la vista de pantalla al construirse`() {
+        HomeViewModel(analytics)
 
         verify(exactly = 1) { analytics.logScreenView("home") }
+    }
+
+    @Test
+    fun `registra el modulo elegido con su identificador`() {
+        val viewModel = HomeViewModel(analytics)
+
+        viewModel.onModuleClicked(HomeModule.SOLDADURAS)
+
+        verify(exactly = 1) {
+            analytics.logEvent("home_modulo_abierto", mapOf("modulo" to "soldaduras"))
+        }
+    }
+
+    @Test
+    fun `cada modulo se registra con un identificador distinto`() {
+        val viewModel = HomeViewModel(analytics)
+
+        HomeModule.entries.forEach { viewModel.onModuleClicked(it) }
+
+        HomeModule.entries.forEach { module ->
+            verify(exactly = 1) {
+                analytics.logEvent("home_modulo_abierto", mapOf("modulo" to module.analyticsId))
+            }
+        }
+        assertEquals(4, HomeModule.entries.map { it.analyticsId }.distinct().size)
     }
 }
