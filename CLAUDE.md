@@ -62,7 +62,8 @@ Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
 fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/FirebaseModule.kt`,
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
-`ui/home/` es la pantalla de referencia: copia su forma al crear una nueva.
+`ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
+es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
 
 ### Componentes compartidos
 
@@ -72,10 +73,15 @@ que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepositor
   pantalla declara aquí su propio *chrome***; no hay un `Scaffold` global que deduzca
   las barras husmeando la ruta actual.
 - **`JewelryTopBar`** — sin `title` pinta el logo centrado (zonas principales); con
-  `title` y `onBack` pinta flecha y nombre de sección.
+  `title` y `onBack` pinta flecha y nombre de sección. `onInfo` es **nulable**: la
+  pantalla de información lo pasa a `null` y el icono se cambia por un hueco de 48 dp,
+  porque un atajo a la pantalla en la que ya estás no significa nada.
 - **`JewelryBottomBar`** — solo en Home, Favoritos y Ajustes. `MainTab` es su enum de
   destinos.
 - **`ModuleCard`** — tarjeta del menú, con color de acento por módulo.
+- **`DiamondDivider`** (en `Ornamentos.kt`) — filete dorado con rombo al centro. Nació
+  privado en la portada; lo comparten ahora la portada y las tarjetas de información.
+  `widthFraction` lo ajusta al hueco: 0.7 en pantalla completa, 1 dentro de una tarjeta.
 
 `JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
 `NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
@@ -86,14 +92,15 @@ propósito.
 
 **`material-icons` no está en el classpath**: Material 3 1.4.0 dejó de arrastrarlo, así
 que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawable`
-(`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`), de trazo
+(`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`,
+`ic_linkedin`, `ic_instagram`, `ic_enlace_externo`), de trazo
 1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Si necesitas uno
 nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 
 ### Pantallas aún sin desarrollar
 
 `ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-siete destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
+seis destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
 estable para telemetría, que no debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
 

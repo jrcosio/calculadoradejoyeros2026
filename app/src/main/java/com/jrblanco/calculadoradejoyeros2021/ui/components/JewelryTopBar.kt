@@ -31,11 +31,13 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
  * - **Zonas principales** (Home, Favoritos, Ajustes): logo centrado.
  * - **Secciones de módulo**: flecha de retroceso y nombre de la sección.
  *
- * El acceso a información va siempre a la derecha.
+ * El acceso a información va a la derecha en todas las pantallas menos en la propia
+ * pantalla de información, que pasa [onInfo] nulo: un atajo a la pantalla en la que ya
+ * estás no significa nada.
  */
 @Composable
 fun JewelryTopBar(
-    onInfo: () -> Unit,
+    onInfo: (() -> Unit)?,
     modifier: Modifier = Modifier,
     title: String? = null,
     onBack: (() -> Unit)? = null,
@@ -88,12 +90,17 @@ fun JewelryTopBar(
                 }
             }
 
-            IconButton(onClick = onInfo) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_info),
-                    contentDescription = stringResource(R.string.topbar_info),
-                    tint = JewelryColors.GoldPrimary,
-                )
+            if (onInfo != null) {
+                IconButton(onClick = onInfo) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_info),
+                        contentDescription = stringResource(R.string.topbar_info),
+                        tint = JewelryColors.GoldPrimary,
+                    )
+                }
+            } else {
+                // Mismo hueco que ocuparía el botón: sin él, el logo se iría a la derecha.
+                Box(Modifier.size(48.dp))
             }
         }
 

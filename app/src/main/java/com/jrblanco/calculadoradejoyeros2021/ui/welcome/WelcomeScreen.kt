@@ -7,10 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -23,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shadow
@@ -38,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jrblanco.calculadoradejoyeros2021.R
+import com.jrblanco.calculadoradejoyeros2021.ui.components.DiamondDivider
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryRadius
@@ -156,39 +154,6 @@ private fun GoldTitle(text: String, modifier: Modifier = Modifier) {
         ),
         textAlign = TextAlign.Center,
         modifier = modifier.semantics { heading() },
-    )
-}
-
-/** Ornamento: línea fina dorada, rombo, línea fina dorada. */
-@Composable
-private fun DiamondDivider(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth(fraction = 0.7f),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        GoldHairline(Modifier.weight(1f))
-        Box(
-            modifier = Modifier
-                .padding(horizontal = JewelrySpacing.Md)
-                .size(8.dp)
-                .rotate(45f)
-                .background(JewelryColors.GoldPrimary),
-        )
-        GoldHairline(Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun GoldHairline(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(1.dp)
-            .background(
-                Brush.horizontalGradient(
-                    listOf(JewelryColors.GoldSecondary.copy(alpha = 0f), JewelryColors.GoldSecondary),
-                ),
-            ),
     )
 }
 
