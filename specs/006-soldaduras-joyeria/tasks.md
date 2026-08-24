@@ -255,7 +255,7 @@ cinco durezas, base necesaria y total.
 elegir ORO LEY, introducir 2 g con muy floja y comprobar base 6,667 g y total 8,667 g;
 recorrer durezas y colores contra §5.4.
 
-- [ ] T023 [P] [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasUiState.kt`:
+- [X] T023 [P] [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasUiState.kt`:
   `enum class FamiliaSoldadura { ORO_LEY, CLASICA, PLATA }` y
   `enum class ModoEntradaSoldadura { DESDE_METAL, PESO_FINAL }` (ambos con `analyticsId`),
   `enum class IngredienteSoldadura { BASE, ORO_24K, ORO_18K, PLATA_FINA, LATON, COBRE, ZINC, CADMIO }`,
@@ -267,7 +267,7 @@ recorrer durezas y colores contra §5.4.
   y la fila de oro 18K necesita el color para su etiqueta; las cifras viajan formateadas y
   el valor exacto vive solo en el motor. Son conceptos de UI, como `HomeModule`: ningún
   caso de uso los recibe. **Depende de T022**.
-- [ ] T024 [P] [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/PresentacionSoldadura.kt`
+- [X] T024 [P] [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/PresentacionSoldadura.kt`
   (interno al paquete): mapeos privados de presentación `IngredienteSoldadura → imagenRes /
   imagenDescripcionRes / nombreRes` — BASE → `granalla.png` + `soldadura_granalla_imagen` +
   `soldadura_fila_base`; ORO_24K → `modulo_oro` + `metal_oro_24k`; ORO_18K → `modulo_oro` +
@@ -277,7 +277,7 @@ recorrer durezas y colores contra §5.4.
   (GoldPrimary/TealPrimary/RoseGold)`, el mismo mapeo de acento que usa la calculadora de
   oro. `domain/` no conoce Android: el mapeo vive aquí (patrón `LeyPlata.etiquetaRes`).
   **Depende de T001, T002 y T023**.
-- [ ] T025 [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasViewModel.kt`:
+- [X] T025 [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasViewModel.kt`:
   constructor con los seis casos de uso con UI (`CalcularSoldaduraClasicaUseCase`,
   `CalcularSoldaduraClasicaInversaUseCase`, `CalcularSoldaduraPlataUseCase`,
   `CalcularSoldaduraPlataInversaUseCase`, `CalcularSoldaduraLeyDesdeOroUseCase`,
@@ -298,10 +298,10 @@ recorrer durezas y colores contra §5.4.
   deduplicada por combinación (data class privada, patrón `OroViewModel`), rearmada cuando
   la entrada pasa a inválida; nunca la cantidad (FR-027). Sin corrutinas: el cálculo es
   síncrono. **Depende de T023**.
-- [ ] T026 [US1] Registrar `viewModelOf(::SoldadurasViewModel)` en
+- [X] T026 [US1] Registrar `viewModelOf(::SoldadurasViewModel)` en
   `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/core/di/ViewModelModule.kt`.
   **Depende de T025**.
-- [ ] T027 [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasScreen.kt`
+- [X] T027 [US1] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasScreen.kt`
   con el contrato de pantalla: `SoldadurasScreen(onInfo, onBack, onSoldaduraBase, modifier, viewModel = koinViewModel())`
   que colecta con `collectAsStateWithLifecycle()`, y `SoldadurasContent(uiState, callbacks…, modifier)`
   sin estado con `@Preview(widthDp = 411, heightDp = 891)` privadas (primera visita y ORO
@@ -329,12 +329,12 @@ recorrer durezas y colores contra §5.4.
   4. En `AppNavHost` de esta tarea el callback `onSoldaduraBase` queda propagado pero la
      ruta destino llega en la US2 (aquí se pasa una lambda vacía).
   **Depende de T021, T024, T025 y T026**.
-- [ ] T028 [US1] Sustituir en `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/navigation/AppNavHost.kt`
+- [X] T028 [US1] Sustituir en `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/navigation/AppNavHost.kt`
   el `composable<Route.Soldaduras> { PlaceholderScreen(...) }` por
   `SoldadurasScreen(onInfo = onInfo, onBack = onBack, onSoldaduraBase = {})` (la ruta de la
   base se cablea en la US2). `Route.Soldaduras`, `HomeModule.SOLDADURAS` y la tarjeta de
   Home ya existen y no se tocan (FR-001, SC-011). **Depende de T027**.
-- [ ] T029 [P] [US1] Crear `app/src/test/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasViewModelTest.kt`
+- [X] T029 [P] [US1] Crear `app/src/test/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasViewModelTest.kt`
   (mockk relaxed **solo** para `AnalyticsRepository`, casos de uso reales, Turbine para el
   estado inicial): estado inicial = `SoldadurasUiState()` (familia null, sin resultado);
   `logScreenView("soldaduras")` en init; sin familia no hay cálculo ni evento aunque se
@@ -346,7 +346,7 @@ recorrer durezas y colores contra §5.4.
   duplica `soldaduras_calculado`; cambiar dureza sí, con
   `verify(exactly = …) { analytics.logEvent("soldaduras_calculado", mapOf("familia" to "oro_ley", "modo" to "desde_metal", "tipo" to …, "color" to …)) }`).
   **Depende de T025**.
-- [ ] T030 [P] [US1] Crear `app/src/androidTest/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasScreenTest.kt`
+- [X] T030 [P] [US1] Crear `app/src/androidTest/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldadurasScreenTest.kt`
   (monta `SoldadurasContent` directo, sin Koin, patrón `PlataScreenTest`; nombres
   camelCase con guion bajo; helper `montar(uiState, callbacks…)`): primera visita → existe
   el selector de familia y NO existen campo de cantidad, durezas ni botones; ningún

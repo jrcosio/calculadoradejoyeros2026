@@ -1,0 +1,183 @@
+package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
+
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isSelected
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.jrblanco.calculadoradejoyeros2021.R
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
+import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+/**
+ * Monta [SoldadurasContent] directo, sin Koin ni NavHost, igual que los tests de Home,
+ * Info, oro y plata.
+ */
+class SoldadurasScreenTest {
+
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    private val contexto = InstrumentationRegistry.getInstrumentation().targetContext
+    private fun texto(id: Int, vararg args: Any) = contexto.getString(id, *args)
+
+    private val estadoOroLey = SoldadurasUiState(
+        familia = FamiliaSoldadura.ORO_LEY,
+        cantidadTexto = "2",
+        resultado = ResultadoSoldaduras(
+            filas = listOf(FilaSoldadura(IngredienteSoldadura.BASE, "6,667")),
+            totalFormateado = "8,667",
+        ),
+    )
+
+    private fun montar(
+        uiState: SoldadurasUiState,
+        onFamiliaSeleccionada: (FamiliaSoldadura) -> Unit = {},
+        onModoCambiado: (ModoEntradaSoldadura) -> Unit = {},
+        onCantidadCambiada: (String) -> Unit = {},
+        onColorSeleccionado: (ColorOroSoldadura) -> Unit = {},
+        onDurezaSeleccionada: (DurezaSoldaduraLey) -> Unit = {},
+        onTipoClasicaSeleccionado: (TipoSoldaduraClasica) -> Unit = {},
+        onTipoPlataSeleccionado: (TipoSoldaduraPlata) -> Unit = {},
+        onSoldaduraBase: () -> Unit = {},
+        onLimpiar: () -> Unit = {},
+        onGuardarFavoritos: () -> Unit = {},
+    ) {
+        composeRule.setContent {
+            Calculadoradejoyeros2021Theme {
+                SoldadurasContent(
+                    uiState = uiState,
+                    onFamiliaSeleccionada = onFamiliaSeleccionada,
+                    onModoCambiado = onModoCambiado,
+                    onCantidadCambiada = onCantidadCambiada,
+                    onColorSeleccionado = onColorSeleccionado,
+                    onDurezaSeleccionada = onDurezaSeleccionada,
+                    onTipoClasicaSeleccionado = onTipoClasicaSeleccionado,
+                    onTipoPlataSeleccionado = onTipoPlataSeleccionado,
+                    onSoldaduraBase = onSoldaduraBase,
+                    onLimpiar = onLimpiar,
+                    onGuardarFavoritos = onGuardarFavoritos,
+                    onInfo = {},
+                    onBack = {},
+                )
+            }
+        }
+    }
+
+    // --- Primera visita (FR-002, SC-006) ---
+
+    @Test
+    fun primeraVisita_soloExisteElSelectorDeFamilias() {
+        montar(SoldadurasUiState())
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_familia_oro_ley)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_familia_clasica)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_familia_plata)).assertExists()
+
+        // Sin familia: ni campo, ni durezas, ni botón de la base.
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_dureza_muy_floja))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_ley_base_boton))
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun primeraVisita_ningunSegmentoDeFamiliaEstaSeleccionado() {
+        montar(SoldadurasUiState())
+
+        composeRule.onAllNodes(isSelected()).assertCountEquals(0)
+    }
+
+    @Test
+    fun pulsarUnaFamilia_propagaLaFamiliaEsperada() {
+        var seleccionada: FamiliaSoldadura? = null
+        montar(SoldadurasUiState(), onFamiliaSeleccionada = { seleccionada = it })
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_familia_oro_ley)).performClick()
+
+        assertEquals(FamiliaSoldadura.ORO_LEY, seleccionada)
+    }
+
+    // --- ORO LEY (FR-009, FR-010, FR-011) ---
+
+    @Test
+    fun conOroLey_lasCincoDurezasEstanVisibles() {
+        montar(estadoOroLey)
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_muy_floja)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_floja)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_media)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_fuerte)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_muy_fuerte)).assertExists()
+    }
+
+    @Test
+    fun conOroLey_hayTresColoresYNoExisteElRojo() {
+        montar(estadoOroLey)
+
+        composeRule.onNodeWithText(texto(R.string.oro_color_amarillo)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.oro_color_blanco)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.oro_color_rosa)).assertExists()
+        composeRule.onAllNodesWithText(texto(R.string.oro_color_rojo)).assertCountEquals(0)
+    }
+
+    @Test
+    fun pulsarUnaDureza_propagaLaDurezaEsperada() {
+        var seleccionada: DurezaSoldaduraLey? = null
+        montar(estadoOroLey, onDurezaSeleccionada = { seleccionada = it })
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_dureza_muy_fuerte)).performClick()
+
+        assertEquals(DurezaSoldaduraLey.MUY_FUERTE, seleccionada)
+    }
+
+    @Test
+    fun pulsarUnColor_propagaElColorEsperado() {
+        var seleccionado: ColorOroSoldadura? = null
+        montar(estadoOroLey, onColorSeleccionado = { seleccionado = it })
+
+        composeRule.onNodeWithText(texto(R.string.oro_color_rosa)).performClick()
+
+        assertEquals(ColorOroSoldadura.ROSA, seleccionado)
+    }
+
+    @Test
+    fun pulsarSoldaduraBase_propagaSuCallback() {
+        var pulsado = false
+        montar(estadoOroLey, onSoldaduraBase = { pulsado = true })
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_ley_base_boton)).performClick()
+
+        assertEquals(true, pulsado)
+    }
+
+    @Test
+    fun conResultado_seMuestranLaBaseNecesariaElTotalYLaNotaDeRedondeo() {
+        montar(estadoOroLey)
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_fila_base_necesaria)).assertExists()
+        composeRule.onNodeWithText("6,667").assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_total)).assertExists()
+        composeRule.onNodeWithText("8,667").assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_nota_redondeo)).assertExists()
+    }
+
+    @Test
+    fun sinResultado_noHayFilaDeBaseNiTotal() {
+        montar(estadoOroLey.copy(cantidadTexto = "", resultado = null))
+
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_fila_base_necesaria))
+            .assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_total)).assertCountEquals(0)
+    }
+}
