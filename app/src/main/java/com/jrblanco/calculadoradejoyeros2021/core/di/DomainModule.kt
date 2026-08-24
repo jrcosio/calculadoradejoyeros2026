@@ -1,7 +1,9 @@
 package com.jrblanco.calculadoradejoyeros2021.core.di
 
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionInversaOroUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionInversaPlataUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionOroUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionPlataUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -9,4 +11,6 @@ import org.koin.dsl.module
 val domainModule = module {
     factoryOf(::CalcularAleacionOroUseCase)
     factoryOf(::CalcularAleacionInversaOroUseCase)
+    factoryOf(::CalcularAleacionPlataUseCase)
+    factoryOf(::CalcularAleacionInversaPlataUseCase)
 }

@@ -52,9 +52,20 @@
     <string name="info_blanco_joyeros_imagen">Alianza de diamantes junto a una lupa de joyero</string>
     <string name="info_version">Versión %1$s</string>
 
+    <!-- Compartido: unidades, metales y acciones -->
+    <string name="unidad_gramos">gr</string>
+    <string name="metal_plata_fina">Plata fina</string>
+    <string name="metal_cobre">Cobre</string>
+    <string name="metal_paladio">Paladio</string>
+    <string name="metal_plata_fina_imagen">Dos lingotes de plata fina</string>
+    <string name="metal_cobre_imagen">Dos lingotes de cobre marcados con el símbolo Cu</string>
+    <string name="metal_paladio_imagen">Dos lingotes de paladio marcados con el símbolo Pd</string>
+    <string name="accion_limpiar">Limpiar</string>
+    <string name="accion_guardar_favoritos">Guardar en favoritos</string>
+    <string name="aviso_proximamente">Próximamente</string>
+
     <!-- Calculadora de aleaciones de oro -->
     <string name="oro_entrada_titulo">Introduce el oro de 24K</string>
-    <string name="oro_entrada_unidad">gr</string>
     <string name="oro_entrada_imagen">Dos lingotes de oro fino de 999 milésimas</string>
     <string name="oro_seccion_ley">Tipo de oro</string>
     <string name="oro_seccion_color">Color del oro</string>
@@ -66,15 +77,18 @@
     <string name="oro_color_blanco">Blanco</string>
     <string name="oro_color_rosa">Rosa</string>
     <string name="oro_color_rojo">Rojo</string>
-    <string name="oro_metal_plata">Plata fina</string>
-    <string name="oro_metal_cobre">Cobre</string>
-    <string name="oro_metal_paladio">Paladio</string>
-    <string name="oro_metal_plata_imagen">Dos lingotes de plata fina</string>
-    <string name="oro_metal_cobre_imagen">Dos lingotes de cobre marcados con el símbolo Cu</string>
-    <string name="oro_metal_paladio_imagen">Dos lingotes de paladio marcados con el símbolo Pd</string>
     <string name="oro_total">Total de oro %1$s:</string>
     <string name="oro_aviso_12k">500‰ / 12 K se incluye únicamente como referencia técnica de cálculo. No es una de las leyes oficiales de oro previstas para comercialización en España.</string>
-    <string name="oro_limpiar">Limpiar</string>
-    <string name="oro_guardar_favoritos">Guardar en favoritos</string>
-    <string name="oro_proximamente">Próximamente</string>
+
+    <!-- Calculadora de aleaciones de plata -->
+    <string name="plata_entrada_titulo">Introduce la plata fina 999‰</string>
+    <string name="plata_entrada_imagen">Dos lingotes de plata fina de 999 milésimas</string>
+    <string name="plata_seccion_ley">Milésimas de plata a obtener</string>
+    <string name="plata_ley_950">950</string>
+    <string name="plata_ley_925">925 (ley)</string>
+    <string name="plata_ley_900">900</string>
+    <string name="plata_ley_800">800 (ley)</string>
+    <string name="plata_total">Total de plata %1$s:</string>
+    <string name="plata_aviso_950">Plata 950‰: composición técnica. En España 950‰ no es una de las leyes oficiales de contraste de plata; supera la ley 925‰.</string>
+    <string name="plata_aviso_900">Plata 900‰: composición técnica. En España 900‰ no es una de las leyes oficiales de contraste de plata; supera la ley 800‰ pero no alcanza 925‰.</string>
 </resources>

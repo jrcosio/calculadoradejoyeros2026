@@ -1,5 +1,6 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.dp
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
@@ -61,4 +65,30 @@ fun GoldHairline(modifier: Modifier = Modifier) {
                 ),
             ),
     )
+}
+
+/**
+ * Línea de puntos que guía el ojo de un nombre a su cifra, en las filas de resultado de
+ * las calculadoras.
+ *
+ * Nació privada en la de oro; la comparte ahora la de plata. Recibe su color porque cada
+ * pantalla la pinta en el acento de lo que está calculando, apagado para que guíe sin
+ * competir con la cifra.
+ */
+@Composable
+fun LineaPunteada(
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier = modifier.height(2.dp)) {
+        drawLine(
+            color = color,
+            start = Offset(0f, center.y),
+            end = Offset(size.width, center.y),
+            strokeWidth = 2.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(
+                floatArrayOf(2.dp.toPx(), 5.dp.toPx()),
+            ),
+        )
+    }
 }
