@@ -4,6 +4,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderViewModel
+import com.jrblanco.calculadoradejoyeros2021.ui.plata.PlataViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.welcome.WelcomeViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -14,5 +15,6 @@ val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::InfoViewModel)
     viewModelOf(::OroViewModel)
+    viewModelOf(::PlataViewModel)
     viewModelOf(::PlaceholderViewModel)
 }
