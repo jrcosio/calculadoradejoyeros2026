@@ -216,6 +216,50 @@ class SoldadurasScreenTest {
         assertEquals(TipoSoldaduraClasica.MUY_FLOJA_LEY, seleccionado)
     }
 
+    // --- PLATA (FR-016) ---
+
+    @Test
+    fun conPlata_losCuatroTiposYLaNotaDeComposturasEstanVisibles() {
+        montar(SoldadurasUiState(familia = FamiliaSoldadura.PLATA))
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_muy_floja)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_floja)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_normal)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_fuerte)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_nota_muy_floja)).assertExists()
+    }
+
+    @Test
+    fun conPlataYResultado_seMuestraElLatonYElTotal() {
+        montar(
+            SoldadurasUiState(
+                familia = FamiliaSoldadura.PLATA,
+                cantidadTexto = "25",
+                resultado = ResultadoSoldaduras(
+                    filas = listOf(FilaSoldadura(IngredienteSoldadura.LATON, "18,750")),
+                    totalFormateado = "43,750",
+                ),
+            ),
+        )
+
+        composeRule.onNodeWithText(texto(R.string.metal_laton)).assertExists()
+        composeRule.onNodeWithText("18,750").assertExists()
+        composeRule.onNodeWithText("43,750").assertExists()
+    }
+
+    @Test
+    fun pulsarUnTipoDePlata_propagaElTipoEsperado() {
+        var seleccionado: TipoSoldaduraPlata? = null
+        montar(
+            SoldadurasUiState(familia = FamiliaSoldadura.PLATA),
+            onTipoPlataSeleccionado = { seleccionado = it },
+        )
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_plata_normal)).performClick()
+
+        assertEquals(TipoSoldaduraPlata.NORMAL, seleccionado)
+    }
+
     @Test
     fun sinResultado_noHayFilaDeBaseNiTotal() {
         montar(estadoOroLey.copy(cantidadTexto = "", resultado = null))

@@ -160,8 +160,11 @@ fun SoldadurasContent(
                     onCantidadCambiada = onCantidadCambiada,
                     onTipoClasicaSeleccionado = onTipoClasicaSeleccionado,
                 )
-                // La familia de plata llega en su propia historia.
-                FamiliaSoldadura.PLATA -> Unit
+                FamiliaSoldadura.PLATA -> FormularioPlata(
+                    uiState = uiState,
+                    onCantidadCambiada = onCantidadCambiada,
+                    onTipoPlataSeleccionado = onTipoPlataSeleccionado,
+                )
             }
         }
     }
@@ -295,6 +298,63 @@ private fun FormularioClasica(
             acentoFilas = JewelryColors.TealPrimary,
             etiquetaTotal = stringResource(R.string.soldadura_total),
             acentoTotal = JewelryColors.GoldPrimary,
+        )
+    }
+}
+
+/**
+ * El formulario de PLATA: latón respecto a la plata fina (§4), cuatro tipos y la nota de
+ * que la muy floja se recomienda para composturas (FR-016).
+ */
+@Composable
+private fun FormularioPlata(
+    uiState: SoldadurasUiState,
+    onCantidadCambiada: (String) -> Unit,
+    onTipoPlataSeleccionado: (TipoSoldaduraPlata) -> Unit,
+) {
+    TarjetaEntradaSoldadura(
+        cantidad = uiState.cantidadTexto,
+        onCantidadCambiada = onCantidadCambiada,
+        titulo = stringResource(
+            when (uiState.modo) {
+                ModoEntradaSoldadura.DESDE_METAL -> R.string.plata_entrada_titulo
+                ModoEntradaSoldadura.PESO_FINAL -> R.string.soldadura_entrada_peso_final
+            },
+        ),
+        imagenRes = R.drawable.modulo_plata,
+        imagenDescripcion = stringResource(R.string.plata_entrada_imagen),
+        acento = JewelryColors.SilverPrimary,
+        borde = JewelryColors.SilverDark,
+    )
+
+    CabeceraSeccion(
+        iconRes = R.drawable.ic_lingotes,
+        titulo = stringResource(R.string.soldadura_seccion_tipo),
+        tinte = JewelryColors.TealPrimary,
+    )
+    SelectorSegmentado(
+        opciones = TipoSoldaduraPlata.entries.map {
+            OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary)
+        },
+        seleccionada = uiState.tipoPlata.ordinal,
+        onSeleccion = { onTipoPlataSeleccionado(TipoSoldaduraPlata.entries[it]) },
+    )
+    // El asterisco de «Muy floja *» remite aquí (FR-016).
+    Text(
+        text = stringResource(R.string.soldadura_plata_nota_muy_floja),
+        style = MaterialTheme.typography.bodySmall,
+        color = JewelryColors.TextMuted,
+    )
+
+    uiState.resultado?.let { resultado ->
+        TarjetaResultado(
+            resultado = resultado,
+            colorOro = uiState.colorOro,
+            baseNecesaria = false,
+            acentoFilas = JewelryColors.TealPrimary,
+            etiquetaTotal = stringResource(R.string.soldadura_total),
+            // Lo que pesa al final es plata: el total en plateado, como su calculadora.
+            acentoTotal = JewelryColors.SilverPrimary,
         )
     }
 }
@@ -464,6 +524,14 @@ private val FamiliaSoldadura.acento: Color
         FamiliaSoldadura.ORO_LEY -> JewelryColors.GoldPrimary
         FamiliaSoldadura.CLASICA -> JewelryColors.GoldPrimary
         FamiliaSoldadura.PLATA -> JewelryColors.SilverPrimary
+    }
+
+private val TipoSoldaduraPlata.etiquetaRes: Int
+    get() = when (this) {
+        TipoSoldaduraPlata.MUY_FLOJA -> R.string.soldadura_plata_muy_floja
+        TipoSoldaduraPlata.FLOJA -> R.string.soldadura_plata_floja
+        TipoSoldaduraPlata.NORMAL -> R.string.soldadura_plata_normal
+        TipoSoldaduraPlata.FUERTE -> R.string.soldadura_plata_fuerte
     }
 
 private val TipoSoldaduraClasica.etiquetaRes: Int

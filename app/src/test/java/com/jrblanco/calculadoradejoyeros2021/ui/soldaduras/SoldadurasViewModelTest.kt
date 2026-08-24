@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraClasicaInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraClasicaUseCase
@@ -245,6 +246,59 @@ class SoldadurasViewModelTest {
         assertEquals("", estado.cantidadTexto)
         assertEquals(ModoEntradaSoldadura.DESDE_METAL, estado.modo)
         assertNull(estado.resultado)
+    }
+
+    // --- PLATA en modo directo (SC-001, SC-003) ---
+
+    @Test
+    fun `test 4 formateado - 25 gramos de plata muy floja muestran 18,750 de laton y 43,750`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.PLATA)
+
+        viewModel.onCantidadCambiada("25")
+
+        val resultado = viewModel.uiState.value.resultado
+        // Sin fila de la plata introducida (FR-022): solo el latón.
+        assertEquals(
+            listOf(FilaSoldadura(IngredienteSoldadura.LATON, "18,750")),
+            resultado?.filas,
+        )
+        assertEquals("43,750", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `test 5 formateado - 25 gramos de plata fuerte muestran 7,500 de laton y 32,500`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.PLATA)
+        viewModel.onTipoPlataSeleccionado(TipoSoldaduraPlata.FUERTE)
+
+        viewModel.onCantidadCambiada("25")
+
+        val resultado = viewModel.uiState.value.resultado
+        assertEquals("7,500", resultado?.filas?.single()?.gramosFormateados)
+        assertEquals("32,500", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `la tabla de plata del documento con 25 gramos en los cuatro tipos`() {
+        val esperados = mapOf(
+            TipoSoldaduraPlata.MUY_FLOJA to ("18,750" to "43,750"),
+            TipoSoldaduraPlata.FLOJA to ("12,500" to "37,500"),
+            TipoSoldaduraPlata.NORMAL to ("10,000" to "35,000"),
+            TipoSoldaduraPlata.FUERTE to ("7,500" to "32,500"),
+        )
+
+        esperados.forEach { (tipo, valores) ->
+            val (laton, total) = valores
+            val viewModel = crearViewModel()
+            viewModel.onFamiliaSeleccionada(FamiliaSoldadura.PLATA)
+            viewModel.onTipoPlataSeleccionado(tipo)
+            viewModel.onCantidadCambiada("25")
+
+            val resultado = viewModel.uiState.value.resultado
+            assertEquals("latón de $tipo", laton, resultado?.filas?.single()?.gramosFormateados)
+            assertEquals("total de $tipo", total, resultado?.totalFormateado)
+        }
     }
 
     // --- Telemetría deduplicada (FR-027) ---

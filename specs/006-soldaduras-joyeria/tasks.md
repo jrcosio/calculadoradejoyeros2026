@@ -455,19 +455,19 @@ advertencia de seguridad en la muy floja de ley.
 
 **Test independiente**: elegir PLATA y validar 25 g en los cuatro tipos contra §4.2.
 
-- [ ] T042 [US4] Ampliar `SoldadurasViewModel` con `onTipoPlataSeleccionado(tipo)` y el
+- [X] T042 [US4] Ampliar `SoldadurasViewModel` con `onTipoPlataSeleccionado(tipo)` y el
   cálculo de PLATA en modo directo con `CalcularSoldaduraPlataUseCase`: fila única de latón
   (la plata introducida no se repite, FR-022) y total. **Depende de T040 (US3 en verde)**.
-- [ ] T043 [US4] Ampliar `SoldadurasContent` con el formulario de PLATA: tarjeta de entrada
+- [X] T043 [US4] Ampliar `SoldadurasContent` con el formulario de PLATA: tarjeta de entrada
   plateada (imagen `modulo_plata`, título `plata_entrada_titulo` reutilizado,
   `CampoCantidad(acento = SilverPrimary, borde = SilverDark)`), selector de 4 tipos en teal
   (`soldadura_plata_*`) con la caption fija `soldadura_plata_nota_muy_floja` debajo
   (FR-016), y resultado: fila latón + `TarjetaTotal(soldadura_total, acento = SilverPrimary)`
   + nota de redondeo. **Depende de T042**.
-- [ ] T044 [P] [US4] Ampliar `SoldadurasViewModelTest`: **TEST 4 formateado** (25 g muy
+- [X] T044 [P] [US4] Ampliar `SoldadurasViewModelTest`: **TEST 4 formateado** (25 g muy
   floja → latón «18,750», total «43,750»), **TEST 5 formateado** (fuerte → «7,500» /
   «32,500»), floja y normal según §4.2. **Depende de T042**.
-- [ ] T045 [P] [US4] Ampliar `SoldadurasScreenTest`: con PLATA los 4 tipos y la nota de
+- [X] T045 [P] [US4] Ampliar `SoldadurasScreenTest`: con PLATA los 4 tipos y la nota de
   composturas son visibles; estado precocinado pinta la fila de latón y el total.
   **Depende de T043**.
 

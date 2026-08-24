@@ -106,8 +106,7 @@ class SoldadurasViewModel(
         val resultado = when (familia) {
             FamiliaSoldadura.ORO_LEY -> calcularOroLey(estado, cantidad)
             FamiliaSoldadura.CLASICA -> calcularFamiliaClasica(estado, cantidad)
-            // La familia de plata llega en su propia historia.
-            FamiliaSoldadura.PLATA -> return null
+            FamiliaSoldadura.PLATA -> calcularFamiliaPlata(estado, cantidad)
         }
 
         registrarCalculo(estado, familia)
@@ -165,6 +164,37 @@ class SoldadurasViewModel(
 
             ModoEntradaSoldadura.PESO_FINAL -> {
                 calculo = calcularClasicaInversa(cantidad, estado.tipoClasica)
+                filas = calculo.componentes
+                    .map { FilaSoldadura(it.metal.ingrediente, formatearGramos(it.gramos)) }
+            }
+        }
+
+        return ResultadoSoldaduras(filas = filas, totalFormateado = formatearGramos(calculo.total))
+    }
+
+    /**
+     * PLATA (§4). El factor es latón respecto a la plata fina, no sobre el peso final.
+     * En modo directo la plata introducida no se repite como fila (FR-022): solo el
+     * latón; en modo inverso se reparte el peso final entre plata y latón.
+     */
+    private fun calcularFamiliaPlata(
+        estado: SoldadurasUiState,
+        cantidad: BigDecimal,
+    ): ResultadoSoldaduras {
+        val calculo: CalculoSoldadura
+        val filas: List<FilaSoldadura>
+
+        when (estado.modo) {
+            ModoEntradaSoldadura.DESDE_METAL -> {
+                calculo = calcularPlata(cantidad, estado.tipoPlata)
+                // El primer componente es la plata introducida.
+                filas = calculo.componentes
+                    .drop(1)
+                    .map { FilaSoldadura(it.metal.ingrediente, formatearGramos(it.gramos)) }
+            }
+
+            ModoEntradaSoldadura.PESO_FINAL -> {
+                calculo = calcularPlataInversa(cantidad, estado.tipoPlata)
                 filas = calculo.componentes
                     .map { FilaSoldadura(it.metal.ingrediente, formatearGramos(it.gramos)) }
             }
