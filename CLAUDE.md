@@ -120,7 +120,13 @@ el selector de familias). Sus cinco bitmaps (`granalla`, `cadmio`, `zinc`, `lato
 
 - **`JewelryScaffold`** — barra superior, contenido y barra inferior opcional. **Cada
   pantalla declara aquí su propio *chrome***; no hay un `Scaffold` global que deduzca
-  las barras husmeando la ruta actual.
+  las barras husmeando la ruta actual. La app es edge-to-edge y los WindowInsets se
+  reparten así: `JewelryTopBar` consume la barra de estado, `JewelryBottomBar` la de
+  navegación, y **cuando la pantalla no lleva barra inferior es el scaffold quien
+  reserva ese hueco** (`windowInsetsPadding(navigationBars.only(Bottom))`) — sin eso,
+  los 3 botones de Android caen encima del contenido. No añadas insets inferiores en
+  las pantallas: ya vienen resueltos de aquí (los `imePadding()` no se duplican porque
+  Compose descuenta lo consumido).
 - **`JewelryTopBar`** — sin `title` pinta el logo centrado (zonas principales); con
   `title` y `onBack` pinta flecha y nombre de sección. `onInfo` es **nulable**: la
   pantalla de información lo pasa a `null` y el icono se cambia por un hueco de 48 dp,
