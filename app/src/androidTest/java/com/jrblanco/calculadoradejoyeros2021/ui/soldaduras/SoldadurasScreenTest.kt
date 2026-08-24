@@ -172,6 +172,50 @@ class SoldadurasScreenTest {
         composeRule.onNodeWithText(texto(R.string.soldadura_nota_redondeo)).assertExists()
     }
 
+    // --- CLÁSICA (FR-015, FR-017) ---
+
+    @Test
+    fun conClasicaMuyFlojaDeLey_elAvisoDeSeguridadEsVisible() {
+        montar(
+            SoldadurasUiState(
+                familia = FamiliaSoldadura.CLASICA,
+                tipoClasica = TipoSoldaduraClasica.MUY_FLOJA_LEY,
+            ),
+        )
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_aviso_seguridad)).assertExists()
+    }
+
+    @Test
+    fun conClasicaFloja_noHayAvisoDeSeguridad() {
+        montar(SoldadurasUiState(familia = FamiliaSoldadura.CLASICA))
+
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_aviso_seguridad))
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun enClasica_noExisteNingunSelectorDeColor() {
+        montar(SoldadurasUiState(familia = FamiliaSoldadura.CLASICA))
+
+        composeRule.onAllNodesWithText(texto(R.string.oro_color_amarillo)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.oro_color_blanco)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.oro_color_rosa)).assertCountEquals(0)
+    }
+
+    @Test
+    fun pulsarUnTipoClasico_propagaElTipoEsperado() {
+        var seleccionado: TipoSoldaduraClasica? = null
+        montar(
+            SoldadurasUiState(familia = FamiliaSoldadura.CLASICA),
+            onTipoClasicaSeleccionado = { seleccionado = it },
+        )
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_clasica_muy_floja_ley)).performClick()
+
+        assertEquals(TipoSoldaduraClasica.MUY_FLOJA_LEY, seleccionado)
+    }
+
     @Test
     fun sinResultado_noHayFilaDeBaseNiTotal() {
         montar(estadoOroLey.copy(cantidadTexto = "", resultado = null))

@@ -3,6 +3,7 @@ package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 import app.cash.turbine.test
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraClasicaInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraClasicaUseCase
@@ -155,6 +156,95 @@ class SoldadurasViewModelTest {
         val resultado = viewModel.uiState.value.resultado
         assertEquals("100000,000", resultado?.filas?.single()?.gramosFormateados)
         assertEquals("200000,000", resultado?.totalFormateado)
+    }
+
+    // --- CLÁSICA en modo directo, los casos de los mockups (SC-003) ---
+
+    @Test
+    fun `clasica floja con 10 gramos de oro muestra 4,000 de plata y 2,000 de laton`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        // Sin fila del oro introducido (FR-022).
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.PLATA_FINA, "4,000"),
+                FilaSoldadura(IngredienteSoldadura.LATON, "2,000"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("16,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `clasica fuerte con 10 gramos de oro muestra tres filas de 1,000`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+        viewModel.onTipoClasicaSeleccionado(TipoSoldaduraClasica.FUERTE)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        assertEquals(
+            listOf("1,000", "1,000", "1,000"),
+            resultado?.filas?.map { it.gramosFormateados },
+        )
+        assertEquals("13,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `clasica muy floja de ley con 10 gramos de oro fino muestra 1,000 1,600 y 1,800`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+        viewModel.onTipoClasicaSeleccionado(TipoSoldaduraClasica.MUY_FLOJA_LEY)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.PLATA_FINA, "1,000"),
+                FilaSoldadura(IngredienteSoldadura.LATON, "1,600"),
+                FilaSoldadura(IngredienteSoldadura.CADMIO, "1,800"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("14,400", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `cambiar el tipo de clasica recalcula y estrena evento sin color`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onTipoClasicaSeleccionado(TipoSoldaduraClasica.FUERTE)
+
+        assertEquals("13,000", viewModel.uiState.value.resultado?.totalFormateado)
+        // Las clásicas no llevan color (§8.1): el evento tampoco.
+        verify(exactly = 1) {
+            analytics.logEvent(
+                "soldaduras_calculado",
+                mapOf("familia" to "clasica", "modo" to "desde_metal", "tipo" to "fuerte"),
+            )
+        }
+    }
+
+    @Test
+    fun `cambiar de familia arranca el formulario limpio`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+
+        val estado = viewModel.uiState.value
+        assertEquals(FamiliaSoldadura.CLASICA, estado.familia)
+        assertEquals("", estado.cantidadTexto)
+        assertEquals(ModoEntradaSoldadura.DESDE_METAL, estado.modo)
+        assertNull(estado.resultado)
     }
 
     // --- Telemetría deduplicada (FR-027) ---

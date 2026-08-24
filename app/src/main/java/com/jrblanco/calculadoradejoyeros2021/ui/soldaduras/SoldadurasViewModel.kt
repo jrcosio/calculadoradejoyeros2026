@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import androidx.lifecycle.ViewModel
+import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
@@ -104,8 +105,8 @@ class SoldadurasViewModel(
 
         val resultado = when (familia) {
             FamiliaSoldadura.ORO_LEY -> calcularOroLey(estado, cantidad)
-            // Las otras familias llegan en sus propias historias.
-            FamiliaSoldadura.CLASICA -> return null
+            FamiliaSoldadura.CLASICA -> calcularFamiliaClasica(estado, cantidad)
+            // La familia de plata llega en su propia historia.
             FamiliaSoldadura.PLATA -> return null
         }
 
@@ -135,6 +136,37 @@ class SoldadurasViewModel(
                     FilaSoldadura(IngredienteSoldadura.BASE, formatearGramos(calculo.base)),
                     FilaSoldadura(IngredienteSoldadura.ORO_18K, formatearGramos(calculo.oro18K)),
                 )
+            }
+        }
+
+        return ResultadoSoldaduras(filas = filas, totalFormateado = formatearGramos(calculo.total))
+    }
+
+    /**
+     * CLÁSICA (§3). En modo directo se entra por el oro de la receta (18 K en floja y
+     * fuerte, 24 K en muy floja de ley) y esa fila no se repite en el resultado
+     * (FR-022); en modo inverso se reparte el peso final completo.
+     */
+    private fun calcularFamiliaClasica(
+        estado: SoldadurasUiState,
+        cantidad: BigDecimal,
+    ): ResultadoSoldaduras {
+        val calculo: CalculoSoldadura
+        val filas: List<FilaSoldadura>
+
+        when (estado.modo) {
+            ModoEntradaSoldadura.DESDE_METAL -> {
+                calculo = calcularClasica(cantidad, estado.tipoClasica)
+                // El primer componente de cada receta clásica es su oro de entrada.
+                filas = calculo.componentes
+                    .drop(1)
+                    .map { FilaSoldadura(it.metal.ingrediente, formatearGramos(it.gramos)) }
+            }
+
+            ModoEntradaSoldadura.PESO_FINAL -> {
+                calculo = calcularClasicaInversa(cantidad, estado.tipoClasica)
+                filas = calculo.componentes
+                    .map { FilaSoldadura(it.metal.ingrediente, formatearGramos(it.gramos)) }
             }
         }
 

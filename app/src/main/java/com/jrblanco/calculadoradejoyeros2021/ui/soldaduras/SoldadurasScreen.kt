@@ -45,6 +45,7 @@ import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
+import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CampoCantidad
 import com.jrblanco.calculadoradejoyeros2021.ui.components.FilaMetal
@@ -154,8 +155,12 @@ fun SoldadurasContent(
                     onDurezaSeleccionada = onDurezaSeleccionada,
                     onSoldaduraBase = onSoldaduraBase,
                 )
-                // Las otras familias llegan en sus propias historias.
-                FamiliaSoldadura.CLASICA -> Unit
+                FamiliaSoldadura.CLASICA -> FormularioClasica(
+                    uiState = uiState,
+                    onCantidadCambiada = onCantidadCambiada,
+                    onTipoClasicaSeleccionado = onTipoClasicaSeleccionado,
+                )
+                // La familia de plata llega en su propia historia.
                 FamiliaSoldadura.PLATA -> Unit
             }
         }
@@ -232,6 +237,64 @@ private fun FormularioOroLey(
             text = stringResource(R.string.soldadura_ley_consejo_mezcla),
             style = MaterialTheme.typography.bodySmall,
             color = JewelryColors.TextMuted,
+        )
+    }
+}
+
+/**
+ * El formulario de CLÁSICA: tres recetas de oro amarillo escaladas (§3), sin elección de
+ * color (§8.1, FR-015) y con la advertencia de seguridad cuando la receta lleva cadmio.
+ */
+@Composable
+private fun FormularioClasica(
+    uiState: SoldadurasUiState,
+    onCantidadCambiada: (String) -> Unit,
+    onTipoClasicaSeleccionado: (TipoSoldaduraClasica) -> Unit,
+) {
+    TarjetaEntradaSoldadura(
+        cantidad = uiState.cantidadTexto,
+        onCantidadCambiada = onCantidadCambiada,
+        titulo = stringResource(
+            when {
+                uiState.modo == ModoEntradaSoldadura.PESO_FINAL ->
+                    R.string.soldadura_entrada_peso_final
+                // La entrada del modo directo es el oro de la receta (FR-015).
+                uiState.tipoClasica == TipoSoldaduraClasica.MUY_FLOJA_LEY ->
+                    R.string.soldadura_entrada_oro_24k
+                else -> R.string.soldadura_entrada_oro_18k
+            },
+        ),
+        imagenRes = R.drawable.modulo_oro,
+        imagenDescripcion = stringResource(R.string.oro_entrada_imagen),
+        acento = JewelryColors.GoldPrimary,
+    )
+
+    CabeceraSeccion(
+        iconRes = R.drawable.ic_lingotes,
+        titulo = stringResource(R.string.soldadura_seccion_tipo),
+        tinte = JewelryColors.TealPrimary,
+    )
+    SelectorSegmentado(
+        opciones = TipoSoldaduraClasica.entries.map {
+            OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary)
+        },
+        seleccionada = uiState.tipoClasica.ordinal,
+        onSeleccion = { onTipoClasicaSeleccionado(TipoSoldaduraClasica.entries[it]) },
+    )
+
+    if (uiState.tipoClasica.llevaCadmio) {
+        // Advertencia obligatoria de §9: la receta muy floja de ley lleva cadmio.
+        AvisoTecnico(stringResource(R.string.soldadura_aviso_seguridad))
+    }
+
+    uiState.resultado?.let { resultado ->
+        TarjetaResultado(
+            resultado = resultado,
+            colorOro = uiState.colorOro,
+            baseNecesaria = false,
+            acentoFilas = JewelryColors.TealPrimary,
+            etiquetaTotal = stringResource(R.string.soldadura_total),
+            acentoTotal = JewelryColors.GoldPrimary,
         )
     }
 }
@@ -401,6 +464,13 @@ private val FamiliaSoldadura.acento: Color
         FamiliaSoldadura.ORO_LEY -> JewelryColors.GoldPrimary
         FamiliaSoldadura.CLASICA -> JewelryColors.GoldPrimary
         FamiliaSoldadura.PLATA -> JewelryColors.SilverPrimary
+    }
+
+private val TipoSoldaduraClasica.etiquetaRes: Int
+    get() = when (this) {
+        TipoSoldaduraClasica.FLOJA -> R.string.soldadura_clasica_floja
+        TipoSoldaduraClasica.FUERTE -> R.string.soldadura_clasica_fuerte
+        TipoSoldaduraClasica.MUY_FLOJA_LEY -> R.string.soldadura_clasica_muy_floja_ley
     }
 
 private val DurezaSoldaduraLey.etiquetaRes: Int

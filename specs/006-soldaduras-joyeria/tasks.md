@@ -425,23 +425,23 @@ advertencia de seguridad en la muy floja de ley.
 **Test independiente**: elegir CLÁSICA y validar los tres tipos contra §3 (10 g → 4/2;
 1/1/1; 1/1,6/1,8) y la aparición/desaparición del aviso.
 
-- [ ] T038 [US3] Ampliar `SoldadurasViewModel` con `onTipoClasicaSeleccionado(tipo)` y el
+- [X] T038 [US3] Ampliar `SoldadurasViewModel` con `onTipoClasicaSeleccionado(tipo)` y el
   cálculo de CLÁSICA en modo directo con `CalcularSoldaduraClasicaUseCase`: filas sin el
   oro introducido (FR-022) en el orden de la receta, total siempre; el `tipo` entra en la
   clave de deduplicación y en el param `tipo` del evento (sin `color`: las clásicas no lo
   tienen, FR-015). **Depende de T029 (US1 en verde)**.
-- [ ] T039 [US3] Ampliar `SoldadurasContent` con el formulario de CLÁSICA: tarjeta de
+- [X] T039 [US3] Ampliar `SoldadurasContent` con el formulario de CLÁSICA: tarjeta de
   entrada dorada (imagen `modulo_oro`; título `soldadura_entrada_oro_18k` u
   `soldadura_entrada_oro_24k` según `tipoClasica`), selector de 3 tipos en teal
   (`soldadura_clasica_*`), `AvisoTecnico(soldadura_aviso_seguridad)` visible solo si
   `tipoClasica.llevaCadmio` (FR-017), y resultado con filas + `TarjetaTotal(soldadura_total)`
   + nota de redondeo. Sin selector de color (FR-015). **Depende de T038**.
-- [ ] T040 [P] [US3] Ampliar `SoldadurasViewModelTest`: floja 10 g → filas plata «4,000» y
+- [X] T040 [P] [US3] Ampliar `SoldadurasViewModelTest`: floja 10 g → filas plata «4,000» y
   latón «2,000» (sin fila de oro) y total «16,000»; fuerte 10 g → tres filas «1,000» y
   total «13,000»; muy floja de ley 10 g → «1,000»/«1,600»/«1,800» y total «14,400» (los
   tres casos de los mockups, SC-003); cambiar de tipo recalcula y estrena evento; cambiar
   de familia desde ORO_LEY limpia cantidad y resultado (FR-023). **Depende de T038**.
-- [ ] T041 [P] [US3] Ampliar `SoldadurasScreenTest`: con CLÁSICA y MUY_FLOJA_LEY el aviso
+- [X] T041 [P] [US3] Ampliar `SoldadurasScreenTest`: con CLÁSICA y MUY_FLOJA_LEY el aviso
   de seguridad existe; con FLOJA no existe; no existe ningún selector de color en CLÁSICA;
   pulsar un tipo propaga el enum esperado. **Depende de T039**.
 
