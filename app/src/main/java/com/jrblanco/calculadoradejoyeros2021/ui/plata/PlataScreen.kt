@@ -1,4 +1,4 @@
-package com.jrblanco.calculadoradejoyeros2021.ui.oro
+package com.jrblanco.calculadoradejoyeros2021.ui.plata
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,9 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jrblanco.calculadoradejoyeros2021.R
-import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOro
-import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyOro
-import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalLiga
+import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
 import com.jrblanco.calculadoradejoyeros2021.ui.components.BotonDorado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
@@ -50,24 +47,23 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * Calculadora de aleaciones de oro. Resuelve el ViewModel y delega el pintado en
- * [OroContent].
+ * Calculadora de aleaciones de plata. Resuelve el ViewModel y delega el pintado en
+ * [PlataContent].
  */
 @Composable
-fun OroScreen(
+fun PlataScreen(
     onInfo: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: OroViewModel = koinViewModel(),
+    viewModel: PlataViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    OroContent(
+    PlataContent(
         uiState = uiState,
         onCantidadCambiada = viewModel::onCantidadCambiada,
         onLeySeleccionada = viewModel::onLeySeleccionada,
-        onColorSeleccionado = viewModel::onColorSeleccionado,
         onLimpiar = viewModel::onLimpiar,
         onGuardarFavoritos = {
             viewModel.onGuardarFavoritos()
@@ -82,11 +78,10 @@ fun OroScreen(
 }
 
 @Composable
-fun OroContent(
-    uiState: OroUiState,
+fun PlataContent(
+    uiState: PlataUiState,
     onCantidadCambiada: (String) -> Unit,
-    onLeySeleccionada: (LeyOro) -> Unit,
-    onColorSeleccionado: (ColorOro) -> Unit,
+    onLeySeleccionada: (LeyPlata) -> Unit,
     onLimpiar: () -> Unit,
     onGuardarFavoritos: () -> Unit,
     onInfo: () -> Unit,
@@ -97,7 +92,7 @@ fun OroContent(
         onInfo = onInfo,
         modifier = modifier,
         // Sección de módulo: título y flecha atrás, sin barra inferior.
-        title = stringResource(R.string.modulo_oro_titulo),
+        title = stringResource(R.string.modulo_plata_titulo),
         onBack = onBack,
     ) {
         Column(
@@ -116,57 +111,45 @@ fun OroContent(
 
             CabeceraSeccion(
                 iconRes = R.drawable.ic_lingotes,
-                titulo = stringResource(R.string.oro_seccion_ley),
+                titulo = stringResource(R.string.plata_seccion_ley),
+                tinte = JewelryColors.SilverPrimary,
             )
             SelectorSegmentado(
-                // Todas las leyes en dorado: lo que distingue a una ley no es un color.
-                opciones = LeyOro.entries.map { OpcionSegmento(stringResource(it.etiquetaRes)) },
-                seleccionada = uiState.ley.ordinal,
-                onSeleccion = { onLeySeleccionada(LeyOro.entries[it]) },
-            )
-
-            if (uiState.ley.esSoloTecnica) {
-                // Advertencia obligatoria de 500‰ (§2 del documento técnico): referencia
-                // técnica de cálculo, no ley oficial española.
-                AvisoTecnico(stringResource(R.string.oro_aviso_12k))
-            }
-
-            CabeceraSeccion(
-                iconRes = R.drawable.ic_paleta,
-                titulo = stringResource(R.string.oro_seccion_color),
-            )
-            SelectorSegmentado(
-                // Cada color de oro se elige en su propio tono.
-                opciones = ColorOro.entries.map {
-                    OpcionSegmento(stringResource(it.etiquetaRes), it.acento)
+                // Las cuatro leyes en teal, como el mockup: lo que las distingue no es un
+                // color sino el «(ley)» de las dos oficiales.
+                opciones = LeyPlata.entries.map {
+                    OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary)
                 },
-                seleccionada = uiState.color.ordinal,
-                onSeleccion = { onColorSeleccionado(ColorOro.entries[it]) },
+                seleccionada = uiState.ley.ordinal,
+                onSeleccion = { onLeySeleccionada(LeyPlata.entries[it]) },
             )
+
+            // Advertencia obligatoria de 950‰ y 900‰ (§3 del documento técnico): son
+            // composiciones técnicas, no leyes oficiales de contraste en España. Un texto
+            // por ley, porque cada uno la sitúa respecto de las oficiales.
+            uiState.ley.avisoRes?.let { AvisoTecnico(stringResource(it)) }
 
             uiState.resultado?.let { resultado ->
-                // Los resultados acompañan al color del oro que se está calculando.
-                val acento = uiState.color.acento
-                TarjetaAcento(acento = acento) {
-                    resultado.metales.forEachIndexed { indice, metal ->
-                        if (indice > 0) Spacer(Modifier.height(JewelrySpacing.Md))
-                        val presentacion = metal.metal.presentacion()
-                        FilaMetal(
-                            imagenRes = presentacion.imagenRes,
-                            imagenDescripcion = stringResource(presentacion.imagenDescripcionRes),
-                            nombre = stringResource(presentacion.nombreRes),
-                            valorFormateado = metal.gramosFormateados,
-                            acento = acento,
-                        )
-                    }
+                // El cobre es el único metal de liga de esta calculadora (§2, §33).
+                TarjetaAcento(acento = JewelryColors.TealPrimary) {
+                    FilaMetal(
+                        imagenRes = R.drawable.cobre,
+                        imagenDescripcion = stringResource(R.string.metal_cobre_imagen),
+                        nombre = stringResource(R.string.metal_cobre),
+                        valorFormateado = resultado.cobreFormateado,
+                        acento = JewelryColors.TealPrimary,
+                    )
                 }
 
                 TarjetaTotal(
                     etiqueta = stringResource(
-                        R.string.oro_total,
-                        stringResource(uiState.color.etiquetaRes).uppercase(),
+                        R.string.plata_total,
+                        uiState.ley.milesimas.toString(),
                     ),
                     totalFormateado = resultado.totalFormateado,
+                    // Lo que pesa al final es plata: entrada y total enmarcan en plateado
+                    // un centro en teal.
+                    acento = JewelryColors.SilverPrimary,
                 )
             }
 
@@ -188,18 +171,18 @@ fun OroContent(
     }
 }
 
-/** Tarjeta de entrada: los lingotes de partida y el campo de gramos. */
+/** Tarjeta de entrada: los lingotes de plata fina y el campo de gramos. */
 @Composable
 private fun TarjetaEntrada(
     cantidad: String,
     onCantidadCambiada: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    TarjetaAcento(modifier) {
+    TarjetaAcento(modifier, acento = JewelryColors.SilverPrimary) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(R.drawable.modulo_oro),
-                contentDescription = stringResource(R.string.oro_entrada_imagen),
+                painter = painterResource(R.drawable.modulo_plata),
+                contentDescription = stringResource(R.string.plata_entrada_imagen),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(96.dp),
             )
@@ -211,9 +194,9 @@ private fun TarjetaEntrada(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.oro_entrada_titulo),
+                    text = stringResource(R.string.plata_entrada_titulo),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
-                    color = JewelryColors.GoldSoft,
+                    color = JewelryColors.SilverPrimary,
                     textAlign = TextAlign.Center,
                 )
 
@@ -222,85 +205,54 @@ private fun TarjetaEntrada(
                 CampoCantidad(
                     valor = cantidad,
                     onCambio = onCantidadCambiada,
+                    acento = JewelryColors.SilverPrimary,
+                    borde = JewelryColors.SilverDark,
                 )
             }
         }
     }
 }
 
-// --- Cómo se pinta cada valor de dominio. Vive aquí y no en los enums para que ---
-// --- `domain/` siga libre de Android, igual que `ModulePresentation` en Home.  ---
+// --- Cómo se pinta cada valor de dominio. Vive aquí y no en el enum para que ---
+// --- `domain/` siga libre de Android, igual que `LeyOro.etiquetaRes` en oro.  ---
 
-private val LeyOro.etiquetaRes: Int
+private val LeyPlata.etiquetaRes: Int
     get() = when (this) {
-        LeyOro.LEY_18K -> R.string.oro_ley_18k
-        LeyOro.LEY_14K -> R.string.oro_ley_14k
-        LeyOro.LEY_12K -> R.string.oro_ley_12k
-        LeyOro.LEY_9K -> R.string.oro_ley_9k
+        LeyPlata.LEY_950 -> R.string.plata_ley_950
+        LeyPlata.LEY_925 -> R.string.plata_ley_925
+        LeyPlata.LEY_900 -> R.string.plata_ley_900
+        LeyPlata.LEY_800 -> R.string.plata_ley_800
     }
 
-private val ColorOro.etiquetaRes: Int
+/**
+ * Texto de advertencia de la ley, o `null` si es una de las oficiales españolas.
+ *
+ * Nulable y no `Int` a propósito: así el `when` cubre las cuatro ramas sin inventarles un
+ * aviso a 925 y 800, y el `?.let` de la pantalla sustituye al `if (esSoloTecnica)` en
+ * lugar de duplicar la condición.
+ */
+private val LeyPlata.avisoRes: Int?
     get() = when (this) {
-        ColorOro.AMARILLO -> R.string.oro_color_amarillo
-        ColorOro.BLANCO -> R.string.oro_color_blanco
-        ColorOro.ROSA -> R.string.oro_color_rosa
-        ColorOro.ROJO -> R.string.oro_color_rojo
+        LeyPlata.LEY_950 -> R.string.plata_aviso_950
+        LeyPlata.LEY_900 -> R.string.plata_aviso_900
+        LeyPlata.LEY_925, LeyPlata.LEY_800 -> null
     }
-
-/** El tono con el que se pinta cada color de oro al seleccionarlo. */
-private val ColorOro.acento: Color
-    get() = when (this) {
-        ColorOro.AMARILLO -> JewelryColors.GoldPrimary
-        ColorOro.BLANCO -> JewelryColors.TealPrimary
-        ColorOro.ROSA -> JewelryColors.RoseGold
-        ColorOro.ROJO -> JewelryColors.RedGold
-    }
-
-private data class MetalPresentacion(
-    val imagenRes: Int,
-    val imagenDescripcionRes: Int,
-    val nombreRes: Int,
-)
-
-private fun MetalLiga.presentacion(): MetalPresentacion = when (this) {
-    MetalLiga.PLATA_FINA -> MetalPresentacion(
-        imagenRes = R.drawable.modulo_plata,
-        imagenDescripcionRes = R.string.metal_plata_fina_imagen,
-        nombreRes = R.string.metal_plata_fina,
-    )
-    MetalLiga.COBRE -> MetalPresentacion(
-        imagenRes = R.drawable.cobre,
-        imagenDescripcionRes = R.string.metal_cobre_imagen,
-        nombreRes = R.string.metal_cobre,
-    )
-    MetalLiga.PALADIO -> MetalPresentacion(
-        imagenRes = R.drawable.paladio,
-        imagenDescripcionRes = R.string.metal_paladio_imagen,
-        nombreRes = R.string.metal_paladio,
-    )
-}
 
 @Preview(showBackground = true, widthDp = 411, heightDp = 891)
 @Composable
-private fun OroContentPreview() {
+private fun PlataContentPreview() {
     Calculadoradejoyeros2021Theme {
-        OroContent(
-            uiState = OroUiState(
-                cantidadTexto = "50",
-                ley = LeyOro.LEY_18K,
-                color = ColorOro.BLANCO,
-                resultado = ResultadoOro(
-                    metales = listOf(
-                        MetalCalculado(MetalLiga.PLATA_FINA, "6,564"),
-                        MetalCalculado(MetalLiga.COBRE, "2,690"),
-                        MetalCalculado(MetalLiga.PALADIO, "7,346"),
-                    ),
-                    totalFormateado = "66,600",
+        PlataContent(
+            uiState = PlataUiState(
+                cantidadTexto = "25",
+                ley = LeyPlata.LEY_925,
+                resultado = ResultadoPlata(
+                    cobreFormateado = "2,000",
+                    totalFormateado = "27,000",
                 ),
             ),
             onCantidadCambiada = {},
             onLeySeleccionada = {},
-            onColorSeleccionado = {},
             onLimpiar = {},
             onGuardarFavoritos = {},
             onInfo = {},
@@ -311,24 +263,21 @@ private fun OroContentPreview() {
 
 @Preview(showBackground = true, widthDp = 411, heightDp = 891)
 @Composable
-private fun OroContent12KPreview() {
+private fun PlataContent950Preview() {
     Calculadoradejoyeros2021Theme {
-        OroContent(
-            uiState = OroUiState(
+        PlataContent(
+            uiState = PlataUiState(
                 cantidadTexto = "100",
-                ley = LeyOro.LEY_12K,
-                color = ColorOro.AMARILLO,
-                resultado = ResultadoOro(
-                    metales = listOf(
-                        MetalCalculado(MetalLiga.PLATA_FINA, "69,836"),
-                        MetalCalculado(MetalLiga.COBRE, "29,964"),
-                    ),
-                    totalFormateado = "199,800",
+                ley = LeyPlata.LEY_950,
+                resultado = ResultadoPlata(
+                    // Truncado, no redondeado: con HALF_UP sería 5,158 y la ley caería
+                    // por debajo de 950‰ (§17, §19).
+                    cobreFormateado = "5,157",
+                    totalFormateado = "105,157",
                 ),
             ),
             onCantidadCambiada = {},
             onLeySeleccionada = {},
-            onColorSeleccionado = {},
             onLimpiar = {},
             onGuardarFavoritos = {},
             onInfo = {},

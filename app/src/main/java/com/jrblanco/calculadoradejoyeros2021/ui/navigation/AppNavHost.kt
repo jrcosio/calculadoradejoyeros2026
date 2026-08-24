@@ -15,6 +15,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderScreen
+import com.jrblanco.calculadoradejoyeros2021.ui.plata.PlataScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.welcome.WelcomeScreen
 
 @Composable
@@ -95,7 +96,7 @@ fun AppNavHost(
             OroScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Plata> {
-            PlaceholderScreen(stringResource(R.string.modulo_plata_titulo), "plata", onInfo, onBack = onBack)
+            PlataScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Soldaduras> {
             PlaceholderScreen(stringResource(R.string.modulo_soldaduras_titulo), "soldaduras", onInfo, onBack = onBack)

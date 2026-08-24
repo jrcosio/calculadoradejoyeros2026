@@ -69,9 +69,9 @@ class OroScreenTest {
     fun conResultadoDeBlanco18K_seMuestranLasTresFilasYElTotal() {
         montar(estadoBlanco18K)
 
-        composeRule.onNodeWithText(texto(R.string.oro_metal_plata)).assertExists()
-        composeRule.onNodeWithText(texto(R.string.oro_metal_cobre)).assertExists()
-        composeRule.onNodeWithText(texto(R.string.oro_metal_paladio)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.metal_plata_fina)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.metal_cobre)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.metal_paladio)).assertExists()
         composeRule.onNodeWithText("6,564").assertExists()
         composeRule.onNodeWithText("2,690").assertExists()
         composeRule.onNodeWithText("7,346").assertExists()
@@ -85,8 +85,8 @@ class OroScreenTest {
     fun sinResultado_noHayFilasDeMetal() {
         montar(OroUiState())
 
-        composeRule.onAllNodesWithText(texto(R.string.oro_metal_plata)).assertCountEquals(0)
-        composeRule.onAllNodesWithText(texto(R.string.oro_metal_cobre)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.metal_plata_fina)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.metal_cobre)).assertCountEquals(0)
     }
 
     @Test
@@ -114,7 +114,7 @@ class OroScreenTest {
         var recibido = ""
         montar(OroUiState(), onCantidadCambiada = { recibido = it })
 
-        composeRule.onNodeWithText(texto(R.string.oro_entrada_unidad)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.unidad_gramos)).assertExists()
         composeRule.onNode(
             androidx.compose.ui.test.hasSetTextAction(),
         ).performTextInput("50")
@@ -141,7 +141,7 @@ class OroScreenTest {
         var limpiado = false
         montar(estadoBlanco18K, onLimpiar = { limpiado = true })
 
-        composeRule.onNodeWithText(texto(R.string.oro_limpiar)).performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_limpiar)).performClick()
 
         assertEquals(true, limpiado)
     }
@@ -151,7 +151,7 @@ class OroScreenTest {
         var guardado = false
         montar(estadoBlanco18K, onGuardarFavoritos = { guardado = true })
 
-        composeRule.onNodeWithText(texto(R.string.oro_guardar_favoritos)).performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos)).performClick()
 
         assertEquals(true, guardado)
     }
