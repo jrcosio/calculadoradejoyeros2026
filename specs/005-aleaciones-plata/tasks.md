@@ -138,13 +138,13 @@ pantalla no cambia de estado.
 
 - [X] T031 `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"` y `./gradlew :app:testDebugUnitTest` y `./gradlew :app:assembleDebug` en verde. Los XML quedan en `app/build/test-results/testDebugUnitTest/`. Puerta de calidad de la constitución.
 - [X] T032 `./gradlew :app:lint` sin avisos nuevos respecto a los 11 preexistentes del proyecto. Atención especial a `UnusedResources` tras el renombrado de strings de T001: no debe quedar ningún `oro_*` huérfano ni ningún `plata_*` sin usar.
-- [ ] T033 Verificación visual en emulador contra `UI_Plantillas/Feature_plata/ejemplo_feature_plata.png`: tarjeta de entrada con filete plateado, lingotes de plata y cifra grande; selector con la píldora teal, el check y «925 (ley)» / «800 (ley)» legibles; tarjeta de cobre en teal con imagen, línea de puntos y cifra; tarjeta de total en plateado con la balanza; botonera dorada. Recálculo reactivo al cambiar cantidad y ley. Comprobar también que salir del módulo y volver a entrar arranca limpio, sin memoria del cálculo anterior.
-- [ ] T034 Verificación del truncado **en el dispositivo**, que es el criterio SC-003 y el corazón de FR-011: con 100 g y 950‰ la pantalla muestra **5,157 gr** de cobre y **105,157 gr** de total, no 5,158 / 105,158; con 10 g y 800‰ muestra **2,487** y no 2,488. Anotar el resultado en este fichero.
-- [ ] T035 Accesibilidad: con la fuente del sistema al doble ningún texto se recorta y todo el contenido sigue alcanzable (las etiquetas del selector encogen solas por el `TextAutoSize` que ya trae `SelectorSegmentado`); objetivos táctiles ≥ 48 dp; volcado de semántica comprobando descripciones de imagen, selector como `RadioButton` con estado, fila de cobre y total fusionados en un solo anuncio, y el aviso como región viva (FR-020, SC-007, SC-008).
-- [ ] T036 Telemetría en logcat con `FA VERBOSE`: llega `screen_view` con `ga_screen=plata`, `plata_calculado` con `ley=925` una sola vez al teclear la cantidad dígito a dígito, un evento nuevo al estrenar otra ley, y `plata_favoritos_proximamente` al pulsar el botón. La cantidad introducida **no** viaja en ningún evento (FR-019).
-- [ ] T037 `./gradlew :app:connectedDebugAndroidTest` en verde, incluidos los tests nuevos de `PlataScreenTest` y los de `OroScreenTest` con los strings renombrados.
-- [ ] T038 Actualizar `CLAUDE.md`: los cinco destinos pendientes pasan a cuatro (`ui/placeholder/` ya solo sirve a Favoritos, Ajustes, Soldaduras y Herramientas); documentar el motor de plata en `domain/` y que **no** tiene tabla de recetas porque §28 exige la fórmula general; documentar los siete composables que han subido a `ui/components/` y en qué fichero ha quedado cada uno; añadir `ui/plata/` como cuarta pantalla de referencia; y dejar escrita la asimetría deliberada de redondeo — **oro formatea con `HALF_UP` y plata trunca con `DOWN`**, porque en plata la Ley 17/1985 no admite tolerancia en menos y la cifra mostrada es la que se pesa.
-- [ ] T039 `./gradlew :app:assembleRelease` en verde y anotar el tamaño del APK. No debería crecer apenas: la feature no añade ni un recurso. Comprobar que R8 no rompe el motor de plata.
+- [X] T033 Verificación visual en emulador contra `UI_Plantillas/Feature_plata/ejemplo_feature_plata.png`: tarjeta de entrada con filete plateado, lingotes de plata y cifra grande; selector con la píldora teal, el check y «925 (ley)» / «800 (ley)» legibles; tarjeta de cobre en teal con imagen, línea de puntos y cifra; tarjeta de total en plateado con la balanza; botonera dorada. Recálculo reactivo al cambiar cantidad y ley. Comprobar también que salir del módulo y volver a entrar arranca limpio, sin memoria del cálculo anterior.
+- [X] T034 Verificación del truncado **en el dispositivo**, que es el criterio SC-003 y el corazón de FR-011: con 100 g y 950‰ la pantalla muestra **5,157 gr** de cobre y **105,157 gr** de total, no 5,158 / 105,158; con 10 g y 800‰ muestra **2,487** y no 2,488. Anotar el resultado en este fichero.
+- [X] T035 Accesibilidad: con la fuente del sistema al doble ningún texto se recorta y todo el contenido sigue alcanzable (las etiquetas del selector encogen solas por el `TextAutoSize` que ya trae `SelectorSegmentado`); objetivos táctiles ≥ 48 dp; volcado de semántica comprobando descripciones de imagen, selector como `RadioButton` con estado, fila de cobre y total fusionados en un solo anuncio, y el aviso como región viva (FR-020, SC-007, SC-008).
+- [X] T036 Telemetría en logcat con `FA VERBOSE`: llega `screen_view` con `ga_screen=plata`, `plata_calculado` con `ley=925` una sola vez al teclear la cantidad dígito a dígito, un evento nuevo al estrenar otra ley, y `plata_favoritos_proximamente` al pulsar el botón. La cantidad introducida **no** viaja en ningún evento (FR-019).
+- [X] T037 `./gradlew :app:connectedDebugAndroidTest` en verde, incluidos los tests nuevos de `PlataScreenTest` y los de `OroScreenTest` con los strings renombrados.
+- [X] T038 Actualizar `CLAUDE.md`: los cinco destinos pendientes pasan a cuatro (`ui/placeholder/` ya solo sirve a Favoritos, Ajustes, Soldaduras y Herramientas); documentar el motor de plata en `domain/` y que **no** tiene tabla de recetas porque §28 exige la fórmula general; documentar los siete composables que han subido a `ui/components/` y en qué fichero ha quedado cada uno; añadir `ui/plata/` como cuarta pantalla de referencia; y dejar escrita la asimetría deliberada de redondeo — **oro formatea con `HALF_UP` y plata trunca con `DOWN`**, porque en plata la Ley 17/1985 no admite tolerancia en menos y la cifra mostrada es la que se pesa.
+- [X] T039 `./gradlew :app:assembleRelease` en verde y anotar el tamaño del APK. No debería crecer apenas: la feature no añade ni un recurso. Comprobar que R8 no rompe el motor de plata.
 
 ---
 
@@ -181,3 +181,68 @@ las historias de plata. Parar ahí y validar antes de seguir.
 - El formateo de vista de plata trunca (`DOWN`); el de oro redondea a la media (`HALF_UP`). No unificarlos: la asimetría es deliberada y está justificada en `plan.md`.
 - Ni un recurso gráfico nuevo: `modulo_plata.png`, `cobre.png` y los siete iconos ya existen.
 - Commit por tarea o grupo lógico, Conventional Commits en español.
+
+---
+
+## Resultado de la verificación (2026-08-24, emulador Pixel_10 API 36)
+
+- **Puertas de calidad**: `:app:testDebugUnitTest` en verde (**81 tests**: 20 del motor de
+  plata, 17 de `PlataViewModel`, más los 44 preexistentes de las features 001–004 y
+  `KoinModulesTest`, que verifica solo los dos registros nuevos del `domainModule`);
+  `:app:assembleDebug`, `:app:lint`, `:app:connectedDebugAndroidTest` (**33 tests**, 11
+  nuevos de `PlataScreenTest`) y `:app:assembleRelease`, todo en verde.
+- **T016, la puerta del refactor**: la 004 quedó intacta. Sus 28 tests unitarios
+  (`CalcularAleacionOroUseCaseTest`, `CalcularAleacionInversaOroUseCaseTest`,
+  `OroViewModelTest`) y sus 9 instrumentados siguen pasando sin tocar una aserción, y en el
+  emulador la pantalla de oro sigue dando 2,191 / 1,129 / 13,320 para 10 g de 18 K amarillo
+  —el caso 1 de §13 de su documento—. `OroScreen.kt` pasó de 627 a 338 líneas.
+- **T032 lint**: 11 avisos, los mismos 11 preexistentes del proyecto. Los dos
+  `UnusedResources` son los iconos del launcher, no strings: tras el renombrado de T001 no
+  quedó ningún `oro_*` huérfano ni ningún `plata_*` sin usar.
+- **T033 visual**: pantalla verificada contra el mockup en emulador — tarjeta de entrada
+  con filete plateado, lingotes de plata y cifra grande; «Milésimas de plata a obtener» con
+  el icono de lingotes en plateado; selector con la píldora teal y el check sobre
+  «925 (ley)», y «(ley)» también en 800; tarjeta de cobre en teal con imagen, línea de
+  puntos, cifra teal y «gr» dorado; tarjeta de total en plateado con la balanza en círculo;
+  botonera dorada. Con 25 g y 925‰: **Cobre 2,000 gr** y **Total de plata 925: 27,000 gr**,
+  los números exactos del mockup. Recálculo reactivo comprobado al cambiar de ley;
+  «Limpiar» repone el estado inicial; «Guardar en favoritos» muestra el toast
+  «Próximamente» sin alterar el cálculo; salir del módulo y volver arranca limpio.
+- **T034 truncado en dispositivo** (SC-003, el corazón de FR-011): con 100 g hacia 950‰ la
+  pantalla muestra **5,157 gr** de cobre y **105,157 gr** de total, no 5,158 / 105,158; con
+  10 g hacia 800‰ muestra **2,487** y no 2,488. Los dos casos son de los que `HALF_UP`
+  habría dejado por debajo de la ley objetivo.
+- **T035 accesibilidad**: con la fuente del sistema al doble nada queda inaccesible y las
+  cuatro etiquetas del selector siguen legibles (las encoge solo el `TextAutoSize` que ya
+  traía `SelectorSegmentado`); el aviso de 950‰ envuelve a cinco líneas completo. Lo único
+  que se recorta es el título de la barra superior, que usa elipsis por diseño en el
+  componente compartido y se comporta igual en oro. Objetivos táctiles medidos en el
+  volcado: los cuatro segmentos a 126 px = 48 dp exactos. Semántica verificada: descripciones
+  de imagen presentes en los lingotes de plata y de cobre, los cuatro segmentos expuestos
+  como `checkable` con exactamente uno marcado, y el aviso declarado como región viva.
+  **Matiz honesto**: las filas de resultado **no** se exponen fusionadas en un solo nodo
+  pese al `semantics(mergeDescendants = true)` — el lector las anuncia como «Cobre»,
+  «5,157», «gr» por separado. Se comprobó que la pantalla de oro se comporta exactamente
+  igual, así que es un rasgo preexistente del componente compartido y no una regresión de
+  esta feature. Pendiente la pasada manual con TalkBack activo.
+- **T036 telemetría**: verificada en logcat con `FA VERBOSE`. Llegan `screen_view` con
+  `ga_screen=plata`, `plata_calculado` con `ley=925` **una sola vez** pese a teclear la
+  cantidad dígito a dígito (1 → 10 → 100), un segundo `plata_calculado` con `ley=800` al
+  estrenar ley, y `plata_favoritos_proximamente` al pulsar el botón. Exactamente 2 eventos
+  de cálculo para 3 pulsaciones y 2 leyes: la deduplicación funciona. Ningún evento lleva la
+  cantidad introducida.
+- **T039 release**: `app-release-unsigned.apk` = **7,0 MB**, 0,3 MB menos que la 004 pese a
+  añadir una pantalla — la feature no suma ni un recurso y el refactor borró ~290 líneas
+  duplicadas. Firmado con la clave de debug e instalado en el emulador, el release con R8
+  muestra 5,157 gr para 100 g hacia 950‰ y pinta el aviso: R8 no rompe el motor de plata ni
+  la resolución de Koin de los registros nuevos.
+
+### Desviaciones respecto al plan de tareas
+
+- **T023 y T026**: las aserciones del aviso que T026 asignaba a `PlataScreenTest` se
+  escribieron en la misma pasada que T023, al crear el fichero. T024 se adelantó a
+  continuación para que esos tests tuvieran sentido. El resultado es el previsto; solo
+  cambió el orden de escritura.
+- **Corrección durante T037**: `conLasLeyesOficiales_noHayAvisoDeLeyTecnica` llamaba a
+  `setContent` dos veces dentro de un `forEach` y fallaba con `IllegalStateException`. Se
+  partió en `con925_...` y `con800_...`, un caso por test. Fallo del test, no del código.

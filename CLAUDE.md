@@ -62,17 +62,36 @@ Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
 fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/FirebaseModule.kt`,
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
-La capa `domain/` dejó de estar vacía con la feature 004: el motor de aleaciones de oro
-vive en `domain/model/` (recetas en `RecetasOro` como **única fuente de verdad**, con
-`BigDecimal` construido desde literales `String`) y `domain/usecase/` (cálculo directo e
-inverso, registrados en `domainModule` con `factoryOf`). El motor no redondea pasos
-intermedios y sus divisiones redondean **a favor de la ley** (nunca por debajo de la
-objetivo); el redondeo a 3 decimales es exclusivo del ViewModel.
+La capa `domain/` tiene **dos motores de aleación**, uno por metal, paralelos y sin
+dependencia entre ellos. Los dos son Kotlin puro con `BigDecimal` construido desde
+literales `String`, no redondean pasos intermedios, y su única división redondea **a favor
+de la ley**: a la baja en el modo directo y al alza en el inverso, para que la ley
+resultante nunca quede por debajo de la objetivo. Cada uno lleva sus propias constantes de
+precisión (`FINURA_ORIGEN`, `ESCALA`, `TOLERANCIA`) a propósito: son dos documentos
+técnicos distintos y el de plata no debe depender de un tipo que por dentro se llama «oro».
+
+- **Oro** (feature 004): `RecetasOro` es la **única fuente de verdad** de las 16 recetas
+  color×ley; `CalculoAleacion` reparte la liga entre varios metales.
+- **Plata** (feature 005): `LeyPlata` y `CalculoPlata`, más simples. **No hay
+  `RecetasPlata`**: el cobre es el único metal de liga y §28 de su documento técnico
+  prohíbe tabular coeficientes por ley, así que solo existe la fórmula general.
+
+Los cuatro casos de uso se registran en `domainModule` con `factoryOf`.
+
+**El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las dos
+calculadoras**: `OroViewModel` redondea a la media (`HALF_UP`) y `PlataViewModel`
+**trunca** (`DOWN`). No los unifiques. En plata la cifra mostrada es la que el joyero pesa
+y la Ley 17/1985 no admite tolerancia en menos: con `HALF_UP`, 100 g de plata fina hacia
+950‰ mostrarían 5,158 g de cobre y la ley real caería a 949,999‰. Truncar a 3 decimales da
+5,157 g y 950,008‰, y equivale al «modo taller seguro» del documento con la resolución de
+balanza de 0,001 g que recomienda por defecto.
 
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
 es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
 `ui/oro/` es el tercero: formulario reactivo sobre un motor de dominio, con el estado
-ya formateado en el `UiState`.
+ya formateado en el `UiState`. `ui/plata/` es el cuarto y el más corto de los cuatro,
+porque se pinta entero con componentes de `ui/components/`: es el que conviene copiar para
+una calculadora nueva.
 
 ### Componentes compartidos
 
@@ -93,11 +112,31 @@ ya formateado en el `UiState`.
   `widthFraction` lo ajusta al hueco: 0.7 en pantalla completa, 1 dentro de una tarjeta.
 - **`TarjetaAcento`** (en `Tarjetas.kt`) — envoltorio de tarjeta con degradado y borde
   del color de acento (dorado por defecto). Nació privada en Info como `TarjetaDorada`;
-  la comparten Info y la calculadora de oro (que la usa también en teal).
+  la comparten Info y las dos calculadoras: oro la usa en dorado y en el tono del oro
+  elegido, plata en plateado (entrada y total) y en teal (resultado).
 - **`SelectorSegmentado`** — fila de opciones excluyentes con píldora degradada y check
   en el acento. Hecho a mano: `SegmentedButton` de Material impone su geometría. El
   acento va **por opción** (`OpcionSegmento`), que es lo que permite elegir cada color de
   oro en su propio tono; con el valor por defecto toda la fila sale dorada.
+
+Los siete siguientes nacieron privados en `ui/oro/OroScreen.kt` y subieron aquí con la
+feature 005, cuando la calculadora de plata pidió los mismos. Es la regla del proyecto: en
+cuanto un segundo consumidor lo pide, deja de ser privado. Ninguno conoce `domain/` — es
+cada pantalla la que mapea sus enums a imágenes y textos.
+
+- **`CampoCantidad`** y **`CabeceraSeccion`** (en `Formularios.kt`) — el campo de gramos
+  con cifra grande y sufijo «gr», y la cabecera de sección con icono. Los dos toman su
+  acento por parámetro: dorado por defecto, plateado en plata.
+- **`BotonDorado`** (en `Botones.kt`) — botón de acción principal. **No** se parametriza el
+  color: el dorado es el lenguaje de acción de la app, no el acento de un módulo, así que
+  «Limpiar» y «Guardar en favoritos» son dorados también en la pantalla de plata.
+- **`AvisoTecnico`** (en `Avisos.kt`) — advertencia ámbar de ley no oficial, con región
+  viva para el lector de pantalla. El texto va por parámetro porque oro tiene un aviso
+  (12 K) y plata dos (950‰ y 900‰), cada uno con su redacción.
+- **`FilaMetal`** y **`TarjetaTotal`** (en `Tarjetas.kt`) — fila de resultado por metal y
+  tarjeta de total con balanza. En `TarjetaTotal` el acento tiñe icono, cifra y unidad; la
+  etiqueta se queda en `TextPrimary`.
+- **`LineaPunteada`** (en `Ornamentos.kt`) — los puntos que guían del nombre a la cifra.
 
 `JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
 `NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
@@ -109,15 +148,17 @@ propósito.
 **`material-icons` no está en el classpath**: Material 3 1.4.0 dejó de arrastrarlo, así
 que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawable`
 (`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`,
-`ic_linkedin`, `ic_instagram`, `ic_enlace_externo`), de trazo
+`ic_linkedin`, `ic_instagram`, `ic_enlace_externo`, `ic_check`, `ic_aviso`, `ic_refrescar`,
+`ic_estrella`, `ic_balanza`, `ic_lingotes`, `ic_paleta`), de trazo
 1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Si necesitas uno
 nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 
 ### Pantallas aún sin desarrollar
 
 `ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-cinco destinos pendientes. Recibe `title` (traducible) y `analyticsName` (identificador
-estable para telemetría, que no debe traducirse). Cuando un destino reciba su feature
+cuatro destinos pendientes (Favoritos, Ajustes, Soldaduras y Herramientas). Recibe
+`title` (traducible) y `analyticsName` (identificador estable para telemetría, que no
+debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
 
 ### Contrato de ViewModel

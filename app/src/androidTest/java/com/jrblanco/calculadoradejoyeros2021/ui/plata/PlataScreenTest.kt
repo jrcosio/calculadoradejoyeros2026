@@ -122,14 +122,22 @@ class PlataScreenTest {
         composeRule.onAllNodesWithText(texto(R.string.plata_aviso_950)).assertCountEquals(0)
     }
 
-    @Test
-    fun conLasLeyesOficiales_noHayAvisoDeLeyTecnica() {
-        listOf(LeyPlata.LEY_925, LeyPlata.LEY_800).forEach { ley ->
-            montar(PlataUiState(ley = ley))
+    // Una ley por test: `setContent` solo se puede llamar una vez por caso.
 
-            composeRule.onAllNodesWithText(texto(R.string.plata_aviso_950)).assertCountEquals(0)
-            composeRule.onAllNodesWithText(texto(R.string.plata_aviso_900)).assertCountEquals(0)
-        }
+    @Test
+    fun con925_noHayAvisoDeLeyTecnica() {
+        montar(PlataUiState(ley = LeyPlata.LEY_925))
+
+        composeRule.onAllNodesWithText(texto(R.string.plata_aviso_950)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.plata_aviso_900)).assertCountEquals(0)
+    }
+
+    @Test
+    fun con800_noHayAvisoDeLeyTecnica() {
+        montar(PlataUiState(ley = LeyPlata.LEY_800))
+
+        composeRule.onAllNodesWithText(texto(R.string.plata_aviso_950)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.plata_aviso_900)).assertCountEquals(0)
     }
 
     @Test
