@@ -118,12 +118,12 @@
     <string name="soldadura_dureza_muy_fuerte">Muy fuerte</string>
     <string name="soldadura_clasica_floja">Floja</string>
     <string name="soldadura_clasica_fuerte">Fuerte</string>
-    <string name="soldadura_clasica_muy_floja_ley">Muy floja (ley 18K)</string>
-    <string name="soldadura_plata_muy_floja">Muy floja *</string>
+    <string name="soldadura_clasica_muy_floja_ley">Muy floja (18K)</string>
+    <string name="soldadura_plata_muy_floja">Muy floja</string>
     <string name="soldadura_plata_floja">Floja</string>
     <string name="soldadura_plata_normal">Normal</string>
     <string name="soldadura_plata_fuerte">Fuerte</string>
-    <string name="soldadura_plata_nota_muy_floja">* Recomendada para composturas</string>
+    <string name="soldadura_plata_nota_muy_floja">Recomendada para composturas</string>
     <string name="soldadura_ley_base_titulo">Cómo obtener la soldadura BASE*</string>
     <string name="soldadura_ley_base_boton">SOLDADURA BASE</string>
     <string name="soldadura_ley_base_nota">* Es una soldadura de 18K con un punto de fusión muy muy bajo</string>

@@ -648,3 +648,9 @@ errores. `:app:compileDebugAndroidTestKotlin` compila las dos suites instrumenta
 - SC-010 (lector de pantalla) no se verificó con TalkBack en esta sesión; la semántica
   (grupos de selección, `liveRegion` del aviso, fusión de filas) es la de los
   componentes compartidos ya auditados en la 004/005.
+- Ajuste posterior a petición del autor (2026-08-24): en PLATA la recomendación
+  «Recomendada para composturas» pasa de caption fija con asterisco a mostrarse solo con
+  la muy floja seleccionada (mismo patrón condicional que los avisos), y la etiqueta
+  clásica «Muy floja (ley 18K)» se acorta a «Muy floja (18K)» para no forzar el
+  auto-ajuste del segmento. Verificado en emulador; test instrumentado nuevo
+  (`conOtroTipoDePlata_laNotaDeComposturasDesaparece`).

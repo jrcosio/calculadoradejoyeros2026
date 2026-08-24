@@ -382,12 +382,14 @@ private fun FormularioPlata(
         seleccionada = uiState.tipoPlata.ordinal,
         onSeleccion = { onTipoPlataSeleccionado(TipoSoldaduraPlata.entries[it]) },
     )
-    // El asterisco de «Muy floja *» remite aquí (FR-016).
-    Text(
-        text = stringResource(R.string.soldadura_plata_nota_muy_floja),
-        style = MaterialTheme.typography.bodySmall,
-        color = JewelryColors.TextMuted,
-    )
+    if (uiState.tipoPlata == TipoSoldaduraPlata.MUY_FLOJA) {
+        // La recomendación acompaña solo a la muy floja, que es de quien habla (FR-016).
+        Text(
+            text = stringResource(R.string.soldadura_plata_nota_muy_floja),
+            style = MaterialTheme.typography.bodySmall,
+            color = JewelryColors.TextMuted,
+        )
+    }
 
     uiState.resultado?.let { resultado ->
         TarjetaResultado(

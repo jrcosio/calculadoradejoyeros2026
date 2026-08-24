@@ -220,6 +220,7 @@ class SoldadurasScreenTest {
 
     @Test
     fun conPlata_losCuatroTiposYLaNotaDeComposturasEstanVisibles() {
+        // Con la muy floja seleccionada (el valor por defecto), la recomendación se ve.
         montar(SoldadurasUiState(familia = FamiliaSoldadura.PLATA))
 
         composeRule.onNodeWithText(texto(R.string.soldadura_plata_muy_floja)).assertExists()
@@ -227,6 +228,19 @@ class SoldadurasScreenTest {
         composeRule.onNodeWithText(texto(R.string.soldadura_plata_normal)).assertExists()
         composeRule.onNodeWithText(texto(R.string.soldadura_plata_fuerte)).assertExists()
         composeRule.onNodeWithText(texto(R.string.soldadura_plata_nota_muy_floja)).assertExists()
+    }
+
+    @Test
+    fun conOtroTipoDePlata_laNotaDeComposturasDesaparece() {
+        montar(
+            SoldadurasUiState(
+                familia = FamiliaSoldadura.PLATA,
+                tipoPlata = TipoSoldaduraPlata.FLOJA,
+            ),
+        )
+
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_plata_nota_muy_floja))
+            .assertCountEquals(0)
     }
 
     @Test
