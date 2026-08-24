@@ -260,6 +260,49 @@ class SoldadurasScreenTest {
         assertEquals(TipoSoldaduraPlata.NORMAL, seleccionado)
     }
 
+    // --- Conmutador de modo (FR-003) ---
+
+    @Test
+    fun conFamilia_elConmutadorDeModoExisteYPropaga() {
+        var modo: ModoEntradaSoldadura? = null
+        montar(estadoOroLey, onModoCambiado = { modo = it })
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_modo_tengo_oro18k)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_modo_peso_final)).performClick()
+
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, modo)
+    }
+
+    @Test
+    fun primeraVisita_noHayConmutadorDeModo() {
+        montar(SoldadurasUiState())
+
+        composeRule.onAllNodesWithText(texto(R.string.soldadura_modo_peso_final))
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun enModoPesoFinal_laFilaDelMetalDeEntradaSiSePinta() {
+        montar(
+            estadoOroLey.copy(
+                modo = ModoEntradaSoldadura.PESO_FINAL,
+                resultado = ResultadoSoldaduras(
+                    filas = listOf(
+                        FilaSoldadura(IngredienteSoldadura.BASE, "5,000"),
+                        FilaSoldadura(IngredienteSoldadura.ORO_18K, "5,000"),
+                    ),
+                    totalFormateado = "10,000",
+                ),
+            ),
+        )
+
+        // La fila de la base con su nombre normal (no «necesaria») y la del oro.
+        composeRule.onNodeWithText(texto(R.string.soldadura_fila_base)).assertExists()
+        composeRule.onNodeWithText(
+            texto(R.string.soldadura_fila_oro18k, texto(R.string.oro_color_amarillo)),
+        ).assertExists()
+    }
+
     @Test
     fun sinResultado_noHayFilaDeBaseNiTotal() {
         montar(estadoOroLey.copy(cantidadTexto = "", resultado = null))

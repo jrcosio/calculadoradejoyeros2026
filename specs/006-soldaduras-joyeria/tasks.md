@@ -484,7 +484,7 @@ inversos y el contrato de limpieza al cambiar de modo.
 (8 g flojos → 5/2/1; 10 g plata muy floja → 5,714/4,286; 10 g muy fuerte → 2,5/7,5;
 base 13,26 → oro 10).
 
-- [ ] T046 [US5] Ampliar `SoldadurasViewModel` con `onModoCambiado(modo)` —vacía
+- [X] T046 [US5] Ampliar `SoldadurasViewModel` con `onModoCambiado(modo)` —vacía
   `cantidadTexto` y `resultado`, conserva familia y selecciones (FR-023), rearma la
   deduplicación— y los cálculos inversos por familia (`CalcularSoldaduraClasicaInversaUseCase`,
   `CalcularSoldaduraPlataInversaUseCase`, `CalcularSoldaduraLeyInversaUseCase`): en
@@ -492,26 +492,26 @@ base 13,26 → oro 10).
   en ORO LEY: fila BASE con `soldadura_fila_base` y fila ORO_18K con el color) y el total
   recupera el peso pedido; el param `modo` del evento cambia (FR-027). **Depende de T044
   (US4 en verde)**.
-- [ ] T047 [US5] Ampliar `SoldadurasContent` con el conmutador de modo bajo el selector de
+- [X] T047 [US5] Ampliar `SoldadurasContent` con el conmutador de modo bajo el selector de
   familia (`SelectorSegmentado` de 2 opciones en teal, cabecera `soldadura_seccion_modo`):
   etiqueta del modo directo por familia (`soldadura_modo_tengo_oro18k` /
   `soldadura_modo_tengo_oro` / `soldadura_modo_tengo_plata`) y
   `soldadura_modo_peso_final`; el título de la tarjeta de entrada pasa a
   `soldadura_entrada_peso_final` en modo inverso (FR-003). **Depende de T046**.
-- [ ] T048 [US5] Ampliar `SoldaduraBaseViewModel` y `SoldaduraBaseContent` con su
+- [X] T048 [US5] Ampliar `SoldaduraBaseViewModel` y `SoldaduraBaseContent` con su
   conmutador (`soldadura_base_modo_tengo_oro` / `soldadura_base_modo_peso`, título de
   entrada `soldadura_base_entrada_peso`) y el modo inverso con
   `CalcularSoldaduraBaseInversaUseCase`: fila de oro 24K primero + las cuatro de liga +
   total; mismo contrato de limpieza al cambiar de modo (FR-003, FR-012, FR-023).
   **Depende de T046**.
-- [ ] T049 [P] [US5] Ampliar los dos tests de ViewModel: cambiar de modo vacía cantidad y
+- [X] T049 [P] [US5] Ampliar los dos tests de ViewModel: cambiar de modo vacía cantidad y
   resultado y conserva selecciones; ORO LEY inverso con 10 g media → base «5,000», oro
   «5,000», total «10,000»; clásica inversa **TEST 1 formateado** (8 → «5,000»/«2,000»/
   «1,000» y total «8,000»); clásica muy floja de ley con 10 → «6,944»/«0,694»/«1,111»/
   «1,250» (suma visible 9,999: documenta §8.3 y FR-021); plata inversa 10 muy floja →
   «5,714»/«4,286»; base inversa 10 → oro «7,541» + «0,407»/«0,603»/«0,694»/«0,754»; base
   inversa 13,26 → oro «10,000». **Depende de T046 y T048**.
-- [ ] T050 [P] [US5] Ampliar los dos tests de pantalla: el conmutador existe y propaga; en
+- [X] T050 [P] [US5] Ampliar los dos tests de pantalla: el conmutador existe y propaga; en
   inverso la fila del metal de entrada sí se pinta; la nota de redondeo es visible junto al
   total. **Depende de T047 y T048**.
 

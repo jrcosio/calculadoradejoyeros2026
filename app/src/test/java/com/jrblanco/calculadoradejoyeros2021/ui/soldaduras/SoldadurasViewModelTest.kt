@@ -301,6 +301,125 @@ class SoldadurasViewModelTest {
         }
     }
 
+    // --- Modo peso final deseado (US5, §2.3, FR-003, FR-023) ---
+
+    @Test
+    fun `cambiar de modo vacia cantidad y resultado y conserva las selecciones`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onDurezaSeleccionada(DurezaSoldaduraLey.MEDIA)
+        viewModel.onColorSeleccionado(ColorOroSoldadura.ROSA)
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        val estado = viewModel.uiState.value
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, estado.modo)
+        assertEquals("", estado.cantidadTexto)
+        assertNull(estado.resultado)
+        assertEquals(FamiliaSoldadura.ORO_LEY, estado.familia)
+        assertEquals(DurezaSoldaduraLey.MEDIA, estado.dureza)
+        assertEquals(ColorOroSoldadura.ROSA, estado.colorOro)
+    }
+
+    @Test
+    fun `oro ley inverso - 10 gramos media reparten 5,000 de base y 5,000 de oro`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+        viewModel.onDurezaSeleccionada(DurezaSoldaduraLey.MEDIA)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        // En inverso se pintan todas las filas, incluido el oro del color (FR-022).
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.BASE, "5,000"),
+                FilaSoldadura(IngredienteSoldadura.ORO_18K, "5,000"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("10,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `test 1 formateado - clasica floja inversa con 8 gramos recupera la receta patron`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("8")
+
+        val resultado = viewModel.uiState.value.resultado
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.ORO_18K, "5,000"),
+                FilaSoldadura(IngredienteSoldadura.PLATA_FINA, "2,000"),
+                FilaSoldadura(IngredienteSoldadura.LATON, "1,000"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("8,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `clasica muy floja de ley inversa con 10 gramos documenta la nota de redondeo`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.CLASICA)
+        viewModel.onTipoClasicaSeleccionado(TipoSoldaduraClasica.MUY_FLOJA_LEY)
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        // La suma visible es 9,999: una milésima menos que el total pedido, por el
+        // redondeo de vista sobre la división infinita 10÷1,44. Es exactamente el caso
+        // de la nota de §8.3 (FR-021): ningún ingrediente se ajusta para cuadrarla.
+        assertEquals(
+            listOf("6,944", "0,694", "1,111", "1,250"),
+            resultado?.filas?.map { it.gramosFormateados },
+        )
+        assertEquals("10,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `plata inversa - 10 gramos muy floja reparten 5,714 de plata y 4,286 de laton`() {
+        val viewModel = crearViewModel()
+        viewModel.onFamiliaSeleccionada(FamiliaSoldadura.PLATA)
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.PLATA_FINA, "5,714"),
+                FilaSoldadura(IngredienteSoldadura.LATON, "4,286"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("10,000", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `el modo viaja en el evento de calculo`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("10")
+
+        verify(exactly = 1) {
+            analytics.logEvent(
+                "soldaduras_calculado",
+                mapOf(
+                    "familia" to "oro_ley",
+                    "modo" to "peso_final",
+                    "tipo" to "muy_floja",
+                    "color" to "amarillo",
+                ),
+            )
+        }
+    }
+
     // --- Telemetría deduplicada (FR-027) ---
 
     @Test

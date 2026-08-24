@@ -35,8 +35,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
+import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
 import com.jrblanco.calculadoradejoyeros2021.ui.components.FilaMetal
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryScaffold
+import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
+import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaTotal
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
@@ -104,6 +107,27 @@ fun SoldaduraBaseContent(
             AvisoTecnico(stringResource(R.string.soldadura_aviso_seguridad))
 
             TarjetaProceso()
+
+            // Conmutador de modo de la base (§5.2, FR-003, FR-012): desde el oro fino o
+            // desde el peso de base deseado. Cambiarlo vacía la cantidad (FR-023).
+            CabeceraSeccion(
+                iconRes = R.drawable.ic_balanza,
+                titulo = stringResource(R.string.soldadura_seccion_modo),
+            )
+            SelectorSegmentado(
+                opciones = listOf(
+                    OpcionSegmento(
+                        stringResource(R.string.soldadura_base_modo_tengo_oro),
+                        JewelryColors.TealPrimary,
+                    ),
+                    OpcionSegmento(
+                        stringResource(R.string.soldadura_base_modo_peso),
+                        JewelryColors.TealPrimary,
+                    ),
+                ),
+                seleccionada = uiState.modo.ordinal,
+                onSeleccion = { onModoCambiado(ModoEntradaSoldadura.entries[it]) },
+            )
 
             TarjetaEntradaBase(
                 cantidad = uiState.cantidadTexto,

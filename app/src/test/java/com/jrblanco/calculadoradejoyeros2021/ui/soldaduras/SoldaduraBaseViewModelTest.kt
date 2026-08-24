@@ -95,6 +95,60 @@ class SoldaduraBaseViewModelTest {
         }
     }
 
+    // --- Modo peso de base deseado (US5, §5.2, FR-012, FR-023) ---
+
+    @Test
+    fun `cambiar de modo vacia cantidad y resultado`() {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        val estado = viewModel.uiState.value
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, estado.modo)
+        assertEquals("", estado.cantidadTexto)
+        assertNull(estado.resultado)
+    }
+
+    @Test
+    fun `base inversa - 13,26 gramos recuperan los 10 de oro fino con todas las filas`() {
+        val viewModel = crearViewModel()
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("13,26")
+
+        val resultado = viewModel.uiState.value.resultado
+        // En inverso el oro introducido sí se pinta, el primero (FR-022).
+        assertEquals(
+            listOf(
+                FilaSoldadura(IngredienteSoldadura.ORO_24K, "10,000"),
+                FilaSoldadura(IngredienteSoldadura.COBRE, "0,540"),
+                FilaSoldadura(IngredienteSoldadura.PLATA_FINA, "0,800"),
+                FilaSoldadura(IngredienteSoldadura.ZINC, "0,920"),
+                FilaSoldadura(IngredienteSoldadura.CADMIO, "1,000"),
+            ),
+            resultado?.filas,
+        )
+        assertEquals("13,260", resultado?.totalFormateado)
+    }
+
+    @Test
+    fun `base inversa - 10 gramos documentan la nota de redondeo`() {
+        val viewModel = crearViewModel()
+        viewModel.onModoCambiado(ModoEntradaSoldadura.PESO_FINAL)
+
+        viewModel.onCantidadCambiada("10")
+
+        val resultado = viewModel.uiState.value.resultado
+        // División infinita 10÷13,26: la suma visible queda en 9,999 y lo advierte la
+        // nota de §8.3; ningún ingrediente se ajusta para cuadrarla (FR-021).
+        assertEquals(
+            listOf("7,541", "0,407", "0,603", "0,694", "0,754"),
+            resultado?.filas?.map { it.gramosFormateados },
+        )
+        assertEquals("10,000", resultado?.totalFormateado)
+    }
+
     @Test
     fun `teclear no duplica el evento de calculo`() {
         val viewModel = crearViewModel()

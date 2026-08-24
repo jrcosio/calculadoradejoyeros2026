@@ -145,6 +145,29 @@ fun SoldadurasContent(
                 onSeleccion = { onFamiliaSeleccionada(FamiliaSoldadura.entries[it]) },
             )
 
+            // Con familia elegida, el conmutador de modo (§2.3, FR-003): «tengo el
+            // metal» o «peso final deseado». Cambiarlo vacía la cantidad (FR-023).
+            uiState.familia?.let { familia ->
+                CabeceraSeccion(
+                    iconRes = R.drawable.ic_balanza,
+                    titulo = stringResource(R.string.soldadura_seccion_modo),
+                )
+                SelectorSegmentado(
+                    opciones = listOf(
+                        OpcionSegmento(
+                            stringResource(familia.etiquetaModoDirectoRes),
+                            JewelryColors.TealPrimary,
+                        ),
+                        OpcionSegmento(
+                            stringResource(R.string.soldadura_modo_peso_final),
+                            JewelryColors.TealPrimary,
+                        ),
+                    ),
+                    seleccionada = uiState.modo.ordinal,
+                    onSeleccion = { onModoCambiado(ModoEntradaSoldadura.entries[it]) },
+                )
+            }
+
             // Primera visita (FR-002): solo el selector. El formulario llega al elegir.
             when (uiState.familia) {
                 null -> Unit
@@ -516,6 +539,14 @@ private val FamiliaSoldadura.etiquetaRes: Int
         FamiliaSoldadura.ORO_LEY -> R.string.soldadura_familia_oro_ley
         FamiliaSoldadura.CLASICA -> R.string.soldadura_familia_clasica
         FamiliaSoldadura.PLATA -> R.string.soldadura_familia_plata
+    }
+
+/** La etiqueta del modo directo, que nombra el metal de entrada de cada familia. */
+private val FamiliaSoldadura.etiquetaModoDirectoRes: Int
+    get() = when (this) {
+        FamiliaSoldadura.ORO_LEY -> R.string.soldadura_modo_tengo_oro18k
+        FamiliaSoldadura.CLASICA -> R.string.soldadura_modo_tengo_oro
+        FamiliaSoldadura.PLATA -> R.string.soldadura_modo_tengo_plata
     }
 
 /** Las dos familias de oro en dorado y la de plata en plateado, como el mockup. */

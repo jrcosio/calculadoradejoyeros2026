@@ -5,6 +5,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
@@ -104,6 +105,17 @@ class SoldaduraBaseScreenTest {
         composeRule.onNode(hasSetTextAction()).performTextInput("10")
 
         assertEquals("10", cantidad)
+    }
+
+    @Test
+    fun elConmutadorDeModoExisteYPropaga() {
+        var modo: ModoEntradaSoldadura? = null
+        montar(SoldaduraBaseUiState(), onModoCambiado = { modo = it })
+
+        composeRule.onNodeWithText(texto(R.string.soldadura_base_modo_tengo_oro)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.soldadura_base_modo_peso)).performClick()
+
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, modo)
     }
 
     @Test
