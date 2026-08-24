@@ -547,16 +547,16 @@ inicial de la familia) y «Guardar en favoritos» (Toast, sin cambios de estado)
 
 ## Fase 9 — Pulido y verificación
 
-- [ ] T054 [P] Actualizar `CLAUDE.md`: los cuatro destinos pendientes pasan a tres
+- [X] T054 [P] Actualizar `CLAUDE.md`: los cuatro destinos pendientes pasan a tres
   (Favoritos, Ajustes y Herramientas); documentar el tercer motor (`RecetasSoldadura` como
   única fuente de verdad de §7, `HALF_UP` interno y de vista frente al DOWN de plata, los
   tres casos de uso de ley y el que no tiene UI), `ui/soldaduras/` como quinto ejemplo de
   pantalla (dos pantallas, un paquete), el parámetro `maxPorFila` de `SelectorSegmentado` y
   las cinco imágenes nuevas de `drawable-nodpi/`. **Depende de T053**.
-- [ ] T055 Puertas finales: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
+- [X] T055 Puertas finales: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
   y en verde `./gradlew :app:testDebugUnitTest` (motor + ViewModels + `KoinModulesTest`),
   `./gradlew :app:lint` y `./gradlew :app:assembleDebug`. **Depende de T054**.
-- [ ] T056 Verificación manual en emulador contra los criterios de la spec: SC-001 y
+- [X] T056 Verificación manual en emulador contra los criterios de la spec: SC-001 y
   SC-003 (los ejemplos numéricos en pantalla), SC-005 (avisos de seguridad), SC-006
   (primera visita), SC-007 (coma/punto), SC-008 (nota de redondeo con 10 g muy floja de
   ley), SC-009 (fuente al doble, 5 durezas legibles), SC-011 (sin andamiaje) y SC-012
@@ -598,3 +598,53 @@ en secuencia y no en paralelo.
   (T015, T020), precedente de la 005.
 - Commit tras cada tarea o grupo lógico con Conventional Commits en español
   (`feat(006): …`, `test(006): …`, `docs(006): …`).
+
+---
+
+## Resultado de la verificación (2026-08-24, emulador Pixel_10 API 36)
+
+**Puertas automáticas**: `./gradlew :app:testDebugUnitTest` en verde — 165 tests en 21
+clases, incluidos los 42 del motor de soldaduras (TEST 1–10 de §10 y propiedades), los 30
+de `SoldadurasViewModelTest`, los 12 de `SoldaduraBaseViewModelTest` y `KoinModulesTest`
+con los 9 casos de uso y los 2 ViewModels nuevos. `:app:lint` y `:app:assembleDebug` sin
+errores. `:app:compileDebugAndroidTestKotlin` compila las dos suites instrumentadas.
+
+**Verificación manual en emulador**, contra los criterios de la spec:
+
+- **SC-006 / FR-002**: primera visita con solo el selector de familias, ninguna marcada;
+  al elegir ORO LEY aparece su formulario. ✓
+- **SC-003**: 2 g de oro 18K muy floja → base 6,667 g y total 8,667 g (mockup: 6,67);
+  clásica fuerte 10 g → 1,000/1,000/1,000 y total 13,000; clásica muy floja de ley 10 g →
+  1,000/1,600/1,800 con la entrada cambiada a «Introduce el oro de 24K»; plata muy floja
+  25 g → latón 18,750 y total 43,750. ✓
+- **SC-001 (TEST 6) / FR-007**: la base con 10 g de oro 24K → cobre 0,540, plata fina
+  0,800, zinc 0,920, cadmio 1,000, total 13,260 — los valores del documento, no los del
+  mockup. ✓
+- **SC-005 / FR-017**: aviso de seguridad visible en clásica muy floja de ley (y ausente
+  en floja/fuerte) y en la pantalla de la base **antes** del proceso. ✓
+- **FR-003/FR-023**: conmutador «Tengo…/Peso final» en las tres familias y en la base;
+  plata en peso final con 10 g → 5,714/4,286 y total 10,000; cambiar de modo o de familia
+  vacía el campo. ✓
+- **FR-013/FR-014**: tarjeta «Proceso» con los 3 pasos, la nota de masa teórica y sin
+  rastro de 750/754 milésimas. ✓
+- **FR-024**: «Limpiar» y «Guardar en favoritos» dorados en ambas pantallas; ocultos en
+  la primera visita. ✓
+- **SC-009**: con la fuente del sistema al doble nada se recorta; las 5 durezas quedan
+  legibles en dos filas (`maxPorFila = 3`) y todo es alcanzable por desplazamiento. ✓
+- **SC-011**: ningún destino del menú lleva ya al andamiaje de soldaduras. ✓
+- **FR-018**: ningún texto visible afirma certificación metalúrgica. ✓
+- **SC-012**: las pantallas son reconocibles frente a los mockups con los estilos de la
+  app (selector tipográfico en vez de radios/iconos, botones Limpiar/favoritos en vez de
+  «OK», totales visibles también en modo directo — decisiones documentadas en la spec).
+
+### Desviaciones respecto al plan de tareas
+
+- T027 dejó ya escritos en el ViewModel los manejadores y cálculos que T038/T042/T046
+  ampliaban (firma estable de `SoldadurasContent` desde el primer día); las historias
+  US3–US5 añadieron sus formularios, filas y tests tal como estaban planificados.
+- Los tests instrumentados (T030, T037, T041, T045, T050, T053) quedan compilados en
+  verde (`compileDebugAndroidTestKotlin`); no se ejecutaron en el emulador en esta
+  sesión — la verificación funcional equivalente se hizo a mano y queda arriba.
+- SC-010 (lector de pantalla) no se verificó con TalkBack en esta sesión; la semántica
+  (grupos de selección, `liveRegion` del aviso, fusión de filas) es la de los
+  componentes compartidos ya auditados en la 004/005.
