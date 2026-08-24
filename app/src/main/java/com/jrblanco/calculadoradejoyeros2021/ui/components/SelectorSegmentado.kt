@@ -3,7 +3,9 @@ package com.jrblanco.calculadoradejoyeros2021.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +60,12 @@ data class OpcionSegmento(
  * impone su altura, su forma y su marca de selección, y el diseño pide píldora con
  * degradado del acento — el mismo motivo por el que `JewelryBottomBar` y el botón de
  * portada tampoco usan Material.
+ *
+ * [maxPorFila] parte las opciones en varias filas cuando no caben legibles en una: las
+ * cinco durezas de la calculadora de soldaduras (§5.4 de su documento técnico) forzarían
+ * al auto-ajuste hacia lo ilegible. Con el valor por defecto todo va en una fila, el
+ * camino de siempre: oro y plata no cambian ni un píxel. Los índices de [onSeleccion]
+ * son siempre globales, mire donde mire la opción.
  */
 @Composable
 fun SelectorSegmentado(
@@ -65,24 +73,33 @@ fun SelectorSegmentado(
     seleccionada: Int,
     onSeleccion: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    maxPorFila: Int = Int.MAX_VALUE,
 ) {
     val marco = RoundedCornerShape(JewelryRadius.Small)
-    Row(
+    val porFila = maxPorFila.coerceAtLeast(1)
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .background(JewelryColors.Surface, marco)
             .border(1.dp, JewelryColors.Border, marco)
             .padding(3.dp)
+            // El grupo de selección es el conjunto entero, tenga una fila o varias.
             .selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
-        opciones.forEachIndexed { indice, opcion ->
-            Segmento(
-                etiqueta = opcion.etiqueta,
-                activa = indice == seleccionada,
-                acento = opcion.acento,
-                onClick = { onSeleccion(indice) },
-                modifier = Modifier.weight(1f),
-            )
+        opciones.chunked(porFila).forEachIndexed { fila, opcionesFila ->
+            Row(Modifier.fillMaxWidth()) {
+                opcionesFila.forEachIndexed { columna, opcion ->
+                    val indice = fila * porFila + columna
+                    Segmento(
+                        etiqueta = opcion.etiqueta,
+                        activa = indice == seleccionada,
+                        acento = opcion.acento,
+                        onClick = { onSeleccion(indice) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
         }
     }
 }
