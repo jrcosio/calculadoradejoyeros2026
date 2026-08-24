@@ -46,10 +46,15 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
  * El acento va por opción y no por fila porque hay selectores donde cada valor tiene
  * su propio color —el color del oro se elige en el tono de ese oro— y otros donde
  * todas comparten el dorado, que es el valor por defecto.
+ *
+ * [peso] reparte el ancho de la fila: con el valor por defecto todos los segmentos son
+ * iguales; una etiqueta claramente más larga que sus vecinas —«Muy floja (18K)» junto a
+ * «Floja» y «Fuerte» en soldaduras— puede pedir más sitio sin forzar el auto-ajuste.
  */
 data class OpcionSegmento(
     val etiqueta: String,
     val acento: Color = JewelryColors.GoldPrimary,
+    val peso: Float = 1f,
 )
 
 /**
@@ -96,7 +101,7 @@ fun SelectorSegmentado(
                         activa = indice == seleccionada,
                         acento = opcion.acento,
                         onClick = { onSeleccion(indice) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(opcion.peso),
                     )
                 }
             }

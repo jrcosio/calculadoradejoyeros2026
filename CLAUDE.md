@@ -142,7 +142,9 @@ el selector de familias). Sus cinco bitmaps (`granalla`, `cadmio`, `zinc`, `lato
   (opcional, por defecto sin límite) parte las opciones en varias filas con índices
   globales: lo estrenaron las 5 durezas de soldaduras con `maxPorFila = 3`. Acepta
   `seleccionada = -1` para pintar el grupo sin ninguna opción activa (la primera visita
-  de soldaduras).
+  de soldaduras). `OpcionSegmento.peso` (por defecto 1f) reparte el ancho de la fila:
+  una etiqueta claramente más larga que sus vecinas puede pedir más sitio — «Muy floja
+  (18K)» va con 1.5f junto a «Floja» y «Fuerte» en la clásica de soldaduras.
 
 Los siete siguientes nacieron privados en `ui/oro/OroScreen.kt` y subieron aquí con la
 feature 005, cuando la calculadora de plata pidió los mismos. Es la regla del proyecto: en

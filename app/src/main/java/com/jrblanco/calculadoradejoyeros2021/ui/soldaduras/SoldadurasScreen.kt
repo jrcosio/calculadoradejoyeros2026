@@ -322,7 +322,13 @@ private fun FormularioClasica(
     )
     SelectorSegmentado(
         opciones = TipoSoldaduraClasica.entries.map {
-            OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary)
+            OpcionSegmento(
+                etiqueta = stringResource(it.etiquetaRes),
+                acento = JewelryColors.TealPrimary,
+                // «Muy floja (18K)» es mucho más larga que «Floja» y «Fuerte»: le toca
+                // más ancho para que no vaya forzada dentro de su píldora.
+                peso = if (it == TipoSoldaduraClasica.MUY_FLOJA_LEY) 1.5f else 1f,
+            )
         },
         seleccionada = uiState.tipoClasica.ordinal,
         onSeleccion = { onTipoClasicaSeleccionado(TipoSoldaduraClasica.entries[it]) },

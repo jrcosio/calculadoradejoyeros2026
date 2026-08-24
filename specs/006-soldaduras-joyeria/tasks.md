@@ -654,3 +654,7 @@ errores. `:app:compileDebugAndroidTestKotlin` compila las dos suites instrumenta
   clásica «Muy floja (ley 18K)» se acorta a «Muy floja (18K)» para no forzar el
   auto-ajuste del segmento. Verificado en emulador; test instrumentado nuevo
   (`conOtroTipoDePlata_laNotaDeComposturasDesaparece`).
+- Ajuste posterior a petición del autor (2026-08-25): `OpcionSegmento` gana `peso`
+  (por defecto 1f, oro/plata intactos) y en el selector clásico «Muy floja (18K)» recibe
+  1.5f para que «Floja» y «Fuerte» le cedan el ancho que les sobra. Verificado en
+  emulador con la píldora activa e inactiva.
