@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
+import com.jrblanco.calculadoradejoyeros2021.ui.components.BotonDorado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
 import com.jrblanco.calculadoradejoyeros2021.ui.components.FilaMetal
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryScaffold
@@ -171,6 +172,21 @@ fun SoldaduraBaseContent(
                     text = stringResource(R.string.soldadura_nota_redondeo),
                     style = MaterialTheme.typography.bodySmall,
                     color = JewelryColors.TextMuted,
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(JewelrySpacing.Md)) {
+                BotonDorado(
+                    iconRes = R.drawable.ic_refrescar,
+                    texto = stringResource(R.string.accion_limpiar),
+                    onClick = onLimpiar,
+                    modifier = Modifier.weight(1f),
+                )
+                BotonDorado(
+                    iconRes = R.drawable.ic_estrella,
+                    texto = stringResource(R.string.accion_guardar_favoritos),
+                    onClick = onGuardarFavoritos,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

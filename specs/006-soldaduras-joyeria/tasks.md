@@ -527,17 +527,17 @@ el aviso de «Próximamente».
 **Test independiente**: completar un cálculo, pulsar «Limpiar» (queda el formulario
 inicial de la familia) y «Guardar en favoritos» (Toast, sin cambios de estado).
 
-- [ ] T051 [US6] Ampliar los dos ViewModels con `onLimpiar()` —en soldaduras
+- [X] T051 [US6] Ampliar los dos ViewModels con `onLimpiar()` —en soldaduras
   `SoldadurasUiState(familia = actual)` (conserva la familia, FR-024) y en la base
   `SoldaduraBaseUiState()`; ambos rearman la deduplicación— y `onGuardarFavoritos()` —solo
   telemetría: `soldaduras_favoritos_proximamente` / `soldadura_base_favoritos_proximamente`.
   **Depende de T049 (US5 en verde)**.
-- [ ] T052 [US6] Ampliar las dos pantallas con la fila de `BotonDorado` (`ic_refrescar` +
+- [X] T052 [US6] Ampliar las dos pantallas con la fila de `BotonDorado` (`ic_refrescar` +
   `accion_limpiar`, `ic_estrella` + `accion_guardar_favoritos`, `weight(1f)` cada uno); en
   soldaduras solo visible con familia elegida (FR-024); el Toast
   `R.string.aviso_proximamente` lo lanza el composable con estado, patrón plata (el
   ViewModel no conoce Android). **Depende de T051**.
-- [ ] T053 [P] [US6] Ampliar los tests: `onLimpiar` en soldaduras equivale a
+- [X] T053 [P] [US6] Ampliar los tests: `onLimpiar` en soldaduras equivale a
   `SoldadurasUiState(familia = actual)` y en la base al estado inicial; tras limpiar, el
   mismo cálculo vuelve a emitir telemetría; favoritos no altera el estado y emite su
   evento; en pantalla, sin familia no existen los botones y con familia sí; pulsar cada

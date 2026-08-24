@@ -475,6 +475,56 @@ class SoldadurasViewModelTest {
         }
     }
 
+    // --- Limpiar y favoritos (US6, FR-024) ---
+
+    @Test
+    fun `limpiar vuelve al formulario inicial conservando la familia`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onDurezaSeleccionada(DurezaSoldaduraLey.FUERTE)
+        viewModel.onColorSeleccionado(ColorOroSoldadura.BLANCO)
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onLimpiar()
+
+        assertEquals(
+            SoldadurasUiState(familia = FamiliaSoldadura.ORO_LEY),
+            viewModel.uiState.value,
+        )
+    }
+
+    @Test
+    fun `tras limpiar el mismo calculo vuelve a registrarse`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onCantidadCambiada("2")
+
+        viewModel.onLimpiar()
+        viewModel.onCantidadCambiada("2")
+
+        verify(exactly = 2) {
+            analytics.logEvent(
+                "soldaduras_calculado",
+                mapOf(
+                    "familia" to "oro_ley",
+                    "modo" to "desde_metal",
+                    "tipo" to "muy_floja",
+                    "color" to "amarillo",
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun `guardar favoritos solo emite su evento y no altera el estado`() {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onCantidadCambiada("2")
+        val antes = viewModel.uiState.value
+
+        viewModel.onGuardarFavoritos()
+
+        assertEquals(antes, viewModel.uiState.value)
+        verify(exactly = 1) { analytics.logEvent("soldaduras_favoritos_proximamente") }
+    }
+
     @Test
     fun `al volver la entrada a ser valida el calculo se registra de nuevo`() {
         val viewModel = crearViewModelEnOroLey()

@@ -160,4 +160,32 @@ class SoldaduraBaseViewModelTest {
             analytics.logEvent("soldadura_base_calculado", mapOf("modo" to "desde_metal"))
         }
     }
+
+    // --- Limpiar y favoritos (US6, FR-024) ---
+
+    @Test
+    fun `limpiar vuelve al estado inicial y rearma la telemetria`() {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onLimpiar()
+        viewModel.onCantidadCambiada("10")
+
+        assertEquals(SoldaduraBaseUiState(cantidadTexto = "10").modo, viewModel.uiState.value.modo)
+        verify(exactly = 2) {
+            analytics.logEvent("soldadura_base_calculado", mapOf("modo" to "desde_metal"))
+        }
+    }
+
+    @Test
+    fun `guardar favoritos solo emite su evento y no altera el estado`() {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+        val antes = viewModel.uiState.value
+
+        viewModel.onGuardarFavoritos()
+
+        assertEquals(antes, viewModel.uiState.value)
+        verify(exactly = 1) { analytics.logEvent("soldadura_base_favoritos_proximamente") }
+    }
 }

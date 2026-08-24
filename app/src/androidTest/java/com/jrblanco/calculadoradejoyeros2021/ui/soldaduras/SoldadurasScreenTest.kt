@@ -303,6 +303,34 @@ class SoldadurasScreenTest {
         ).assertExists()
     }
 
+    // --- Limpiar y favoritos (FR-024) ---
+
+    @Test
+    fun primeraVisita_noHayBotonesDeAccion() {
+        montar(SoldadurasUiState())
+
+        composeRule.onAllNodesWithText(texto(R.string.accion_limpiar)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.accion_guardar_favoritos))
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun conFamilia_losBotonesExistenYPropagan() {
+        var limpiado = false
+        var guardado = false
+        montar(
+            estadoOroLey,
+            onLimpiar = { limpiado = true },
+            onGuardarFavoritos = { guardado = true },
+        )
+
+        composeRule.onNodeWithText(texto(R.string.accion_limpiar)).performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos)).performClick()
+
+        assertEquals(true, limpiado)
+        assertEquals(true, guardado)
+    }
+
     @Test
     fun sinResultado_noHayFilaDeBaseNiTotal() {
         montar(estadoOroLey.copy(cantidadTexto = "", resultado = null))

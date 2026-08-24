@@ -46,6 +46,7 @@ import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
+import com.jrblanco.calculadoradejoyeros2021.ui.components.BotonDorado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CampoCantidad
 import com.jrblanco.calculadoradejoyeros2021.ui.components.FilaMetal
@@ -188,6 +189,25 @@ fun SoldadurasContent(
                     onCantidadCambiada = onCantidadCambiada,
                     onTipoPlataSeleccionado = onTipoPlataSeleccionado,
                 )
+            }
+
+            // Los botones solo existen con familia elegida (FR-024): en la primera
+            // visita no hay nada que limpiar ni que guardar.
+            if (uiState.familia != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(JewelrySpacing.Md)) {
+                    BotonDorado(
+                        iconRes = R.drawable.ic_refrescar,
+                        texto = stringResource(R.string.accion_limpiar),
+                        onClick = onLimpiar,
+                        modifier = Modifier.weight(1f),
+                    )
+                    BotonDorado(
+                        iconRes = R.drawable.ic_estrella,
+                        texto = stringResource(R.string.accion_guardar_favoritos),
+                        onClick = onGuardarFavoritos,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }
