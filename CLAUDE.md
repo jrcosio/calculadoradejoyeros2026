@@ -62,36 +62,57 @@ Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
 fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/FirebaseModule.kt`,
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
-La capa `domain/` tiene **dos motores de aleación**, uno por metal, paralelos y sin
-dependencia entre ellos. Los dos son Kotlin puro con `BigDecimal` construido desde
-literales `String`, no redondean pasos intermedios, y su única división redondea **a favor
-de la ley**: a la baja en el modo directo y al alza en el inverso, para que la ley
-resultante nunca quede por debajo de la objetivo. Cada uno lleva sus propias constantes de
-precisión (`FINURA_ORIGEN`, `ESCALA`, `TOLERANCIA`) a propósito: son dos documentos
-técnicos distintos y el de plata no debe depender de un tipo que por dentro se llama «oro».
+La capa `domain/` tiene **tres motores**, paralelos y sin dependencia entre ellos. Los
+tres son Kotlin puro con `BigDecimal` construido desde literales `String` y no redondean
+pasos intermedios. En oro y plata la única división redondea **a favor de la ley**: a la
+baja en el modo directo y al alza en el inverso, para que la ley resultante nunca quede
+por debajo de la objetivo; en soldaduras no hay ley que proteger y la división va a la
+media (`HALF_UP`). Cada motor lleva sus propias constantes de precisión (`FINURA_ORIGEN`,
+`ESCALA`, `TOLERANCIA`) a propósito: son tres documentos técnicos distintos y ninguno
+debe depender de un tipo que por dentro lleve el nombre de otro metal.
 
 - **Oro** (feature 004): `RecetasOro` es la **única fuente de verdad** de las 16 recetas
   color×ley; `CalculoAleacion` reparte la liga entre varios metales.
 - **Plata** (feature 005): `LeyPlata` y `CalculoPlata`, más simples. **No hay
   `RecetasPlata`**: el cobre es el único metal de liga y §28 de su documento técnico
   prohíbe tabular coeficientes por ley, así que solo existe la fórmula general.
+- **Soldaduras** (feature 006): `RecetasSoldadura` es la única fuente de verdad de §7 de
+  su documento (3 recetas clásicas, la receta de la BASE y los factores de plata y de
+  ley); `CalculoSoldadura` escala recetas con orden de presentación propio (por eso
+  `RecetaSoldadura` lleva **lista**, no mapa) y `CalculoSoldaduraLey` resuelve la mezcla
+  base + oro 18K con el color a bordo. **Ojo**: los valores de la BASE son los del
+  documento (cobre 0,54 / plata 0,80 / zinc 0,92 / cadmio 1,00 por 10 g de oro); el
+  mockup los muestra intercambiados y no es fuente. `ColorOroSoldadura` es un enum propio
+  de 3 colores: `ColorOro` tiene ROJO y su documento no lo admite.
 
-Los cuatro casos de uso se registran en `domainModule` con `factoryOf`.
+Los trece casos de uso se registran en `domainModule` con `factoryOf`. Uno de ellos,
+`CalcularSoldaduraLeyUseCase` (mezcla desde la base disponible), **no tiene UI**: existe
+y se prueba por mandato de su documento, el mismo precedente que el modo inverso de plata
+en la 005.
 
-**El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las dos
-calculadoras**: `OroViewModel` redondea a la media (`HALF_UP`) y `PlataViewModel`
-**trunca** (`DOWN`). No los unifiques. En plata la cifra mostrada es la que el joyero pesa
-y la Ley 17/1985 no admite tolerancia en menos: con `HALF_UP`, 100 g de plata fina hacia
-950‰ mostrarían 5,158 g de cobre y la ley real caería a 949,999‰. Truncar a 3 decimales da
-5,157 g y 950,008‰, y equivale al «modo taller seguro» del documento con la resolución de
-balanza de 0,001 g que recomienda por defecto.
+**El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las tres
+calculadoras**: `OroViewModel` y los dos ViewModels de soldaduras redondean a la media
+(`HALF_UP`) y `PlataViewModel` **trunca** (`DOWN`). No los unifiques. En plata la cifra
+mostrada es la que el joyero pesa y la Ley 17/1985 no admite tolerancia en menos: con
+`HALF_UP`, 100 g de plata fina hacia 950‰ mostrarían 5,158 g de cobre y la ley real caería
+a 949,999‰. Truncar a 3 decimales da 5,157 g y 950,008‰, y equivale al «modo taller
+seguro» del documento con la resolución de balanza de 0,001 g que recomienda por defecto.
+En soldaduras no hay ley que proteger (son recetas de taller) y la suma visible puede
+desviarse una milésima en los repartos con división infinita: la respuesta es la nota
+«la suma puede variar mínimamente por redondeo» (§8.3 de su documento), nunca ajustar un
+ingrediente para cuadrar la vista.
 
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
 es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
 `ui/oro/` es el tercero: formulario reactivo sobre un motor de dominio, con el estado
-ya formateado en el `UiState`. `ui/plata/` es el cuarto y el más corto de los cuatro,
+ya formateado en el `UiState`. `ui/plata/` es el cuarto y el más corto,
 porque se pinta entero con componentes de `ui/components/`: es el que conviene copiar para
-una calculadora nueva.
+una calculadora nueva. `ui/soldaduras/` es el quinto y el único paquete con **dos
+pantallas** (la calculadora y la soldadura BASE, con ruta propia `Route.SoldaduraBase`):
+sus mapeos enum→recursos compartidos viven en `PresentacionSoldadura.kt`, interno al
+paquete, y su `SoldadurasUiState` usa `familia = null` para la primera visita (solo se ve
+el selector de familias). Sus cinco bitmaps (`granalla`, `cadmio`, `zinc`, `laton`,
+`proceso`) viven en `drawable-nodpi/` junto a los demás.
 
 ### Componentes compartidos
 
@@ -99,7 +120,13 @@ una calculadora nueva.
 
 - **`JewelryScaffold`** — barra superior, contenido y barra inferior opcional. **Cada
   pantalla declara aquí su propio *chrome***; no hay un `Scaffold` global que deduzca
-  las barras husmeando la ruta actual.
+  las barras husmeando la ruta actual. La app es edge-to-edge y los WindowInsets se
+  reparten así: `JewelryTopBar` consume la barra de estado, `JewelryBottomBar` la de
+  navegación, y **cuando la pantalla no lleva barra inferior es el scaffold quien
+  reserva ese hueco** (`windowInsetsPadding(navigationBars.only(Bottom))`) — sin eso,
+  los 3 botones de Android caen encima del contenido. No añadas insets inferiores en
+  las pantallas: ya vienen resueltos de aquí (los `imePadding()` no se duplican porque
+  Compose descuenta lo consumido).
 - **`JewelryTopBar`** — sin `title` pinta el logo centrado (zonas principales); con
   `title` y `onBack` pinta flecha y nombre de sección. `onInfo` es **nulable**: la
   pantalla de información lo pasa a `null` y el icono se cambia por un hueco de 48 dp,
@@ -117,7 +144,13 @@ una calculadora nueva.
 - **`SelectorSegmentado`** — fila de opciones excluyentes con píldora degradada y check
   en el acento. Hecho a mano: `SegmentedButton` de Material impone su geometría. El
   acento va **por opción** (`OpcionSegmento`), que es lo que permite elegir cada color de
-  oro en su propio tono; con el valor por defecto toda la fila sale dorada.
+  oro en su propio tono; con el valor por defecto toda la fila sale dorada. `maxPorFila`
+  (opcional, por defecto sin límite) parte las opciones en varias filas con índices
+  globales: lo estrenaron las 5 durezas de soldaduras con `maxPorFila = 3`. Acepta
+  `seleccionada = -1` para pintar el grupo sin ninguna opción activa (la primera visita
+  de soldaduras). `OpcionSegmento.peso` (por defecto 1f) reparte el ancho de la fila:
+  una etiqueta claramente más larga que sus vecinas puede pedir más sitio — «Muy floja
+  (18K)» va con 1.5f junto a «Floja» y «Fuerte» en la clásica de soldaduras.
 
 Los siete siguientes nacieron privados en `ui/oro/OroScreen.kt` y subieron aquí con la
 feature 005, cuando la calculadora de plata pidió los mismos. Es la regla del proyecto: en
@@ -130,9 +163,11 @@ cada pantalla la que mapea sus enums a imágenes y textos.
 - **`BotonDorado`** (en `Botones.kt`) — botón de acción principal. **No** se parametriza el
   color: el dorado es el lenguaje de acción de la app, no el acento de un módulo, así que
   «Limpiar» y «Guardar en favoritos» son dorados también en la pantalla de plata.
-- **`AvisoTecnico`** (en `Avisos.kt`) — advertencia ámbar de ley no oficial, con región
-  viva para el lector de pantalla. El texto va por parámetro porque oro tiene un aviso
-  (12 K) y plata dos (950‰ y 900‰), cada uno con su redacción.
+- **`AvisoTecnico`** (en `Avisos.kt`) — advertencia ámbar con región viva para el lector
+  de pantalla. El texto va por parámetro porque oro tiene un aviso (12 K), plata dos
+  (950‰ y 900‰) y soldaduras usa el mismo componente para la advertencia de seguridad de
+  cadmio/zinc (obligatoria por §9 de su documento, y **antes** del proceso de taller en
+  la pantalla de la base).
 - **`FilaMetal`** y **`TarjetaTotal`** (en `Tarjetas.kt`) — fila de resultado por metal y
   tarjeta de total con balanza. En `TarjetaTotal` el acento tiñe icono, cifra y unidad; la
   etiqueta se queda en `TextPrimary`.
@@ -156,7 +191,7 @@ nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 ### Pantallas aún sin desarrollar
 
 `ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-cuatro destinos pendientes (Favoritos, Ajustes, Soldaduras y Herramientas). Recibe
+tres destinos pendientes (Favoritos, Ajustes y Herramientas). Recibe
 `title` (traducible) y `analyticsName` (identificador estable para telemetría, que no
 debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
