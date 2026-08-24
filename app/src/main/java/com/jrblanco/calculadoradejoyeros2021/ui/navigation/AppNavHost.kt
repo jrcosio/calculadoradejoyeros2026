@@ -16,6 +16,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.plata.PlataScreen
+import com.jrblanco.calculadoradejoyeros2021.ui.soldaduras.SoldaduraBaseScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.soldaduras.SoldadurasScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.welcome.WelcomeScreen
 
@@ -100,8 +101,14 @@ fun AppNavHost(
             PlataScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Soldaduras> {
-            // El destino de la base se cablea en la US2 de la feature 006.
-            SoldadurasScreen(onInfo = onInfo, onBack = onBack, onSoldaduraBase = {})
+            SoldadurasScreen(
+                onInfo = onInfo,
+                onBack = onBack,
+                onSoldaduraBase = { goTo(Route.SoldaduraBase) },
+            )
+        }
+        composable<Route.SoldaduraBase> {
+            SoldaduraBaseScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Herramientas> {
             PlaceholderScreen(stringResource(R.string.modulo_herramientas_titulo), "herramientas", onInfo, onBack = onBack)

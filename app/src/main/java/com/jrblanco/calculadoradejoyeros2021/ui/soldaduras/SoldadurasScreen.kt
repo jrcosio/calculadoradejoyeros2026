@@ -188,7 +188,7 @@ private fun FormularioOroLey(
         onSeleccion = { onColorSeleccionado(ColorOroSoldadura.entries[it]) },
     )
 
-    TarjetaEntrada(
+    TarjetaEntradaSoldadura(
         cantidad = uiState.cantidadTexto,
         onCantidadCambiada = onCantidadCambiada,
         titulo = stringResource(
@@ -294,9 +294,12 @@ private fun TarjetaSoldaduraBase(
     }
 }
 
-/** Tarjeta de entrada: la imagen del metal y el campo de gramos, con el acento que toque. */
+/**
+ * Tarjeta de entrada: la imagen del metal y el campo de gramos, con el acento que toque.
+ * `internal` porque la comparten las dos pantallas del paquete.
+ */
 @Composable
-private fun TarjetaEntrada(
+internal fun TarjetaEntradaSoldadura(
     cantidad: String,
     onCantidadCambiada: (String) -> Unit,
     titulo: String,

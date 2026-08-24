@@ -368,22 +368,22 @@ calculando en vivo. US1 verificable de forma independiente.
 **Test independiente**: desde ORO LEY pulsar «SOLDADURA BASE», comprobar aviso y proceso,
 introducir 10 g y validar 0,540/0,800/0,920/1,000 con total 13,260.
 
-- [ ] T031 [P] [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseUiState.kt`:
+- [X] T031 [P] [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseUiState.kt`:
   `data class SoldaduraBaseUiState(val modo: ModoEntradaSoldadura = DESDE_METAL, val cantidadTexto: String = "", val resultado: ResultadoSoldaduraBase? = null)`
   y `data class ResultadoSoldaduraBase(val filas: List<FilaSoldadura>, val totalFormateado: String)`.
   Los avisos no tienen campo: la base siempre lleva cadmio y zinc, el aviso es estático
   (FR-017). **Depende de T023**.
-- [ ] T032 [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseViewModel.kt`:
+- [X] T032 [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseViewModel.kt`:
   constructor `(calcularBase: CalcularSoldaduraBaseUseCase, calcularBaseInversa: CalcularSoldaduraBaseInversaUseCase, analytics: AnalyticsRepository)`;
   `init { analytics.logScreenView("soldadura_base") }` (pantalla nueva, serie nueva,
   FR-027); `onCantidadCambiada`; en esta historia solo el modo directo: filas
   cobre/plata/zinc/cadmio en el orden de §5.2 (sin la fila del oro introducido) y total;
   mismo parseo y formateo que `SoldadurasViewModel`; telemetría `soldadura_base_calculado`
   con `mapOf("modo" to ...)`, deduplicada por modo, jamás la cantidad. **Depende de T031**.
-- [ ] T033 [US2] Registrar `viewModelOf(::SoldaduraBaseViewModel)` en
+- [X] T033 [US2] Registrar `viewModelOf(::SoldaduraBaseViewModel)` en
   `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/core/di/ViewModelModule.kt`.
   **Depende de T032**.
-- [ ] T034 [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseScreen.kt`
+- [X] T034 [US2] Crear `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseScreen.kt`
   (`SoldaduraBaseScreen` + `SoldaduraBaseContent` + `@Preview`):
   `JewelryScaffold(onInfo, title = stringResource(R.string.soldadura_base_titulo), onBack)`
   con, en orden: 1) `AvisoTecnico(soldadura_aviso_seguridad)` — **antes** del proceso,
@@ -396,18 +396,18 @@ introducir 10 g y validar 0,540/0,800/0,920/1,000 con total 13,260.
   `TarjetaAcento(TealPrimary)` con las filas vía `PresentacionSoldadura` +
   `TarjetaTotal(soldadura_base_total)` + nota `soldadura_nota_redondeo` (FR-021).
   **Depende de T024, T032 y T033**.
-- [ ] T035 [US2] Añadir `@Serializable data object SoldaduraBase : Route` en
+- [X] T035 [US2] Añadir `@Serializable data object SoldaduraBase : Route` en
   `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/ui/navigation/Routes.kt`, y en
   `AppNavHost.kt` registrar `composable<Route.SoldaduraBase> { SoldaduraBaseScreen(onInfo = onInfo, onBack = onBack) }`
   y cablear el callback pendiente de T028:
   `SoldadurasScreen(..., onSoldaduraBase = { goTo(Route.SoldaduraBase) })` (FR-011, FR-025).
   **Depende de T034**.
-- [ ] T036 [P] [US2] Crear `app/src/test/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseViewModelTest.kt`:
+- [X] T036 [P] [US2] Crear `app/src/test/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseViewModelTest.kt`:
   `logScreenView("soldadura_base")` en init; **TEST 6 formateado** (10 → filas «0,540»,
   «0,800», «0,920», «1,000» en ese orden y total «13,260»); 7 g → «0,378»/«0,560»/«0,644»/
   «0,700» y «9,282»; coma ≡ punto; inválidas sin resultado; deduplicación del evento.
   **Depende de T032**.
-- [ ] T037 [P] [US2] Crear `app/src/androidTest/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseScreenTest.kt`:
+- [X] T037 [P] [US2] Crear `app/src/androidTest/java/com/jrblanco/calculadoradejoyeros2021/ui/soldaduras/SoldaduraBaseScreenTest.kt`:
   el aviso de seguridad es visible siempre y aparece antes que la tarjeta de proceso; la
   tarjeta «Proceso» y sus tres pasos son visibles; con estado precocinado se pintan las
   cuatro filas y el total; escribir en el campo propaga `onCantidadCambiada`; en ningún

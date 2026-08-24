@@ -5,11 +5,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalSoldadura
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 
 // --- Cómo se pinta cada valor de dominio en las dos pantallas de soldaduras. Vive ---
 // --- aquí y no en los enums para que `domain/` siga libre de Android, igual que    ---
 // --- `LeyPlata.etiquetaRes` en plata y `MetalLiga.presentacion()` en oro.          ---
+
+/**
+ * El ingrediente de presentación de cada metal del motor. Lo usan los dos ViewModels
+ * para convertir componentes calculados en filas; ser extensión de paquete evita que
+ * importen nada de Compose.
+ */
+internal val MetalSoldadura.ingrediente: IngredienteSoldadura
+    get() = when (this) {
+        MetalSoldadura.ORO_24K -> IngredienteSoldadura.ORO_24K
+        MetalSoldadura.ORO_18K -> IngredienteSoldadura.ORO_18K
+        MetalSoldadura.PLATA_FINA -> IngredienteSoldadura.PLATA_FINA
+        MetalSoldadura.LATON -> IngredienteSoldadura.LATON
+        MetalSoldadura.COBRE -> IngredienteSoldadura.COBRE
+        MetalSoldadura.ZINC -> IngredienteSoldadura.ZINC
+        MetalSoldadura.CADMIO -> IngredienteSoldadura.CADMIO
+    }
 
 /** La imagen de cada ingrediente de una fila de resultado. */
 internal val IngredienteSoldadura.imagenRes: Int

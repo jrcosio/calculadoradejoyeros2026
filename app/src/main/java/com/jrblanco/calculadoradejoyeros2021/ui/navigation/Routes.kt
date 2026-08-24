@@ -36,6 +36,10 @@ sealed interface Route {
     @Serializable
     data object Soldaduras : Route
 
+    /** La preparación de la soldadura BASE; se llega desde el formulario de ORO LEY. */
+    @Serializable
+    data object SoldaduraBase : Route
+
     @Serializable
     data object Herramientas : Route
 
