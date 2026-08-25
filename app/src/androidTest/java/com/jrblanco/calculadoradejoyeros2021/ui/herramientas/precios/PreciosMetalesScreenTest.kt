@@ -214,7 +214,9 @@ class PreciosMetalesScreenTest {
         val sinDato = MetalCotizado.entries.map { FilaMetalPrecio(it, null, null, null, null, MotivoErrorCotizacion.SIN_CREDENCIAL, false) }
         montar(PreciosMetalesUiState(fase = FasePrecios.ERROR, filas = sinDato, errorGlobal = MotivoErrorCotizacion.SIN_CREDENCIAL, puedeReintentar = false))
 
-        composeRule.onAllNodesWithText(texto(R.string.precios_error_sin_credencial)).assertCountEquals(6)
+        // El motivo va una sola vez, en el aviso global; sin ningún precio no hay tarjeta de mercado.
+        composeRule.onAllNodesWithText(texto(R.string.precios_error_sin_credencial)).assertCountEquals(1)
         composeRule.onAllNodesWithText(texto(R.string.precios_accion_reintentar)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(texto(R.string.precios_mercado_titulo)).assertCountEquals(0)
     }
 }

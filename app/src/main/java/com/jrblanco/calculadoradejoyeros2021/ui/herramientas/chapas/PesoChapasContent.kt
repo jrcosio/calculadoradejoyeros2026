@@ -254,9 +254,14 @@ private fun TarjetaResultadoChapa(
             unidad = stringResource(R.string.unidad_g_cm3),
             acento = acento,
         )
+        // En plata la etiqueta de ley ya lleva «(ley)»: aquí van las milésimas a secas.
+        val leyDePureza = when (familia) {
+            FamiliaChapa.ORO -> stringResource(material.etiquetaRes)
+            FamiliaChapa.PLATA -> stringResource(R.string.chapas_ley_milesimas, material.milesimas)
+        }
         FilaDetalle(
             etiqueta = stringResource(R.string.chapas_detalle_pureza),
-            valor = stringResource(R.string.chapas_pureza_formato, resultado.purezaFormateada, stringResource(material.etiquetaRes)),
+            valor = stringResource(R.string.chapas_pureza_formato, resultado.purezaFormateada, leyDePureza),
             unidad = "",
             acento = acento,
         )

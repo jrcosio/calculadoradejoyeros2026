@@ -226,6 +226,7 @@
     <string name="chapas_detalle_densidad">Densidad</string>
     <string name="chapas_detalle_pureza">Pureza</string>
     <string name="chapas_pureza_formato">%1$s %% (%2$s)</string>
+    <string name="chapas_ley_milesimas">%1$d ‰</string>
     <string name="chapas_dibujo_descripcion">Chapa de %1$s: %2$s de ancho, %3$s de largo y %4$s de espesor</string>
     <string name="chapas_dibujo_medida">%1$s mm</string>
     <string name="chapas_dibujo_sin_medida">sin medida</string>

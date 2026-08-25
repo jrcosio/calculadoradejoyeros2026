@@ -78,7 +78,8 @@ fun PreciosMetalesContent(
             onMetalSeleccionado = onMetalSeleccionado,
             onReintentar = onReintentar,
         )
-        if (uiState.filas.isNotEmpty()) {
+        // Sin ningún precio (ni antiguo) la tarjeta de mercado solo tendría guiones.
+        if (uiState.filas.any { it.precioFormateado != null }) {
             TarjetaMercado(detalle = uiState.detalle, metal = uiState.seleccionado)
         }
     }
@@ -138,6 +139,8 @@ private fun TarjetaPrecios(
                     FilaPrecio(
                         fila = fila,
                         seleccionada = fila.metal == uiState.seleccionado,
+                        // Si los cinco comparten motivo, ya lo dice el aviso global: no se repite por fila.
+                        mostrarMotivo = fila.error != null && fila.error != uiState.errorGlobal,
                         onClick = { onMetalSeleccionado(fila.metal) },
                     )
                 }
@@ -227,6 +230,7 @@ private fun IndicadorDeCarga() {
 private fun FilaPrecio(
     fila: FilaMetalPrecio,
     seleccionada: Boolean,
+    mostrarMotivo: Boolean,
     onClick: () -> Unit,
 ) {
     val forma = RoundedCornerShape(JewelryRadius.Small)
@@ -261,7 +265,7 @@ private fun FilaPrecio(
                 style = MaterialTheme.typography.labelMedium,
                 color = JewelryColors.TealPrimary,
             )
-            fila.error?.let { motivo ->
+            fila.error?.takeIf { mostrarMotivo }?.let { motivo ->
                 Text(
                     text = stringResource(motivo.mensajeRes),
                     style = MaterialTheme.typography.bodySmall,
