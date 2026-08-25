@@ -1,5 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.core.di
 
+import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.HerramientasViewModel
+import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios.PreciosMetalesViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroViewModel
@@ -21,4 +23,7 @@ val viewModelModule = module {
     viewModelOf(::SoldadurasViewModel)
     viewModelOf(::SoldaduraBaseViewModel)
     viewModelOf(::PlaceholderViewModel)
+    // Herramientas (007): el armazón y cada sub-herramienta tienen su propio ViewModel.
+    viewModelOf(::HerramientasViewModel)
+    viewModelOf(::PreciosMetalesViewModel)
 }

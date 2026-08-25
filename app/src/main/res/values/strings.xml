@@ -195,7 +195,7 @@
     <string name="precios_desactualizado">Desactualizado</string>
     <string name="precios_aviso_espera">Acabas de reintentar. Espera un momento antes de volver a consultar.</string>
     <string name="precios_aviso_parcial">No se han podido actualizar todos los metales.</string>
-    <string name="precios_aviso_desactualizado">Sin conexión con el proveedor. Se muestran los últimos precios conocidos.</string>
+    <string name="precios_aviso_desactualizado">Se muestran los últimos precios conocidos.</string>
     <string name="precios_error_sin_credencial">El servicio de cotizaciones no está configurado en esta versión.</string>
     <string name="precios_error_credencial">El proveedor ha rechazado la credencial o la suscripción.</string>
     <string name="precios_error_no_encontrado">El servicio de cotizaciones no está disponible.</string>

@@ -345,7 +345,7 @@ hora persistida y pie con nota, fuente y hora de actualización.
 ver los cinco precios; en el panel del proveedor, exactamente 5 peticiones; salir, forzar el
 cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
 
-- [ ] T028 [P] [US1] Crear en `$SRC/data/source/remote/`: `ClienteHttp.kt` —
+- [X] T028 [P] [US1] Crear en `$SRC/data/source/remote/`: `ClienteHttp.kt` —
   `data class RespuestaHttp(val codigo: Int, val cuerpo: String)` e
   `interface ClienteHttp { @Throws(IOException::class) fun get(url: String, cabeceras: Map<String, String>): RespuestaHttp }`
   (KDoc: bloqueante a propósito; quien salta de hilo es el data source; interfaz para poder
@@ -356,7 +356,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `connectTimeout`/`readTimeout`, `setRequestProperty` por cabecera, lee `inputStream` si
   `responseCode < 400` y `errorStream` si no (cuerpo vacío si null), `disconnect()` en `finally`;
   **nunca** registra cabeceras ni URL.
-- [ ] T029 [P] [US1] Crear en `$SRC/data/source/remote/`: `BigDecimalExactoSerializer.kt` —
+- [X] T029 [P] [US1] Crear en `$SRC/data/source/remote/`: `BigDecimalExactoSerializer.kt` —
   `object BigDecimalExactoSerializer : KSerializer<BigDecimal>` con
   `descriptor = PrimitiveSerialDescriptor("BigDecimalExacto", PrimitiveKind.STRING)`,
   `deserialize = BigDecimal((decoder as JsonDecoder).decodeJsonElement().jsonPrimitive.content)`
@@ -367,7 +367,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `open`, `close`, `originalTime`, `extra` **no se declaran**—; y `MetalSentinelException.kt` —
   `class MetalSentinelException(val motivo: MotivoErrorCotizacion, mensaje: String, causa: Throwable? = null) : Exception(mensaje, causa)`
   (KDoc: el mensaje jamás incluye la credencial ni el cuerpo del proveedor).
-- [ ] T030 [US1] Crear `$SRC/data/source/remote/CotizacionesRemoteDataSource.kt` —
+- [X] T030 [US1] Crear `$SRC/data/source/remote/CotizacionesRemoteDataSource.kt` —
   `interface CotizacionesRemoteDataSource { suspend fun obtener(metal: MetalCotizado): CotizacionMetal }`
   (lanza `MetalSentinelException`)— y `$SRC/data/source/remote/MetalSentinelDataSource.kt` —
   `class MetalSentinelDataSource(private val cliente: ClienteHttp, private val dispatchers: DispatcherProvider, private val reloj: Reloj, private val credencial: String = BuildConfig.RAPIDAPI_KEY) : CotizacionesRemoteDataSource`
@@ -387,7 +387,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `null`; comparación en mayúsculas sin espacios), `etiquetaUnidadOrigen = unit`,
   `instanteMercadoEpochMillis = if (timestamp > 1_000_000_000_000L) timestamp else timestamp * 1000`,
   `obtenidoEnEpochMillis = reloj.ahoraMillis()`. **Depende de T028, T029 y (contrato) T001**.
-- [ ] T031 [P] [US1] Crear en `$SRC/data/source/local/`: `CotizacionesLocalDataSource.kt` —
+- [X] T031 [P] [US1] Crear en `$SRC/data/source/local/`: `CotizacionesLocalDataSource.kt` —
   `interface CotizacionesLocalDataSource { suspend fun leer(): InstantaneaCotizaciones?; suspend fun guardar(instantanea: InstantaneaCotizaciones) }`—;
   `InstantaneaPersistidaDto.kt` — `@Serializable` `InstantaneaPersistidaDto(val version: Int = 1, val instanteIntentoEpochMillis: Long? = null, val resultados: List<ResultadoPersistidoDto>)`,
   `ResultadoPersistidoDto(val metal: String, val cotizacion: CotizacionPersistidaDto? = null, val motivoError: String? = null, val ultimaConocida: CotizacionPersistidaDto? = null)`,
@@ -397,14 +397,14 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `CodificadorInstantanea.kt` — `class CodificadorInstantanea(private val json: Json = Json { ignoreUnknownKeys = true }) { fun codificar(instantanea: InstantaneaCotizaciones): String; fun decodificar(texto: String): InstantaneaCotizaciones? }`
   (`BigDecimal` ↔ `toPlainString()`; enums por nombre con `entries.firstOrNull`; entrada con
   metal o motivo desconocido → se **descarta**; JSON ilegible → `null`). **Depende de T013**.
-- [ ] T032 [US1] Crear `$SRC/data/source/local/SharedPreferencesCotizacionesLocalDataSource.kt`:
+- [X] T032 [US1] Crear `$SRC/data/source/local/SharedPreferencesCotizacionesLocalDataSource.kt`:
   `class SharedPreferencesCotizacionesLocalDataSource(private val context: Context, private val dispatchers: DispatcherProvider) : CotizacionesLocalDataSource`
   con `private val codificador = CodificadorInstantanea()`, `companion object { const val FICHERO = "cotizaciones"; const val CLAVE = "instantanea_json" }`,
   `private val preferencias by lazy { context.getSharedPreferences(FICHERO, Context.MODE_PRIVATE) }`;
   `leer()` en `withContext(dispatchers.io)`: texto → `codificador.decodificar`, y si es `null`
   con texto presente borra la clave; `guardar()` en `dispatchers.io` con `edit().putString(CLAVE, codificador.codificar(instantanea)).commit()`.
   KDoc: ~20 líneas de pegamento, sin test JVM; una sola clave = atómico (R4). **Depende de T031**.
-- [ ] T033 [US1] Crear `$SRC/data/repository/CotizacionesRepositoryImpl.kt`:
+- [X] T033 [US1] Crear `$SRC/data/repository/CotizacionesRepositoryImpl.kt`:
   `class CotizacionesRepositoryImpl(private val remoto: CotizacionesRemoteDataSource, private val local: CotizacionesLocalDataSource, private val reloj: Reloj, private val politica: PoliticaCacheCotizaciones = PoliticaCacheCotizaciones()) : CotizacionesRepository`
   con `private val cerrojo = Mutex()`, `private var enMemoria: InstantaneaCotizaciones? = null`;
   `obtenerCotizaciones() = cerrojo.withLock { val guardada = enMemoria ?: (local.leer() ?: InstantaneaCotizaciones.VACIA); val ahora = reloj.ahoraMillis(); when (val decision = politica.decidir(guardada, ahora)) { Servir -> guardada.copy(origen = CACHE).also { enMemoria = it }; Esperar -> guardada.copy(origen = CACHE_EN_ESPERA).also { enMemoria = it }; is Actualizar -> { val nuevos = supervisorScope { decision.pendientes.map { metal -> async { consultar(metal) } }.awaitAll() }.associateBy { it.metal }; val fusionada = guardada.fusionarCon(nuevos, ahora).copy(origen = RED); enMemoria = fusionada; local.guardar(fusionada); fusionada } } }`;
@@ -412,7 +412,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   (cualquier otra excepción sube: es un bug, no un error de red). KDoc: el `Mutex` alrededor de
   toda la operación es el *single-flight*; solo los pendientes tocan la red. **Depende de T014,
   T030 y T031**.
-- [ ] T034 [US1] Registrar en `$SRC/core/di/DataModule.kt`:
+- [X] T034 [US1] Registrar en `$SRC/core/di/DataModule.kt`:
   `single<ClienteHttp> { ClienteHttpUrlConnection() }`,
   `single { MetalSentinelDataSource(get(), get(), get()) } bind CotizacionesRemoteDataSource::class`,
   `single { SharedPreferencesCotizacionesLocalDataSource(androidContext(), get()) } bind CotizacionesLocalDataSource::class`,
@@ -420,7 +420,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   los data sources van concretos + `bind` para que `verify()` inspeccione sus constructores
   (solo mira el tipo primario, R8); el repositorio por interfaz, regla del proyecto. Completar
   T022 si quedó diferido. **Depende de T032 y T033**.
-- [ ] T035 [P] [US1] Completar los fakes de T023 que dependen de las interfaces de datos
+- [X] T035 [P] [US1] Completar los fakes de T023 que dependen de las interfaces de datos
   (`FakeClienteHttp`, `FakeCotizacionesRemoteDataSource`, `FakeCotizacionesLocalDataSource`) y
   crear `$TEST/data/source/remote/MetalSentinelDataSourceTest.kt` (`runTest`,
   `TestDispatcherProvider`, `RelojFalso(1_787_670_000_000)`, `FakeClienteHttp`,
@@ -435,11 +435,11 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `x-rapidapi-host`, `x-rapidapi-key`, `Accept`. Y `$TEST/data/source/remote/ClienteHttpUrlConnectionTest.kt`
   con `com.sun.net.httpserver.HttpServer` en `localhost:0` (HTTP plano; la URL de producción
   es HTTPS): 200 con cuerpo, 429 con cuerpo de error, cabeceras recibidas. **Depende de T030**.
-- [ ] T036 [P] [US1] Crear `$TEST/data/source/local/CodificadorInstantaneaTest.kt`: ida y vuelta de una instantánea con 4 éxitos + 1 error con `ultimaConocida` conserva
+- [X] T036 [P] [US1] Crear `$TEST/data/source/local/CodificadorInstantaneaTest.kt`: ida y vuelta de una instantánea con 4 éxitos + 1 error con `ultimaConocida` conserva
   `BigDecimal` exacto (`compareTo`), instantes, `unidadOrigen == null` con etiqueta cruda;
   `version == 1` presente en el JSON; metal desconocido («PLATINO») y motivo desconocido se
   descartan; JSON corrupto → `null`; `origen` no viaja. **Depende de T031**.
-- [ ] T037 [P] [US1] Crear `$TEST/data/repository/CotizacionesRepositoryImplTest.kt` (`runTest`,
+- [X] T037 [P] [US1] Crear `$TEST/data/repository/CotizacionesRepositoryImplTest.kt` (`runTest`,
   fakes de T023/T035, `RelojFalso`): 1.ª llamada → 5 consultas al remoto, `origen == RED`, el
   local guarda; 2.ª llamada 59 min después → 0 consultas, `CACHE`; 61 min → 5; fallo parcial
   (rodio lanza `SIN_CONEXION`) → 4 `Exito` + 1 `Error`; reintento 30 s después → 0 consultas y
@@ -448,14 +448,14 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   mismo fake local → `CACHE` sin red; local vacío o corrupto → parte de `VACIA`; dos llamadas
   concurrentes (remoto con `CompletableDeferred`) → 5 consultas en total (single-flight);
   excepción no `MetalSentinelException` del remoto se propaga. **Depende de T033**.
-- [ ] T038 [P] [US1] Crear `$SRC/ui/herramientas/HerramientasViewModel.kt` (sobre el
+- [X] T038 [P] [US1] Crear `$SRC/ui/herramientas/HerramientasViewModel.kt` (sobre el
   `HerramientasUiState` de T026) —
   `class HerramientasViewModel(private val analytics: AnalyticsRepository) : ViewModel()` con
   `StateFlow` único, `init { analytics.logScreenView("herramientas") }` (el mismo nombre que
   emitía el placeholder: conserva la serie, FR-028), `fun onSubherramientaSeleccionada(s)`: si es
   la actual no hace nada; si no `HerramientasUiState(s)` + `logEvent("herramientas_subherramienta", mapOf("subherramienta" to s.analyticsId))`.
   **Depende de T026**.
-- [ ] T039 [P] [US1] Crear en `$SRC/ui/herramientas/precios/`: `PreciosMetalesUiState.kt` —
+- [X] T039 [P] [US1] Crear en `$SRC/ui/herramientas/precios/`: `PreciosMetalesUiState.kt` —
   `enum class FasePrecios { CARGANDO, LISTO, PARCIAL, ERROR }`,
   `data class FilaMetalPrecio(val metal: MetalCotizado, val precioFormateado: String?, val unidad: UnidadPrecio?, val etiquetaUnidadOrigen: String?, val tendencia: Tendencia?, val error: MotivoErrorCotizacion?, val desactualizada: Boolean)`,
   `data class DetalleMercado(val metal: MetalCotizado, val moneda: String, val ask: String, val bid: String, val maximo: String, val minimo: String, val variacion: String, val variacionPorcentaje: String, val tendencia: Tendencia, val unidad: UnidadPrecio?, val etiquetaUnidadOrigen: String, val instanteMercadoEpochMillis: Long, val desactualizada: Boolean)`,
@@ -479,7 +479,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   con `ctx = LocalContext.current` («25 ago 2026 · 10:33» en español; localizado por el
   sistema, sin meses hardcodeados, FR-030; `android.text.format.DateUtils` es API 3).
   **Depende de T011**.
-- [ ] T040 [US1] Crear `$SRC/ui/herramientas/precios/PreciosMetalesViewModel.kt`:
+- [X] T040 [US1] Crear `$SRC/ui/herramientas/precios/PreciosMetalesViewModel.kt`:
   `class PreciosMetalesViewModel(private val obtenerCotizaciones: ObtenerCotizacionesUseCase, private val convertirCotizacion: ConvertirCotizacionUseCase, private val analytics: AnalyticsRepository, private val dispatchers: DispatcherProvider) : ViewModel()`
   con `StateFlow` único, `private var instantanea: InstantaneaCotizaciones? = null`,
   `private var carga: Job? = null`, `init { analytics.logScreenView("herramientas_precios"); cargar(esReintento = false) }`;
@@ -494,10 +494,10 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   cuando hay ≥ 1 éxito. Los casos PARCIAL/ERROR/desactualizado/espera/reintento llegan en US5
   (dejar las ramas mínimas: sin ningún éxito → `fase = ERROR`, `errorGlobal` = motivo más
   repetido). Companion con `SCREEN_NAME`, nombres de evento y params. **Depende de T039**.
-- [ ] T041 [US1] Registrar `viewModelOf(::HerramientasViewModel)` y
+- [X] T041 [US1] Registrar `viewModelOf(::HerramientasViewModel)` y
   `viewModelOf(::PreciosMetalesViewModel)` en `$SRC/core/di/ViewModelModule.kt`. **Depende de
   T038 y T040**.
-- [ ] T042 [US1] Crear `$SRC/ui/herramientas/precios/PreciosMetalesContent.kt` y
+- [X] T042 [US1] Crear `$SRC/ui/herramientas/precios/PreciosMetalesContent.kt` y
   `PreciosMetalesSection.kt`: `PreciosMetalesSection(modifier: Modifier = Modifier, viewModel: PreciosMetalesViewModel = koinViewModel())`
   colecta con `collectAsStateWithLifecycle()` y llama a
   `PreciosMetalesContent(uiState, onUnidadSeleccionada, onMetalSeleccionado, onReintentar, modifier)`
@@ -517,7 +517,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   (bodySmall, `TextMuted` / `TealPrimary`). `@Preview` con estado `LISTO` de cinco filas y otro
   `CARGANDO`. La tarjeta de mercado, el selector de unidad y los estados de error llegan en
   US2/US5. **Depende de T039**.
-- [ ] T043 [US1] Crear `$SRC/ui/herramientas/HerramientasScreen.kt` con el contrato de pantalla:
+- [X] T043 [US1] Crear `$SRC/ui/herramientas/HerramientasScreen.kt` con el contrato de pantalla:
   `HerramientasScreen(onInfo: () -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: HerramientasViewModel = koinViewModel())`
   que colecta con `collectAsStateWithLifecycle()` y llama a
   `HerramientasContent(uiState, onSubherramientaSeleccionada = viewModel::onSubherramientaSeleccionada, onInfo, onBack, modifier, precios = { PreciosMetalesSection() }, chapas = { Text(stringResource(R.string.placeholder_pendiente), …) })`
@@ -533,12 +533,12 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `herramientas_primera_visita_titulo` (titleMedium, `TealPrimary`) y
   `herramientas_primera_visita_texto` (bodyMedium, `TextSecondary`). Sin botones de acción ni
   barra inferior (FR-025, FR-027). **Depende de T024, T038, T041 y T042**.
-- [ ] T044 [US1] Sustituir en `$SRC/ui/navigation/AppNavHost.kt` el
+- [X] T044 [US1] Sustituir en `$SRC/ui/navigation/AppNavHost.kt` el
   `composable<Route.Herramientas> { PlaceholderScreen(...) }` por
   `composable<Route.Herramientas> { HerramientasScreen(onInfo = onInfo, onBack = onBack) }`.
   `Route.Herramientas`, `HomeModule.HERRAMIENTAS` y la tarjeta de Home ya existen y no se tocan;
   `PlaceholderScreen` sigue importado para Favoritos y Ajustes (FR-001, SC-011). **Depende de T043**.
-- [ ] T045 [P] [US1] Crear `$TEST/ui/herramientas/HerramientasViewModelTest.kt` (mockk relaxed
+- [X] T045 [P] [US1] Crear `$TEST/ui/herramientas/HerramientasViewModelTest.kt` (mockk relaxed
   para `AnalyticsRepository`): estado inicial `subherramienta == null`;
   `logScreenView("herramientas")` exactamente una vez; elegir CHAPAS actualiza el estado y emite
   `herramientas_subherramienta {subherramienta=chapas}`; volver a elegir la misma no re-emite;
@@ -552,7 +552,7 @@ cierre de la app, volver dentro de la hora: mismos precios, 0 peticiones.
   `herramientas_precios_cargados {fuente=red, parcial=false}`; con `origen == CACHE` →
   `fuente=cache`; unidad de origen desconocida → precio de origen + etiqueta cruda y
   `unidad == null`. **Depende de T040**.
-- [ ] T046 [P] [US1] Crear `$ATEST/ui/herramientas/HerramientasScreenTest.kt` (monta
+- [X] T046 [P] [US1] Crear `$ATEST/ui/herramientas/HerramientasScreenTest.kt` (monta
   `HerramientasContent` con slots `Text("marcador-precios")` / `Text("marcador-chapas")`, sin
   Koin, helper `montar(uiState, callbacks…)`): primera visita → ambas píldoras visibles, título
   de la tarjeta visible, ningún marcador visible, `onAllNodes(isSelected()).assertCountEquals(0)`;
