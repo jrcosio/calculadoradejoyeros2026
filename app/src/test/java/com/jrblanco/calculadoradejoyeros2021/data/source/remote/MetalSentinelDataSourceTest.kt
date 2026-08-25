@@ -48,7 +48,7 @@ class MetalSentinelDataSourceTest {
 
         crear().obtener(MetalCotizado.ORO)
 
-        assertEquals("https://metal-sentinel.p.rapidapi.com/api/metal-quote?metal=AU&currency=EUR", cliente.ultimaUrl)
+        assertEquals("https://metal-sentinel.p.rapidapi.com/metal-quote?symbol=AU&currency=EUR", cliente.ultimaUrl)
         assertEquals("metal-sentinel.p.rapidapi.com", cliente.ultimasCabeceras["x-rapidapi-host"])
         assertEquals("clave-de-prueba", cliente.ultimasCabeceras["x-rapidapi-key"])
         assertEquals("application/json", cliente.ultimasCabeceras["Accept"])
@@ -60,7 +60,7 @@ class MetalSentinelDataSourceTest {
             cliente.responder(200, MuestrasMetalSentinel.conSimbolo(metal.simboloApi))
             val cotizacion = crear().obtener(metal)
             assertEquals(metal, cotizacion.metal)
-            assertEquals(true, cliente.ultimaUrl!!.contains("metal=${metal.simboloApi}&"))
+            assertEquals(true, cliente.ultimaUrl!!.contains("symbol=${metal.simboloApi}&"))
         }
     }
 
@@ -72,10 +72,10 @@ class MetalSentinelDataSourceTest {
 
     @Test
     fun `una unidad desconocida se conserva sin convertir`() = runTest {
-        cliente.responder(200, MuestrasMetalSentinel.conUnidad("LB"))
+        cliente.responder(200, MuestrasMetalSentinel.conUnidad("TONNE"))
         val cotizacion = crear().obtener(MetalCotizado.ORO)
         assertNull(cotizacion.unidadOrigen)
-        assertEquals("LB", cotizacion.etiquetaUnidadOrigen)
+        assertEquals("TONNE", cotizacion.etiquetaUnidadOrigen)
     }
 
     @Test
@@ -137,6 +137,31 @@ class MetalSentinelDataSourceTest {
         assertMotivo(MotivoErrorCotizacion.SIN_CREDENCIAL) { crear(credencial = "").obtener(MetalCotizado.ORO) }
         assertMotivo(MotivoErrorCotizacion.SIN_CREDENCIAL) { crear(credencial = "   ").obtener(MetalCotizado.ORO) }
         assertEquals(0, cliente.llamadas)
+    }
+
+    @Test
+    fun `parsea la respuesta real en euros del oro`() = runTest {
+        cliente.responder(200, MuestrasMetalSentinel.AU_EUR_REAL)
+        val cotizacion = crear().obtener(MetalCotizado.ORO)
+        assertEquals("EUR", cotizacion.moneda)
+        assertEquals(UnidadPrecio.ONZA_TROY, cotizacion.unidadOrigen)
+        assertEquals("3986.151885", cotizacion.mid.toPlainString())
+        assertEquals(1_787_672_940_000L, cotizacion.instanteMercadoEpochMillis)
+    }
+
+    @Test
+    fun `el cobre real llega por libra y se reconoce como tal`() = runTest {
+        cliente.responder(200, MuestrasMetalSentinel.CU_EUR_REAL)
+        val cotizacion = crear().obtener(MetalCotizado.COBRE)
+        assertEquals(UnidadPrecio.LIBRA, cotizacion.unidadOrigen)
+        assertEquals("POUND", cotizacion.etiquetaUnidadOrigen)
+        assertEquals("5.612946820240344", cotizacion.mid.toPlainString())
+    }
+
+    @Test
+    fun `un 200 con cuerpo de error es respuesta invalida`() = runTest {
+        cliente.responder(200, MuestrasMetalSentinel.ERROR_SIN_SYMBOL)
+        assertMotivo(MotivoErrorCotizacion.RESPUESTA_INVALIDA) { crear().obtener(MetalCotizado.ORO) }
     }
 
     private suspend fun assertMotivo(esperado: MotivoErrorCotizacion, accion: suspend () -> Unit) {

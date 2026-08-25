@@ -430,6 +430,22 @@ class PreciosMetalesViewModelTest {
         verify(exactly = 1) { analytics.recordError(any()) }
     }
 
+    @Test
+    fun `el cobre por libra se convierte a la unidad elegida como los demas`() = runTest {
+        repositorio.respuesta = conCobre(
+            cotizacion(metal = MetalCotizado.COBRE, mid = "5.612946820240344", ask = "5.613238349729337", bid = "5.612655290751351",
+                unidadOrigen = UnidadPrecio.LIBRA, etiquetaUnidadOrigen = "POUND", obtenidoEn = t0),
+        )
+        val viewModel = crearViewModel()
+
+        val enGramos = viewModel.uiState.value.filas.single { it.metal == MetalCotizado.COBRE }
+        assertEquals("0,0124", enGramos.precioFormateado)
+        assertEquals(UnidadPrecio.GRAMO, enGramos.unidad)
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.KILO)
+        assertEquals("12,37", viewModel.uiState.value.filas.single { it.metal == MetalCotizado.COBRE }.precioFormateado)
+    }
+
     private fun conCobre(cobre: com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionMetal): InstantaneaCotizaciones =
         InstantaneaCotizaciones(
             resultados = MetalCotizado.entries.associateWith { exito(it, obtenidoEn = t0) } +

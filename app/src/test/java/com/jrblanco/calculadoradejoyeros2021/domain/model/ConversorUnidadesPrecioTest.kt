@@ -76,6 +76,29 @@ class ConversorUnidadesPrecioTest {
         assertCerca("-1.4564288196", porGramo)
     }
 
+    @Test
+    fun `una libra avoirdupois de precio vale exactamente un gramo`() {
+        val resultado = ConversorUnidadesPrecio.convertir(BigDecimal("453.59237"), UnidadPrecio.LIBRA, UnidadPrecio.GRAMO)
+        assertEquals(0, BigDecimal.ONE.compareTo(resultado))
+    }
+
+    @Test
+    fun `el cobre real por libra pasa a gramo, kilo y onza`() {
+        val porLibra = BigDecimal("5.612946820240344")
+        assertCerca("0.0123744295", ConversorUnidadesPrecio.convertir(porLibra, UnidadPrecio.LIBRA, UnidadPrecio.GRAMO))
+        assertCerca("12.3744295351", ConversorUnidadesPrecio.convertir(porLibra, UnidadPrecio.LIBRA, UnidadPrecio.KILO))
+        assertCerca("0.3848877820", ConversorUnidadesPrecio.convertir(porLibra, UnidadPrecio.LIBRA, UnidadPrecio.ONZA_TROY))
+        // Lo que verá el joyero: cuatro decimales por debajo de 1 €, dos por encima.
+        assertEquals(BigDecimal("0.0124"), ConversorUnidadesPrecio.convertir(porLibra, UnidadPrecio.LIBRA, UnidadPrecio.GRAMO).setScale(4, RoundingMode.HALF_UP))
+        assertEquals(BigDecimal("12.37"), ConversorUnidadesPrecio.convertir(porLibra, UnidadPrecio.LIBRA, UnidadPrecio.KILO).setScale(2, RoundingMode.HALF_UP))
+    }
+
+    @Test
+    fun `la libra no es seleccionable pero si convertible`() {
+        assertEquals(listOf(UnidadPrecio.GRAMO, UnidadPrecio.KILO, UnidadPrecio.ONZA_TROY), UnidadPrecio.seleccionables)
+        assertEquals(0, BigDecimal("453.59237").compareTo(ConversorUnidadesPrecio.gramosPor(UnidadPrecio.LIBRA)))
+    }
+
     private fun assertCerca(esperado: String, real: BigDecimal) {
         val diferencia = (BigDecimal(esperado) - real).abs()
         assertTrue("esperado $esperado y salió ${real.toPlainString()}", diferencia < BigDecimal("1E-6"))

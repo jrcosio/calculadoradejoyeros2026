@@ -14,12 +14,16 @@ import java.math.RoundingMode
 object ConversorUnidadesPrecio {
     val GRAMOS_POR_ONZA_TROY: BigDecimal = BigDecimal("31.1034768")
     val GRAMOS_POR_KILO: BigDecimal = BigDecimal("1000")
+
+    /** Libra avoirdupois, la del cobre en el proveedor (no la libra troy). */
+    val GRAMOS_POR_LIBRA: BigDecimal = BigDecimal("453.59237")
     const val ESCALA = 10
 
     fun gramosPor(unidad: UnidadPrecio): BigDecimal = when (unidad) {
         UnidadPrecio.GRAMO -> BigDecimal.ONE
         UnidadPrecio.KILO -> GRAMOS_POR_KILO
         UnidadPrecio.ONZA_TROY -> GRAMOS_POR_ONZA_TROY
+        UnidadPrecio.LIBRA -> GRAMOS_POR_LIBRA
     }
 
     /** Un precio por [desde] expresado por [hacia]: `importe × gramos(hacia) ÷ gramos(desde)`. */

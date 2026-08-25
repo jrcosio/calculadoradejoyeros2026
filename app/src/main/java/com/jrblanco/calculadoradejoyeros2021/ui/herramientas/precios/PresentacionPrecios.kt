@@ -48,6 +48,7 @@ internal val UnidadPrecio.etiquetaRes: Int
         UnidadPrecio.GRAMO -> R.string.precios_unidad_gramo
         UnidadPrecio.KILO -> R.string.precios_unidad_kilo
         UnidadPrecio.ONZA_TROY -> R.string.precios_unidad_onza
+        UnidadPrecio.LIBRA -> R.string.precios_unidad_libra
     }
 
 /** Símbolo de la unidad junto a la cifra: «€/g», «€/kg», «€/oz». */
@@ -56,6 +57,7 @@ internal val UnidadPrecio.simboloRes: Int
         UnidadPrecio.GRAMO -> R.string.unidad_euro_gramo
         UnidadPrecio.KILO -> R.string.unidad_euro_kilo
         UnidadPrecio.ONZA_TROY -> R.string.unidad_euro_onza
+        UnidadPrecio.LIBRA -> R.string.unidad_euro_libra
     }
 
 internal val MotivoErrorCotizacion.mensajeRes: Int

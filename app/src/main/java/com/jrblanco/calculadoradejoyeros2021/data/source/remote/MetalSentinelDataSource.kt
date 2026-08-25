@@ -16,9 +16,10 @@ import kotlinx.serialization.json.Json
 /**
  * Único punto del proyecto que habla con Metal Sentinel (RapidAPI).
  *
- * Contrato en `specs/007-herramientas/contracts/metal-quote.md`. [PARAMETRO_METAL] es una sola
- * constante, confirmada con la credencial real: la documentación pública del proveedor se
- * contradice (`metal` frente a `symbol`) y probar las dos variantes en cada carga gastaría cuota.
+ * Contrato en `specs/007-herramientas/contracts/metal-quote.md`. Ruta y parámetro confirmados
+ * con la credencial real el 2026-08-25: `/metal-quote?symbol=` (la ruta `/api/metal-quote` de
+ * la web pública no existe para la suscripción y `metal=` devuelve un 200 con cuerpo de error).
+ * Una sola constante: probar variantes en cada carga gastaría cuota.
  *
  * La [credencial] llega por defecto de `BuildConfig` (extraíble del APK: integración de
  * prototipo); vacía, se responde «servicio no configurado» sin tocar la red. Nunca se registra.
@@ -110,10 +111,15 @@ class MetalSentinelDataSource(
         else -> MotivoErrorCotizacion.DESCONOCIDO
     }
 
-    /** Solo la onza troy está verificada (`OUNCE`); lo demás se anticipa y lo desconocido queda sin convertir. */
+    /**
+     * Confirmado con la credencial real: oro, plata, paladio y rodio llegan en `OUNCE` (onza
+     * troy) y el cobre en `POUND` (libra avoirdupois). Lo demás se anticipa; lo desconocido
+     * queda sin convertir.
+     */
     private fun mapearUnidad(unidad: String): UnidadPrecio? =
         when (unidad.trim().uppercase().replace(' ', '_').replace('-', '_')) {
             "OUNCE", "OUNCES", "OZ", "OZT", "OZ_T", "TROY_OUNCE", "TROY_OUNCES" -> UnidadPrecio.ONZA_TROY
+            "POUND", "POUNDS", "LB", "LBS" -> UnidadPrecio.LIBRA
             "GRAM", "GRAMS", "G" -> UnidadPrecio.GRAMO
             "KILOGRAM", "KILOGRAMS", "KG" -> UnidadPrecio.KILO
             else -> null
@@ -124,11 +130,11 @@ class MetalSentinelDataSource(
         if (timestamp > UMBRAL_MILISEGUNDOS) timestamp else timestamp * 1_000L
 
     companion object {
-        const val URL_BASE = "https://metal-sentinel.p.rapidapi.com/api/metal-quote"
+        const val URL_BASE = "https://metal-sentinel.p.rapidapi.com/metal-quote"
         const val HOST = "metal-sentinel.p.rapidapi.com"
 
-        /** Nombre del parámetro del metal. Ver contrato: se confirma con la credencial real (T001). */
-        const val PARAMETRO_METAL = "metal"
+        /** Nombre del parámetro del metal, confirmado con la credencial real (T001, 2026-08-25). */
+        const val PARAMETRO_METAL = "symbol"
         const val MONEDA = "EUR"
 
         private const val UMBRAL_MILISEGUNDOS = 1_000_000_000_000L

@@ -93,7 +93,7 @@ depender de un tipo que por dentro lleve el nombre de otro metal.
   ley; un test de paridad vigila que milésimas y bandera coincidan. `CalculoChapa` calcula
   `ancho × largo × espesor × densidad / 1000` sin un solo redondeo. Los límites operativos
   (10 000 / 1 000 mm) son control de interfaz y viven en el ViewModel, no en el motor.
-- **Cotizaciones** (feature 007): `ConversorUnidadesPrecio` (gramo / kilo / onza troy,
+- **Cotizaciones** (feature 007): `ConversorUnidadesPrecio` (gramo / kilo / onza troy, y libra solo de origen,
   `GRAMOS_POR_ONZA_TROY = "31.1034768"`, una sola división a escala 10 `HALF_UP`, siempre desde
   la cifra del proveedor) y `PoliticaCacheCotizaciones`, la regla de la caché de una hora como
   **función pura** (`Servir` / `Esperar` / `Actualizar(pendientes)`): vigencia por metal, espera
@@ -277,9 +277,11 @@ La feature 007 estrenó red, corrutinas y persistencia **sin dependencias nuevas
   hora no justifican OkHttp/Retrofit; si llega un backend propio, se cambia la implementación.
 - **`MetalSentinelDataSource`** es el **único punto que habla con el proveedor**
   (Metal Sentinel vía RapidAPI). Contrato en `specs/007-herramientas/contracts/metal-quote.md`.
-  `PARAMETRO_METAL` es **una sola constante** (la documentación pública del proveedor se
-  contradice, `metal` frente a `symbol`) y se confirma con la credencial real; prohibido probar
-  variantes en cada carga, gasta cuota. Los DTO son `@Serializable` con `ignoreUnknownKeys` y
+  Ruta `/metal-quote` y `PARAMETRO_METAL = "symbol"`, **confirmados con la credencial real**
+  (la ruta `/api/metal-quote` de la web pública no existe para la suscripción y `metal=`
+  devuelve un 200 con cuerpo de error); prohibido probar variantes en cada carga, gasta cuota.
+  El cobre cotiza por **libra** (`POUND` → `UnidadPrecio.LIBRA`, unidad solo de origen; el
+  selector usa `UnidadPrecio.seleccionables`). Los DTO son `@Serializable` con `ignoreUnknownKeys` y
   `BigDecimalExactoSerializer` toma el **literal del cable**, nunca `Double`.
 - **Caché**: `SharedPreferences` (fichero `cotizaciones`, **una sola clave** con el JSON de la
   instantánea: escritura atómica) tras `CotizacionesLocalDataSource`; `CodificadorInstantanea`

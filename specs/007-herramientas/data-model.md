@@ -35,8 +35,9 @@ El orden del enum **es** el orden de pintado (mockup). Las imágenes las mapea l
 | `GRAMO` | `"gramo"` | 1 | €/g |
 | `KILO` | `"kilo"` | 1 000 | €/kg |
 | `ONZA_TROY` | `"onza_troy"` | 31,1034768 | €/oz |
+| `LIBRA` | `"libra"` | 453,59237 | — (solo unidad de **origen**: el cobre cotiza en `POUND`; no está en `seleccionables`) |
 
-**Sin valor «desconocida»**: el enum alimenta el selector y el `when` del conversor. La unidad
+**Sin valor «desconocida»**: el enum alimenta el `when` del conversor y `UnidadPrecio.seleccionables` (gramo, kilo, onza troy) el selector. La unidad
 de origen no confirmada se modela en `CotizacionMetal.unidadOrigen: UnidadPrecio?` (null) más
 `etiquetaUnidadOrigen: String` (texto crudo del proveedor).
 
@@ -64,7 +65,7 @@ de origen no confirmada se modela en `CotizacionMetal.unidadOrigen: UnidadPrecio
 | `metal` | `MetalCotizado` | símbolo pedido |
 | `moneda` | `String` | `currency` (siempre `EUR`) |
 | `ask`, `bid`, `mid`, `maximo`, `minimo`, `variacion`, `variacionPorcentaje` | `BigDecimal` | `ask`, `bid`, `mid`, `high`, `low`, `change`, `changePercentage` |
-| `unidadOrigen` | `UnidadPrecio?` | `unit` mapeado (`OUNCE|OZ|OZT|TROY_OUNCE` → onza troy; `GRAM|G`; `KILOGRAM|KG`; otro → null) |
+| `unidadOrigen` | `UnidadPrecio?` | `unit` mapeado (`OUNCE|OZ|OZT|TROY_OUNCE` → onza troy; `POUND|LB|LBS` → libra; `GRAM|G`; `KILOGRAM|KG`; otro → null) |
 | `etiquetaUnidadOrigen` | `String` | `unit` crudo |
 | `instanteMercadoEpochMillis` | `Long` | `timestamp` × 1 000 (si ya > 10¹², tal cual) |
 | `obtenidoEnEpochMillis` | `Long` | `Reloj.ahoraMillis()` al recibirla |
@@ -112,7 +113,7 @@ con `fun decidir(guardada: InstantaneaCotizaciones, ahoraMillis: Long): Decision
 
 ### ConversorUnidadesPrecio *(objeto)*
 
-- `GRAMOS_POR_ONZA_TROY = BigDecimal("31.1034768")`, `GRAMOS_POR_KILO = BigDecimal("1000")`,
+- `GRAMOS_POR_ONZA_TROY = BigDecimal("31.1034768")`, `GRAMOS_POR_KILO = BigDecimal("1000")`, `GRAMOS_POR_LIBRA = BigDecimal("453.59237")`,
   `ESCALA = 10`.
 - `gramosPor(unidad)`; `convertir(importe, desde, hacia)`: si iguales → `importe`; si no,
   `importe × gramosPor(hacia) ÷ gramosPor(desde)` con **una única división** `HALF_UP` a

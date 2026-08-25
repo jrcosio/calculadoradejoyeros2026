@@ -11,7 +11,8 @@ están en `spec.md` → Assumptions; aquí no se repiten.
 
 ## R1 — Contrato del proveedor
 
-- **Decision**: Metal Sentinel vía RapidAPI, ruta `/api/metal-quote`, `currency=EUR`, una
+- **Decision**: Metal Sentinel vía RapidAPI, ruta `/metal-quote` con `symbol=` (confirmada, ver
+  abajo), `currency=EUR`, una
   petición por metal (`AU`, `AG`, `CU`, `PD`, `RH`). Contrato en
   [contracts/metal-quote.md](./contracts/metal-quote.md), extraído del ejemplo real
   embebido en el código de la web del proveedor (no de la guía del encargo, que trabajaba
@@ -24,7 +25,13 @@ están en `spec.md` → Assumptions; aquí no se repiten.
   que ya devuelven precios por quilate y ley — descartados: son solo para dos metales, y la
   app ya tiene su propio motor de leyes; (c) backend propio (guía §3.2) — decisión de
   producto: feature aparte.
-- **Riesgo abierto**: el nombre del parámetro (`metal` vs `symbol`) se contradice en la
+- **Resultado (2026-08-25, con la credencial real)**: la ruta es **`/metal-quote`** (la
+  `/api/metal-quote` de la web pública responde 404 para esta suscripción) y el parámetro es
+  **`symbol`** (`metal=` devuelve un 200 con `{"error":"The symbol field is required."}`). Los
+  cinco metales responden en EUR; oro, plata, paladio y rodio en `OUNCE` y **el cobre en
+  `POUND`** (libra avoirdupois, 453,59237 g), que se incorpora como `UnidadPrecio.LIBRA` solo
+  de origen. Respuesta anonimizada en `UI_Plantillas/Feature_Herramientas/respuesta_ejemplo_metal_quote.json`.
+- **Riesgo cerrado**: el nombre del parámetro (`metal` vs `symbol`) se contradecía en la
   documentación pública. Se fija una sola constante y se confirma con un `curl` real al
   empezar la implementación (Paso 0); nunca fallback automático.
 

@@ -60,6 +60,7 @@
     <string name="unidad_euro_gramo">€/g</string>
     <string name="unidad_euro_kilo">€/kg</string>
     <string name="unidad_euro_onza">€/oz</string>
+    <string name="unidad_euro_libra">€/lb</string>
     <string name="metal_oro">Oro</string>
     <string name="metal_plata">Plata</string>
     <string name="metal_rodio">Rodio</string>
@@ -177,6 +178,7 @@
     <string name="precios_unidad_gramo">Gramo</string>
     <string name="precios_unidad_kilo">Kilo</string>
     <string name="precios_unidad_onza">Onza troy</string>
+    <string name="precios_unidad_libra">Libra</string>
     <string name="precios_mercado_titulo">Información del mercado</string>
     <string name="precios_mercado_subtitulo">Datos del proveedor para el metal elegido</string>
     <string name="precios_mercado_metal">%1$s (%2$s)</string>

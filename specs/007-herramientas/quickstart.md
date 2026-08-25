@@ -18,8 +18,8 @@ grep -q '^RAPIDAPI_KEY=' local.properties || echo 'RAPIDAPI_KEY=<tu clave>' >> l
 ## 1. Confirmar el contrato del proveedor (antes de escribir el cliente)
 
 Ejecutar el bloque «Verificación del contrato» de [contracts/metal-quote.md](./contracts/metal-quote.md).
-Resultado esperado: HTTP 200 en `AU AG CU PD RH`, `currency: "EUR"` y la unidad de cada metal.
-Si `metal=` devuelve 4xx y `symbol=` 200, cambiar **solo** la constante `PARAMETRO_METAL` y
+Resultado obtenido el 2026-08-25: HTTP 200 en `AU AG CU PD RH` con `/metal-quote?symbol=`, `currency: "EUR"`, `OUNCE` salvo el cobre (`POUND`).
+La ruta `/api/metal-quote` de la web pública no existe para la suscripción y `metal=` responde 200 con error; `PARAMETRO_METAL = "symbol"` y
 anotar la unidad de cada metal en el contrato. Guardar una respuesta anonimizada como fixture.
 
 ## 2. Puertas automáticas

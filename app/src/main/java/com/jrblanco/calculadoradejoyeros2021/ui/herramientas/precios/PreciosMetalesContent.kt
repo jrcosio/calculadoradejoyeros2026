@@ -120,12 +120,11 @@ private fun TarjetaPrecios(
             tinte = JewelryColors.TealPrimary,
         )
         Spacer(Modifier.height(JewelrySpacing.Sm))
+        val unidades = UnidadPrecio.seleccionables
         SelectorSegmentado(
-            opciones = UnidadPrecio.entries.map {
-                OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary)
-            },
-            seleccionada = uiState.unidad.ordinal,
-            onSeleccion = { onUnidadSeleccionada(UnidadPrecio.entries[it]) },
+            opciones = unidades.map { OpcionSegmento(stringResource(it.etiquetaRes), JewelryColors.TealPrimary) },
+            seleccionada = unidades.indexOf(uiState.unidad),
+            onSeleccion = { onUnidadSeleccionada(unidades[it]) },
         )
         Spacer(Modifier.height(JewelrySpacing.Md))
 

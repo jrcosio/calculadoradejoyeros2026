@@ -9,7 +9,7 @@ documento fija lo que la app espera del proveedor y lo que hace con cada campo.
 ## Petición
 
 ```http
-GET https://metal-sentinel.p.rapidapi.com/api/metal-quote?metal=AU&currency=EUR
+GET https://metal-sentinel.p.rapidapi.com/metal-quote?symbol=AU&currency=EUR
 x-rapidapi-host: metal-sentinel.p.rapidapi.com
 x-rapidapi-key: <credencial, nunca en el repositorio>
 Accept: application/json
@@ -17,8 +17,8 @@ Accept: application/json
 
 | Elemento | Valor | Nota |
 |---|---|---|
-| Ruta | `/api/metal-quote` | La documentada por el proveedor. El ejemplo inicial del encargo (`/metal-quote`) no se usa |
-| Parámetro del metal | `metal` **(a confirmar)** | Las páginas del proveedor y el widget de su propia web usan `metal=`; su referencia `/endpoints` dice `symbol=`. Se fija en **una** constante y se confirma con la credencial real antes de escribir el cliente. **Prohibido** el reintento automático entre variantes: gasta cuota |
+| Ruta | `/metal-quote` | **Confirmada con la credencial real (2026-08-25)**: la ruta `/api/metal-quote` de la web pública responde 404 «Endpoint does not exist» para esta suscripción. Es la del ejemplo inicial del encargo |
+| Parámetro del metal | `symbol` | **Confirmado (2026-08-25)**: `metal=` responde **HTTP 200** con `{"error":"The symbol field is required."}` y sin `results`, que el parser clasifica como respuesta no válida. Una sola constante (`PARAMETRO_METAL`); **prohibido** el reintento automático entre variantes: gasta cuota |
 | Valores del metal | `AU`, `AG`, `CU`, `PD`, `RH` | Mayúsculas. Uno por petición → una carga completa = 5 peticiones |
 | `currency` | `EUR` | Siempre. Si la respuesta trae otra moneda, ese metal es «respuesta no válida» |
 | `timestamp` | no se envía | Solo documentado para históricos; fuera de alcance |
@@ -64,7 +64,7 @@ Ejemplo real (USD, oro, 2026-08-25):
 | `high` / `low` | number | Máximo y mínimo | `maximo` / `minimo` |
 | `change` | number | Variación absoluta; su signo da la tendencia | `variacion` |
 | `changePercentage` | number | Variación porcentual; **no se convierte** de unidad | `variacionPorcentaje` |
-| `unit` | string | `OUNCE` → onza troy (31,1034768 g). `GRAM`/`G` → gramo. `KILOGRAM`/`KG` → kilo. Otro valor → unidad desconocida: se muestra sin convertir con la etiqueta cruda | `unidadOrigen: UnidadPrecio?` + `etiquetaUnidadOrigen` |
+| `unit` | string | `OUNCE` → onza troy (31,1034768 g): oro, plata, paladio y rodio. **`POUND` → libra avoirdupois (453,59237 g): el cobre.** `GRAM`/`G` → gramo. `KILOGRAM`/`KG` → kilo. Otro valor → unidad desconocida: se muestra sin convertir con la etiqueta cruda | `unidadOrigen: UnidadPrecio?` + `etiquetaUnidadOrigen` |
 | `timestamp` | number | Instante del dato en **segundos** Unix (si llega > 10¹² se toma como milisegundos) | `instanteMercadoEpochMillis` |
 | `open` / `close` | number | Llegan a 0 en la muestra; se ignoran y no se declaran en el DTO | — |
 | `originalTime` / `extra` | string | Se ignoran (`ignoreUnknownKeys`) | — |
@@ -74,9 +74,13 @@ Reglas de parseo:
 - Los números llegan como **JSON number**. Se toma el literal tal cual viene en el cable y se
   construye `BigDecimal(String)` con un serializador propio; nunca `BigDecimal(double)`
   (`-45.30000000000018` se conserva exacto).
-- Solo `AU` está verificado con unidad `OUNCE`. La unidad de `AG`, `CU`, `PD` y `RH` se anota
-  al confirmar el contrato con la credencial real; el camino «unidad desconocida» cubre
-  cualquier sorpresa sin romper la pantalla.
+- **Unidades confirmadas con la credencial real (2026-08-25)**: `AU`, `AG`, `PD`, `RH` en
+  `OUNCE`; `CU` en `POUND` (5,61 €/lb ≈ 12,37 €/kg, coherente con el cobre en el mercado).
+  `LIBRA` existe en `UnidadPrecio` solo como unidad de origen: no se ofrece en el selector. El
+  camino «unidad desconocida» sigue cubriendo cualquier otra sorpresa sin romper la pantalla.
+- La respuesta real anonimizada (sin `ID` ni `extra`) de los cinco metales está en
+  `UI_Plantillas/Feature_Herramientas/respuesta_ejemplo_metal_quote.json`; la del oro y la del
+  cobre son fixtures de `MetalSentinelDataSourceTest`.
 
 ## Errores
 
@@ -110,12 +114,13 @@ Con `RAPIDAPI_KEY` en `local.properties` y **sin imprimir la clave**:
 KEY=$(grep '^RAPIDAPI_KEY=' local.properties | cut -d= -f2-)
 for M in AU AG CU PD RH; do
   curl -s -o /tmp/mq_$M.json -w "$M metal= -> %{http_code}\n" \
-    "https://metal-sentinel.p.rapidapi.com/api/metal-quote?metal=$M&currency=EUR" \
+    "https://metal-sentinel.p.rapidapi.com/metal-quote?symbol=$M&currency=EUR" \
     -H "x-rapidapi-host: metal-sentinel.p.rapidapi.com" -H "x-rapidapi-key: $KEY" -H "Accept: application/json"
 done
-# si 4xx, repetir con ?symbol=$M ; anotar unit y currency de cada fichero:
+# anotar unit y currency de cada fichero:
 grep -o '"unit":"[A-Z]*"\|"currency":"[A-Z]*"' /tmp/mq_*.json
 ```
 
-Resultado esperado: 200 en los cinco, `currency: "EUR"`, y la unidad de cada metal. Se guarda
+**Resultado obtenido (2026-08-25)**: 200 en los cinco, `currency: "EUR"`, `unit` `OUNCE` salvo el
+cobre (`POUND`); `/api/metal-quote` → 404 y `?metal=` → 200 con cuerpo de error. Se guardó
 una respuesta anonimizada (sin `ID` ni `extra`) como fixture de tests y anexo de este contrato.
