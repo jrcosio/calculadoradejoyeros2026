@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import androidx.lifecycle.ViewModel
+import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
@@ -94,12 +95,8 @@ class SoldaduraBaseViewModel(
         )
     }
 
-    /** Coma y punto valen (§8.1): se normalizan antes de parsear. Inválido o ≤ 0 → null. */
-    private fun parsearCantidad(texto: String): BigDecimal? =
-        texto.trim()
-            .replace(',', '.')
-            .toBigDecimalOrNull()
-            ?.takeIf { it > BigDecimal.ZERO }
+    /** Coma y punto valen (§8.1): se normalizan antes de parsear. Inválido o ≤ 0 → null. Delegado en `core/util/Decimales.kt`. */
+    private fun parsearCantidad(texto: String): BigDecimal? = parsearDecimalPositivo(texto)
 
     private fun registrarCalculo(modo: ModoEntradaSoldadura) {
         if (modo == ultimoModoRegistrado) return
