@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Reglas de copia de seguridad (dispositivos hasta API 30; desde API 31 mandan las de
+    data_extraction_rules.xml). La caché de cotizaciones (feature 007) se excluye: es un dato
+    derivado con fecha; restaurarla en otro dispositivo o con otra hora solo provocaría una
+    recarga y no aporta nada al joyero.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <exclude domain="sharedpref" path="cotizaciones.xml" />
 </full-backup-content>

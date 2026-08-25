@@ -52,11 +52,11 @@ iconos y el vocabulario de la feature, y preparar la build (credencial, permiso,
   es `metal` o alguna unidad no es `OUNCE`, actualizar `contracts/metal-quote.md` y
   `data-model.md` **antes** de T032. Si la clave aún no está, dejar la tarea abierta y seguir:
   no bloquea nada más.
-- [ ] T002 [P] Copiar `UI_Plantillas/Feature_Herramientas/rodio.png` a
+- [X] T002 [P] Copiar `UI_Plantillas/Feature_Herramientas/rodio.png` a
   `app/src/main/res/drawable-nodpi/rodio.png` redimensionado a 512 px de lado mayor
   (`sips -Z 512`, el tamaño de `cobre.png` y `paladio.png`); comprobar que el nombre no colisiona
   y que AAPT lo acepta. `chapa.png` **no se importa** (último recurso, ver US4).
-- [ ] T003 [P] Dibujar cinco vectores nuevos en `app/src/main/res/drawable/` con el estilo de
+- [X] T003 [P] Dibujar cinco vectores nuevos en `app/src/main/res/drawable/` con el estilo de
   `ic_lingotes.xml` (viewport 24, trazo 1.8, extremos y uniones redondeados, color blanco para
   tintar en tiempo de ejecución, misma cabecera de comentario): `ic_grafica.xml` (marco
   `M3.5,5 L20.5,5 L20.5,19 L3.5,19 Z` + línea `M6.5,15 L10.5,10.5 L13.5,13 L17.5,8` + punta
@@ -68,7 +68,7 @@ iconos y el vocabulario de la feature, y preparar la build (credencial, permiso,
   `M9,8.5 L12,5.5 L15,8.5 M9,15.5 L12,18.5 L15,15.5`), `ic_regla.xml` (cuerpo
   `M3,16.5 L15.5,4 L20,8.5 L7.5,21 Z` + marcas `M7,12.5 L9,14.5 M10,9.5 L12,11.5 M13,6.5 L15,8.5`).
   No se añade `material-icons`.
-- [ ] T004 [P] Añadir en `app/src/main/res/values/strings.xml`: al bloque
+- [X] T004 [P] Añadir en `app/src/main/res/values/strings.xml`: al bloque
   `<!-- Compartido: unidades, metales y acciones -->` → `metal_oro` («Oro»), `metal_oro_imagen`
   («Lingotes de oro»), `metal_plata` («Plata»), `metal_plata_imagen` («Lingotes de plata»),
   `metal_rodio` («Rodio»), `metal_rodio_imagen` («Montón de granalla de rodio»), `metal_oro_fino`
@@ -119,7 +119,7 @@ iconos y el vocabulario de la feature, y preparar la build (credencial, permiso,
   `modulo_herramientas_imagen`, `metal_cobre`, `metal_paladio`, `metal_plata_fina` (+`_imagen`),
   `oro_ley_18k/14k/12k/9k`, `plata_ley_950/925/900/800`, `oro_aviso_12k`, `plata_aviso_950/900`,
   `unidad_gramos`, `accion_limpiar`, `accion_guardar_favoritos`, `aviso_proximamente` (FR-030).
-- [ ] T005 [P] En `app/build.gradle.kts` leer la credencial de forma compatible con la caché de
+- [X] T005 [P] En `app/build.gradle.kts` leer la credencial de forma compatible con la caché de
   configuración y volcarla a `BuildConfig`: antes de `android {}`,
   `val rapidApiKey: String = providers.environmentVariable("RAPIDAPI_KEY").orElse(providers.gradleProperty("RAPIDAPI_KEY")).orElse(providers.fileContents(isolated.rootProject.projectDirectory.file("local.properties")).asText.map { texto -> texto.lineSequence().map(String::trim).firstOrNull { it.startsWith("RAPIDAPI_KEY=") }?.substringAfter('=')?.trim().orEmpty() }).getOrElse("")`
   (si `isolated` no compilara con la versión de Gradle del wrapper, usar
@@ -128,10 +128,10 @@ iconos y el vocabulario de la feature, y preparar la build (credencial, permiso,
   `if (rapidApiKey.isBlank()) logger.warn("RAPIDAPI_KEY no configurada: la pantalla de precios mostrará «servicio no configurado»")`.
   **Nunca** imprimir el valor. Comentario: la clave queda extraíble del APK (prototipo, R6).
   `buildFeatures.buildConfig` ya está a `true`.
-- [ ] T006 [P] Añadir `<uses-permission android:name="android.permission.INTERNET" />` en
+- [X] T006 [P] Añadir `<uses-permission android:name="android.permission.INTERNET" />` en
   `app/src/main/AndroidManifest.xml`, antes de `<application>`. Sin `usesCleartextTraffic`
   (el valor por defecto ya es `false` y solo se usa HTTPS).
-- [ ] T007 [P] Sustituir las plantillas comentadas de `app/src/main/res/xml/backup_rules.xml`
+- [X] T007 [P] Sustituir las plantillas comentadas de `app/src/main/res/xml/backup_rules.xml`
   por `<full-backup-content><exclude domain="sharedpref" path="cotizaciones.xml"/></full-backup-content>`
   y de `app/src/main/res/xml/data_extraction_rules.xml` por
   `<data-extraction-rules><cloud-backup><exclude domain="sharedpref" path="cotizaciones.xml"/></cloud-backup><device-transfer><exclude domain="sharedpref" path="cotizaciones.xml"/></device-transfer></data-extraction-rules>`,
@@ -148,25 +148,25 @@ chapas (T018–T022), componentes (T024–T025) y el estado del armazón (T026)�
 Todo `domain/` es Kotlin puro: sin `android.*`, sin `androidx.*`, sin `R`; `BigDecimal` desde
 literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 24).
 
-- [ ] T008 [P] Crear `$SRC/core/util/Reloj.kt`: `interface Reloj { fun ahoraMillis(): Long }` y
+- [X] T008 [P] Crear `$SRC/core/util/Reloj.kt`: `interface Reloj { fun ahoraMillis(): Long }` y
   `class RelojSistema : Reloj { override fun ahoraMillis() = System.currentTimeMillis() }`, KDoc
   en español (hermano de `DispatcherProvider`: permite congelar la hora en los tests y decidir
   la caché sin esperar). Registrar en `$SRC/core/di/CoreModule.kt`
   `single<Reloj> { RelojSistema() }` (tipo del grafo: vale para `verify()` y para `get()`, R8).
-- [ ] T009 [P] Crear `$SRC/core/util/Decimales.kt` con
+- [X] T009 [P] Crear `$SRC/core/util/Decimales.kt` con
   `fun parsearDecimalPositivo(texto: String): BigDecimal? = texto.trim().replace(',', '.').toBigDecimalOrNull()?.takeIf { it > BigDecimal.ZERO }`
   (KDoc: coma y punto valen; vacío, no numérico o ≤ 0 → null; es la promoción del
   `parsearCantidad` privado de los cuatro ViewModels, regla del segundo consumidor) y
   `$TEST/core/util/DecimalesTest.kt` (JUnit4): `"0,5"` y `"0.5"` → `BigDecimal("0.5")`; `"10"`;
   `" 7,25 "`; rechaza `""`, `"  "`, `"0"`, `"-1"`, `"abc"`, `"1,2,3"`, `"1.2.3"`.
-- [ ] T010 [P] Crear en `$TEST/core/util/` la infraestructura de test de corrutinas:
+- [X] T010 [P] Crear en `$TEST/core/util/` la infraestructura de test de corrutinas:
   `TestDispatcherProvider.kt` —
   `class TestDispatcherProvider(dispatcher: TestDispatcher = UnconfinedTestDispatcher()) : DispatcherProvider`
   con `main = io = default = dispatcher` (KDoc: los ViewModels lanzan siempre con
   `dispatchers.main`, así el test no necesita `Dispatchers.setMain`, R9)— y `RelojFalso.kt` —
   `class RelojFalso(var ahoraMillis: Long = 0L) : Reloj { override fun ahoraMillis() = ahoraMillis; fun avanzar(millis: Long) { ahoraMillis += millis } }`.
   **Depende de T008**.
-- [ ] T011 [P] Crear en `$SRC/domain/model/` los enums de cotizaciones: `MetalCotizado.kt` —
+- [X] T011 [P] Crear en `$SRC/domain/model/` los enums de cotizaciones: `MetalCotizado.kt` —
   `enum class MetalCotizado(val simboloApi: String) { ORO("AU"), PLATA("AG"), COBRE("CU"), PALADIO("PD"), RODIO("RH") }`
   con `val analyticsId get() = name.lowercase()` (KDoc: el orden del enum **es** el orden de
   pintado del mockup; el símbolo es el que espera el proveedor, en mayúsculas)—; `UnidadPrecio.kt`
@@ -176,7 +176,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   `OrigenDatos.kt` — `enum class OrigenDatos { RED, CACHE, CACHE_EN_ESPERA }`—;
   `MotivoErrorCotizacion.kt` — `enum class MotivoErrorCotizacion { SIN_CREDENCIAL, CREDENCIAL_RECHAZADA, NO_ENCONTRADO, LIMITE_ALCANZADO, SERVIDOR, SIN_CONEXION, RESPUESTA_INVALIDA, DESCONOCIDO }`
   + `analyticsId`, KDoc con la causa de cada uno (tabla de `contracts/metal-quote.md`).
-- [ ] T012 Crear `$SRC/domain/model/CotizacionMetal.kt` —
+- [X] T012 Crear `$SRC/domain/model/CotizacionMetal.kt` —
   `data class CotizacionMetal(val metal: MetalCotizado, val moneda: String, val ask: BigDecimal, val bid: BigDecimal, val mid: BigDecimal, val maximo: BigDecimal, val minimo: BigDecimal, val variacion: BigDecimal, val variacionPorcentaje: BigDecimal, val unidadOrigen: UnidadPrecio?, val etiquetaUnidadOrigen: String, val instanteMercadoEpochMillis: Long, val obtenidoEnEpochMillis: Long)`
   con `val precioPrincipal: BigDecimal? get() = listOf(mid, ask, bid).firstOrNull { it.signum() > 0 }`
   (KDoc: decisión del autor mid → ask → bid; `open`/`close` llegan a 0 y no se modelan) y
@@ -184,7 +184,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   — `sealed interface ResultadoCotizacion { val metal: MetalCotizado; data class Exito(val cotizacion: CotizacionMetal) : ResultadoCotizacion { override val metal get() = cotizacion.metal }; data class Error(override val metal: MetalCotizado, val motivo: MotivoErrorCotizacion, val ultimaConocida: CotizacionMetal? = null, val causa: Throwable? = null) : ResultadoCotizacion }`
   (KDoc: `ultimaConocida` permite «desactualizado» por fila; `causa` solo para `recordError`, no
   se persiste). **Depende de T011**.
-- [ ] T013 Crear `$SRC/domain/model/InstantaneaCotizaciones.kt`:
+- [X] T013 Crear `$SRC/domain/model/InstantaneaCotizaciones.kt`:
   `data class InstantaneaCotizaciones(val resultados: Map<MetalCotizado, ResultadoCotizacion> = emptyMap(), val instanteIntentoEpochMillis: Long? = null, val origen: OrigenDatos = OrigenDatos.CACHE)`
   con `val estaCompleta: Boolean` (los 5 metales con `Exito`), `val hayErrores: Boolean`,
   `fun esVigente(metal, ahoraMillis, vigenciaMillis): Boolean` (`Exito` con
@@ -195,7 +195,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   sustituye), `val instanteMasRecienteEpochMillis: Long?` (máximo `obtenidoEn` de los éxitos) y
   `companion object { val VACIA = InstantaneaCotizaciones() }`. KDoc: un solo instante global de
   intento + `obtenidoEn` por metal; el instante de éxito no se almacena, se deriva. **Depende de T012**.
-- [ ] T014 Crear `$SRC/domain/model/PoliticaCacheCotizaciones.kt`:
+- [X] T014 Crear `$SRC/domain/model/PoliticaCacheCotizaciones.kt`:
   `sealed interface DecisionCache { data object Servir : DecisionCache; data object Esperar : DecisionCache; data class Actualizar(val pendientes: Set<MetalCotizado>) : DecisionCache }`
   y `class PoliticaCacheCotizaciones(val vigenciaMillis: Long = 3_600_000L, val esperaReintentoMillis: Long = 60_000L, val esperaTrasLimiteMillis: Long = 300_000L) { fun decidir(guardada: InstantaneaCotizaciones, ahoraMillis: Long): DecisionCache }`
   con el algoritmo de `data-model.md`: pendientes = metales sin `esVigente`; vacío → `Servir`;
@@ -203,14 +203,14 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   = `esperaTrasLimiteMillis` si algún `Error` de la instantánea es `LIMITE_ALCANZADO`, si no
   `esperaReintentoMillis`; en otro caso `Actualizar(pendientes)`. Función pura, sin corrutinas
   (R5). **Depende de T013**.
-- [ ] T015 [P] Crear `$SRC/domain/model/ConversorUnidadesPrecio.kt`: `object` con
+- [X] T015 [P] Crear `$SRC/domain/model/ConversorUnidadesPrecio.kt`: `object` con
   `val GRAMOS_POR_ONZA_TROY = BigDecimal("31.1034768")`, `val GRAMOS_POR_KILO = BigDecimal("1000")`,
   `const val ESCALA = 10`, `fun gramosPor(unidad: UnidadPrecio): BigDecimal` (GRAMO → ONE) y
   `fun convertir(importe: BigDecimal, desde: UnidadPrecio, hacia: UnidadPrecio): BigDecimal`
   = `importe` si iguales; si no `importe.multiply(gramosPor(hacia)).divide(gramosPor(desde), ESCALA, RoundingMode.HALF_UP)`.
   KDoc: constantes propias (no se importan de otros motores); multiplicación exacta primero y
   **una única división**, criterio de los tres motores existentes. **Depende de T011**.
-- [ ] T016 Crear `$SRC/domain/repository/CotizacionesRepository.kt` —
+- [X] T016 Crear `$SRC/domain/repository/CotizacionesRepository.kt` —
   `interface CotizacionesRepository { suspend fun obtenerCotizaciones(): InstantaneaCotizaciones }`
   (KDoc: `suspend`, no `Flow`; sin `forzar`: la política de caché decide, R5)— y en
   `$SRC/domain/usecase/`: `ObtenerCotizacionesUseCase.kt` —
@@ -220,7 +220,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   `null` si `unidadOrigen == null`; si no, copia con ask/bid/mid/máximo/mínimo/variación
   convertidos con `ConversorUnidadesPrecio.convertir(valor, unidadOrigen, hacia)`,
   `variacionPorcentaje` intacta y `unidadOrigen = hacia`. **Depende de T013 y T015**.
-- [ ] T017 [P] Crear los tests JVM del dominio de cotizaciones (JUnit4, nombres en backticks
+- [X] T017 [P] Crear los tests JVM del dominio de cotizaciones (JUnit4, nombres en backticks
   en español sin tildes, sin mocks, helper privado `assertCerca(esperado: String, real: BigDecimal)`
   con tolerancia 1E-6 como en oro y plata): `$TEST/domain/model/ConversorUnidadesPrecioTest.kt`
   (`31.1034768` oz → `1.0000000000` g exacto con `compareTo`; `1000` g → 1 kg; 1 kg →
@@ -239,7 +239,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   `FakeCotizacionesRepository` de T023: devuelve exactamente la instantánea del repositorio;
   llama una sola vez; una excepción del repositorio se propaga sin envolver). **Depende de
   T016 y T023**.
-- [ ] T018 [P] Crear `$SRC/domain/model/MaterialChapa.kt`:
+- [X] T018 [P] Crear `$SRC/domain/model/MaterialChapa.kt`:
   `enum class FamiliaChapa { ORO, PLATA; val analyticsId get() = name.lowercase() }` y
   `enum class MaterialChapa(val familia: FamiliaChapa, val milesimas: Int, val densidad: BigDecimal, val esSoloTecnica: Boolean = false)`
   con, en este orden, `ORO_18K(ORO, 750, BigDecimal("15.58"))`, `ORO_14K(ORO, 585, BigDecimal("13.07"))`,
@@ -251,7 +251,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   `fun deFamilia(familia): List<MaterialChapa>` y `fun porDefecto(familia)` (ORO → 18K, PLATA →
   925). KDoc citando §2, §3.1 (14K es 585, nunca 14/24), §5.1 (densidades **orientativas**) y
   §19 (por qué un enum propio y no `LeyOro`/`LeyPlata`; un test de paridad vigila la coherencia).
-- [ ] T019 Crear `$SRC/domain/model/CalculoChapa.kt`:
+- [X] T019 Crear `$SRC/domain/model/CalculoChapa.kt`:
   `data class CalculoChapa(val material: MaterialChapa, val ancho: BigDecimal, val largo: BigDecimal, val espesor: BigDecimal, val areaMm2: BigDecimal, val volumenMm3: BigDecimal, val volumenCm3: BigDecimal, val densidad: BigDecimal, val peso: BigDecimal, val metalFino: BigDecimal, val liga: BigDecimal)`
   con `companion object { val MM3_POR_CM3 = BigDecimal("1000"); internal fun de(ancho, largo, espesor, material): CalculoChapa }`:
   `areaMm2 = ancho × largo`, `volumenMm3 = areaMm2 × espesor`, `volumenCm3 = volumenMm3.movePointLeft(3)`
@@ -260,12 +260,12 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   KDoc: **sin ningún redondeo** (§10.1); no hay `ESCALA` porque no hay división (llegará con los
   inversos §8.3, fuera de alcance); constante propia como `FINURA_ORIGEN` en los otros motores.
   **Depende de T018**.
-- [ ] T020 Crear `$SRC/domain/usecase/CalcularPesoChapaUseCase.kt`:
+- [X] T020 Crear `$SRC/domain/usecase/CalcularPesoChapaUseCase.kt`:
   `class CalcularPesoChapaUseCase { operator fun invoke(ancho: BigDecimal, largo: BigDecimal, espesor: BigDecimal, material: MaterialChapa): CalculoChapa }`
   con `require(ancho > ZERO) { "El ancho debe ser mayor que cero: $ancho" }` (ídem largo,
   espesor, §11.1) y `return CalculoChapa.de(...)`. KDoc: los límites operativos de §11.4 son
   control de interfaz (ViewModel), no del motor. **Depende de T019**.
-- [ ] T021 [P] Crear `$TEST/domain/usecase/CalcularPesoChapaUseCaseTest.kt` (motor real, sin
+- [X] T021 [P] Crear `$TEST/domain/usecase/CalcularPesoChapaUseCaseTest.kt` (motor real, sin
   mocks, `compareTo == 0` porque todo es exacto, más `assertCerca`): chapa de referencia 10 × 20
   × 0,5 mm (§6, §7) en 18K → `peso 1.558`, `metalFino 1.1685`, `liga 0.3895`, `areaMm2 200`,
   `volumenMm3 100`, `volumenCm3 0.1`; tabla §7 completa: 14K `1.307`/`0.764595`/`0.542405`,
@@ -279,13 +279,13 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   densidades iguales a los literales de §5.1; `esSoloTecnica` exactamente {12K, 950, 900};
   **paridad**: cada material ORO tiene una `LeyOro` con iguales `milesimas` y `esSoloTecnica`,
   y cada PLATA una `LeyPlata`. **Depende de T020**.
-- [ ] T022 Registrar en `$SRC/core/di/DomainModule.kt` con `factoryOf`:
+- [X] T022 Registrar en `$SRC/core/di/DomainModule.kt` con `factoryOf`:
   `ObtenerCotizacionesUseCase`, `ConvertirCotizacionUseCase` y `CalcularPesoChapaUseCase` (los
   «trece» casos de uso pasan a dieciséis). `ObtenerCotizacionesUseCase` necesita
   `CotizacionesRepository`, que se registra en T037: hasta entonces `KoinModulesTest` fallará →
   ejecutar T022 y T037 en la misma sesión o dejar el `factoryOf` comentado hasta T037.
   **Depende de T016 y T020**.
-- [ ] T023 [P] Crear los fakes y la muestra real en `$TEST/data/`:
+- [X] T023 [P] Crear los fakes y la muestra real en `$TEST/data/`:
   `source/remote/FakeClienteHttp.kt` (cola de `RespuestaHttp`/excepciones y registro de la
   última URL y cabeceras), `source/remote/FakeCotizacionesRemoteDataSource.kt` (mapa
   `MetalCotizado → CotizacionMetal | MetalSentinelException`, contador de llamadas por metal,
@@ -296,14 +296,14 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   contrato y, tras T001, `val AU_EUR` = la respuesta real anonimizada. Estas clases dependen de
   interfaces creadas en US1 (T028–T030): crear ahora las que solo dependen del dominio
   (`FakeCotizacionesRepository`, `MuestrasMetalSentinel`) y el resto en T033. **Depende de T016**.
-- [ ] T024 [P] Añadir a `$SRC/ui/components/SelectorSegmentado.kt` el parámetro
+- [X] T024 [P] Añadir a `$SRC/ui/components/SelectorSegmentado.kt` el parámetro
   `val iconRes: Int? = null` en `OpcionSegmento`; en `Segmento`, si `iconRes != null` pintar
   `Icon(painterResource(iconRes), contentDescription = null, tint = if (activa) JewelryColors.Background else JewelryColors.TextSecondary, modifier = Modifier.size(18.dp))`
   + `Spacer(Modifier.width(JewelrySpacing.Sm))` en el hueco del check (el check no se pinta con
   icono: la píldora y la semántica `selected` ya transmiten el estado). KDoc del porqué (el
   selector de sub-herramientas del mockup lleva icono) y de que el valor por defecto deja oro,
   plata y soldaduras byte a byte iguales.
-- [ ] T025 [P] Añadir a `$SRC/ui/components/Formularios.kt`: un `private @Composable fun MarcoCampo(borde: Color, modifier: Modifier = Modifier, contenido: @Composable RowScope.() -> Unit)`
+- [X] T025 [P] Añadir a `$SRC/ui/components/Formularios.kt`: un `private @Composable fun MarcoCampo(borde: Color, modifier: Modifier = Modifier, contenido: @Composable RowScope.() -> Unit)`
   (fondo `JewelryColors.Background`, `RoundedCornerShape(JewelryRadius.Medium)`, borde 1 dp,
   padding horizontal `Md` / vertical `Sm`, `verticalAlignment = CenterVertically`) que
   `CampoCantidad` pasa a usar **sin cambiar su firma ni su aspecto** (mantiene `heightIn(min = 64.dp)`,
@@ -314,7 +314,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   `Text(unidad, titleMedium, color = acento)`; `semantics(mergeDescendants = true)` en el marco.
   KDoc: tres campos de 34 sp sin etiqueta (el `CampoCantidad`) son demasiado pesados para
   ancho/espesor/largo; regla del segundo consumidor.
-- [ ] T026 [P] Crear `$SRC/ui/herramientas/HerramientasUiState.kt` con el enum
+- [X] T026 [P] Crear `$SRC/ui/herramientas/HerramientasUiState.kt` con el enum
   `enum class Subherramienta { PRECIOS, CHAPAS; val analyticsId: String get() = name.lowercase() }`
   y `data class HerramientasUiState(val subherramienta: Subherramienta? = null)` (KDoc: el
   constructor sin argumentos **es** la primera visita: solo el selector, FR-002; conceptos de
@@ -322,7 +322,7 @@ literales `String`; instantes como `Long` epoch-millis (sin `java.time`: minSdk 
   paquete) con `internal val Subherramienta.etiquetaRes: Int` (`herramientas_subherramienta_precios`
   / `herramientas_subherramienta_chapas`) e `internal val Subherramienta.iconRes: Int`
   (`ic_grafica` / `ic_capas`). **Depende de T003 y T004**.
-- [ ] T027 Puerta de la fase fundacional y de la regresión:
+- [X] T027 Puerta de la fase fundacional y de la regresión:
   `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"` y comprobar
   que `./gradlew :app:testDebugUnitTest` pasa (tests nuevos de T009, T017 y T021 en verde;
   `KoinModulesTest` en verde con T022 completo o con el `factoryOf` de cotizaciones diferido),

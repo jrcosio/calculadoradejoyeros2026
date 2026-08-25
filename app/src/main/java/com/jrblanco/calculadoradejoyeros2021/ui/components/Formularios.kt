@@ -2,7 +2,9 @@ package com.jrblanco.calculadoradejoyeros2021.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -24,6 +26,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,16 +55,7 @@ fun CampoCantidad(
     acento: Color = JewelryColors.GoldPrimary,
     borde: Color = JewelryColors.BorderGold,
 ) {
-    val shape = RoundedCornerShape(JewelryRadius.Medium)
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .background(JewelryColors.Background, shape)
-            .border(1.dp, borde, shape)
-            .padding(horizontal = JewelrySpacing.Md, vertical = JewelrySpacing.Sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    MarcoCampo(borde = borde, modifier = modifier.heightIn(min = 64.dp)) {
         BasicTextField(
             value = valor,
             onValueChange = onCambio,
@@ -83,6 +78,89 @@ fun CampoCantidad(
             color = acento,
         )
     }
+}
+
+/**
+ * Campo de medida con etiqueta, icono y unidad: «Ancho · 10,00 · mm».
+ *
+ * Nació con la calculadora de chapas, que necesita tres medidas seguidas: tres cifras de 34 sp
+ * sin etiqueta —el [CampoCantidad]— pesan demasiado y no dicen cuál es cuál. Comparte el marco
+ * con [CampoCantidad] (regla del segundo consumidor). [error] pinta el filete en rojo cuando la
+ * medida se sale del rango operativo; [imeAction] encadena los campos con «Siguiente».
+ */
+@Composable
+fun CampoMedida(
+    etiqueta: String,
+    valor: String,
+    onCambio: (String) -> Unit,
+    iconRes: Int,
+    unidad: String,
+    modifier: Modifier = Modifier,
+    acento: Color = JewelryColors.GoldPrimary,
+    borde: Color = JewelryColors.Border,
+    error: Boolean = false,
+    imeAction: ImeAction = ImeAction.Next,
+) {
+    MarcoCampo(
+        borde = if (error) JewelryColors.Danger else borde,
+        modifier = modifier
+            .heightIn(min = 56.dp)
+            .semantics(mergeDescendants = true) {},
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = acento,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(Modifier.width(JewelrySpacing.Md))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = etiqueta,
+                style = MaterialTheme.typography.labelMedium,
+                color = JewelryColors.TextMuted,
+            )
+            BasicTextField(
+                value = valor,
+                onValueChange = onCambio,
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = JewelryColors.TextPrimary,
+                ),
+                // Teclado decimal: coma y punto valen y el ViewModel los normaliza.
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = imeAction),
+                singleLine = true,
+                cursorBrush = SolidColor(acento),
+            )
+        }
+        Spacer(Modifier.width(JewelrySpacing.Sm))
+        Text(
+            text = unidad,
+            style = MaterialTheme.typography.titleMedium,
+            color = acento,
+        )
+    }
+}
+
+/** La caja redondeada con filete que comparten los campos de la app. */
+@Composable
+private fun MarcoCampo(
+    borde: Color,
+    modifier: Modifier = Modifier,
+    contenido: @Composable RowScope.() -> Unit,
+) {
+    val shape = RoundedCornerShape(JewelryRadius.Medium)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(JewelryColors.Background, shape)
+            .border(1.dp, borde, shape)
+            .padding(horizontal = JewelrySpacing.Md, vertical = JewelrySpacing.Sm),
+        verticalAlignment = Alignment.CenterVertically,
+        content = contenido,
+    )
 }
 
 /**

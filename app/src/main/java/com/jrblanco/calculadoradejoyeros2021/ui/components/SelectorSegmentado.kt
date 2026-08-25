@@ -50,11 +50,17 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
  * [peso] reparte el ancho de la fila: con el valor por defecto todos los segmentos son
  * iguales; una etiqueta claramente más larga que sus vecinas —«Muy floja (18K)» junto a
  * «Floja» y «Fuerte» en soldaduras— puede pedir más sitio sin forzar el auto-ajuste.
+ *
+ * [iconRes] pinta un icono delante de la etiqueta, en el hueco que ocuparía el check: el
+ * selector de sub-herramientas del mockup lleva uno por opción. Con icono no hay check —la
+ * píldora y la semántica de selección ya cuentan el estado—; sin él (el valor por defecto)
+ * oro, plata y soldaduras no cambian ni un píxel.
  */
 data class OpcionSegmento(
     val etiqueta: String,
     val acento: Color = JewelryColors.GoldPrimary,
     val peso: Float = 1f,
+    val iconRes: Int? = null,
 )
 
 /**
@@ -100,6 +106,7 @@ fun SelectorSegmentado(
                         etiqueta = opcion.etiqueta,
                         activa = indice == seleccionada,
                         acento = opcion.acento,
+                        iconRes = opcion.iconRes,
                         onClick = { onSeleccion(indice) },
                         modifier = Modifier.weight(opcion.peso),
                     )
@@ -114,6 +121,7 @@ private fun Segmento(
     etiqueta: String,
     activa: Boolean,
     acento: Color,
+    iconRes: Int?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -149,7 +157,15 @@ private fun Segmento(
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (activa) {
+            if (iconRes != null) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    tint = if (activa) JewelryColors.Background else JewelryColors.TextSecondary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(JewelrySpacing.Sm))
+            } else if (activa) {
                 Box(
                     modifier = Modifier
                         .size(18.dp)
