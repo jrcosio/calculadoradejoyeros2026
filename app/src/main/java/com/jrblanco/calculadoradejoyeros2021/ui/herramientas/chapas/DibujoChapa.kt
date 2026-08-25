@@ -111,9 +111,8 @@ fun DibujoChapa(
                 val trazoCota = Stroke(width = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx())))
                 val trazoExtension = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 3.dp.toPx())))
                 val trazoArista = Stroke(width = 1.dp.toPx())
-                val margenLateral = 64.dp.toPx()
                 val margenSuperior = 12.dp.toPx()
-                val margenInferior = 40.dp.toPx()
+                val relleno = 6.dp.toPx()
                 val separacion = 22.dp.toPx()
                 val extension = 4.dp.toPx()
                 val flecha = Flecha(largo = 6.dp.toPx(), medioAncho = 3.dp.toPx())
@@ -126,14 +125,22 @@ fun DibujoChapa(
                     val l = largo
                     val p = progreso.value
 
+                    // Márgenes según lo que ocupan las cotas: a la izquierda la del espesor, a la
+                    // derecha la del largo y abajo la del ancho. Así ninguna etiqueta se sale.
+                    val margenIzquierdo = separacion + extension + holguraTexto + relleno +
+                        (cotaEspesor?.size?.width?.toFloat() ?: 0f)
+                    val margenDerecho = desplazamientoLargo.x + extension + holguraTexto + relleno +
+                        (cotaLargo?.size?.width?.toFloat() ?: 0f)
+                    val margenInferior = separacion + extension + holguraTexto + relleno +
+                        (cotaAncho?.size?.height?.toFloat() ?: 0f)
+
                     // Proyección oblicua: la profundidad huye a 30° y a mitad de escala.
                     val anchoUnidades = a + PROFUNDIDAD_X * l
                     val altoUnidades = e + PROFUNDIDAD_Y * l
-                    val escala = min(
-                        (size.width - 2 * margenLateral) / anchoUnidades,
-                        (size.height - margenSuperior - margenInferior) / altoUnidades,
-                    )
-                    val origenX = (size.width - escala * anchoUnidades) / 2f
+                    val anchoDisponible = (size.width - margenIzquierdo - margenDerecho).coerceAtLeast(1f)
+                    val altoDisponible = (size.height - margenSuperior - margenInferior).coerceAtLeast(1f)
+                    val escala = min(anchoDisponible / anchoUnidades, altoDisponible / altoUnidades)
+                    val origenX = margenIzquierdo + (anchoDisponible - escala * anchoUnidades) / 2f
                     val origenY = size.height - margenInferior
                     fun punto(x: Float, y: Float, z: Float) =
                         Offset(origenX + escala * (x + z * PROFUNDIDAD_X), origenY - escala * (y + z * PROFUNDIDAD_Y))
