@@ -31,6 +31,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryScaffold
 import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
+import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas.PesoChapasSection
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios.PreciosMetalesSection
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
@@ -57,7 +58,7 @@ fun HerramientasScreen(
         onBack = onBack,
         modifier = modifier,
         precios = { PreciosMetalesSection() },
-        chapas = { SeccionPendiente() },
+        chapas = { PesoChapasSection() },
     )
 }
 
@@ -136,16 +137,6 @@ private fun TarjetaPrimeraVisita(modifier: Modifier = Modifier) {
             }
         }
     }
-}
-
-/** Marcador hasta que llegue la sección de chapas (US3). */
-@Composable
-private fun SeccionPendiente() {
-    Text(
-        text = stringResource(R.string.placeholder_pendiente),
-        style = MaterialTheme.typography.bodyMedium,
-        color = JewelryColors.TextMuted,
-    )
 }
 
 @Preview(showBackground = true, widthDp = 411, heightDp = 891)

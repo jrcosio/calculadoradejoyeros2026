@@ -623,7 +623,7 @@ reservada).
 **Test independiente**: elegir PESO DE CHAPAS, teclear 10 · 0,5 · 20 y recorrer los ocho
 materiales comprobando 1,56 / 1,31 / 1,28 / 1,12 / 1,04 / 1,04 / 1,03 / 1,01 g.
 
-- [ ] T051 [P] [US3] Crear en `$SRC/ui/herramientas/chapas/`: `PesoChapasUiState.kt` —
+- [X] T051 [P] [US3] Crear en `$SRC/ui/herramientas/chapas/`: `PesoChapasUiState.kt` —
   `enum class MedidaChapa(val maximoMm: BigDecimal) { ANCHO(BigDecimal("10000")), ESPESOR(BigDecimal("1000")), LARGO(BigDecimal("10000")) }`
   (orden = orden de pintado; §11.4), `data class ResultadoChapa(val pesoFormateado: String, val volumenFormateado: String, val densidadFormateada: String, val purezaFormateada: String, val metalFinoFormateado: String)`,
   `data class DibujoChapaUiState(val proporciones: ProporcionesChapa = ProporcionesChapa.REFERENCIA, val etiquetaAncho: String? = null, val etiquetaEspesor: String? = null, val etiquetaLargo: String? = null, val completa: Boolean = false)`,
@@ -642,7 +642,7 @@ materiales comprobando 1,56 / 1,31 / 1,28 / 1,12 / 1,04 / 1,04 / 1,03 / 1,01 g.
   `plata_aviso_950`, 900 → `plata_aviso_900`, resto `null`), `MedidaChapa.etiquetaRes`
   (`chapas_medida_*`), `MedidaChapa.iconRes` (`ic_ancho`, `ic_espesor`, `ic_regla`).
   **Depende de T018**.
-- [ ] T052 [US3] Crear `$SRC/ui/herramientas/chapas/PesoChapasViewModel.kt`:
+- [X] T052 [US3] Crear `$SRC/ui/herramientas/chapas/PesoChapasViewModel.kt`:
   `class PesoChapasViewModel(private val calcularPeso: CalcularPesoChapaUseCase, private val analytics: AnalyticsRepository) : ViewModel()`
   con `StateFlow` único, `private var ultimoMaterialRegistrado: MaterialChapa? = null`,
   `init { analytics.logScreenView("herramientas_chapas") }`,
@@ -659,9 +659,9 @@ materiales comprobando 1,56 / 1,31 / 1,28 / 1,12 / 1,04 / 1,04 / 1,03 / 1,01 g.
   deduplicada por material. Sin corrutinas. Companion con `SCREEN_NAME`, eventos, params y
   `ESCALA_PESO = 2`, `ESCALA_FINO = 3`, `ESCALA_VOLUMEN = 3`, `ESCALA_MM = 2`. `onLimpiar` y
   `onGuardarFavoritos` llegan en US5. **Depende de T020 y T051**.
-- [ ] T053 [US3] Registrar `viewModelOf(::PesoChapasViewModel)` en
+- [X] T053 [US3] Registrar `viewModelOf(::PesoChapasViewModel)` en
   `$SRC/core/di/ViewModelModule.kt`. **Depende de T052**.
-- [ ] T054 [US3] Crear `$SRC/ui/herramientas/chapas/PesoChapasContent.kt` y `PesoChapasSection.kt`:
+- [X] T054 [US3] Crear `$SRC/ui/herramientas/chapas/PesoChapasContent.kt` y `PesoChapasSection.kt`:
   `PesoChapasSection(modifier, viewModel = koinViewModel())` → `PesoChapasContent(uiState, onFamiliaSeleccionada, onMaterialSeleccionado, onMedidaCambiada, onLimpiar, onGuardarFavoritos, modifier)`
   (los dos últimos con lambdas vacías hasta US5). `Content`: `Column(spacedBy(Md))` sin scaffold
   ni scroll, `val acento = uiState.material.familia.acento`, en el orden del mockup:
@@ -686,9 +686,9 @@ materiales comprobando 1,56 / 1,31 / 1,28 / 1,12 / 1,04 / 1,04 / 1,03 / 1,01 g.
   `Row(ic_info 16.dp TextMuted, chapas_nota_aproximado bodySmall TextMuted)`. Los botones llegan
   en US5. `@Preview` ×3 (inicial ORO, resultado 18K, PLATA 925 con resultado). **Depende de
   T025, T051, T052 y T053**.
-- [ ] T055 [US3] En `HerramientasScreen`, sustituir el marcador del slot `chapas` por
+- [X] T055 [US3] En `HerramientasScreen`, sustituir el marcador del slot `chapas` por
   `{ PesoChapasSection() }`. **Depende de T054**.
-- [ ] T056 [P] [US3] Crear `$TEST/ui/herramientas/chapas/PesoChapasViewModelTest.kt` (caso de
+- [X] T056 [P] [US3] Crear `$TEST/ui/herramientas/chapas/PesoChapasViewModelTest.kt` (caso de
   uso real, mockk relaxed solo para analytics, Turbine para el estado inicial): estado inicial
   `ORO_18K`, tres textos vacíos, `resultado == null`, `dibujo == DibujoChapaUiState()`;
   `logScreenView("herramientas_chapas")` una vez; tras ANCHO «10» y ESPESOR «0,5» sigue null;
@@ -704,7 +704,7 @@ materiales comprobando 1,56 / 1,31 / 1,28 / 1,12 / 1,04 / 1,04 / 1,03 / 1,01 g.
   `$TEST/ui/herramientas/chapas/ProporcionesChapaTest.kt`: el mayor de ancho/largo vale 1;
   ambos ≥ 0,30; espesor ∈ [0,05; 0,45]; monótono en cada entrada; extremos 0,01 mm y 10 000 mm
   dentro de los topes; nulos → `REFERENCIA`. **Depende de T052**.
-- [ ] T057 [P] [US3] Crear `$ATEST/ui/herramientas/chapas/PesoChapasScreenTest.kt` (monta
+- [X] T057 [P] [US3] Crear `$ATEST/ui/herramientas/chapas/PesoChapasScreenTest.kt` (monta
   `PesoChapasContent` en el tema, sin Koin): ORO y PLATA visibles, las 4 leyes de oro visibles y
   «925 (ley)» no; con `PLATA_925` las 4 de plata visibles y «18 K» no; exactamente 3 nodos con
   `hasSetTextAction()`; escribir en Ancho propaga `(ANCHO, "10")`; con `resultado` → «1,56»,
