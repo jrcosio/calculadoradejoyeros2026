@@ -42,7 +42,7 @@ puede avanzar todo lo demás; solo `MetalSentinelDataSource` (T032) queda pendie
 **Propósito**: confirmar el contrato con la credencial real, dejar en `res/` la imagen, los
 iconos y el vocabulario de la feature, y preparar la build (credencial, permiso, backup).
 
-- [ ] T001 Confirmar el contrato del proveedor con la credencial real (Paso 0 del plan): el
+- [X] T001 Confirmar el contrato del proveedor con la credencial real (Paso 0 del plan): el
   autor añade `RAPIDAPI_KEY=…` a `local.properties` (ya en `.gitignore`); ejecutar el bloque
   «Verificación del contrato» de `specs/007-herramientas/contracts/metal-quote.md` **sin
   imprimir la clave**, para `AU AG CU PD RH` con `?metal=` y, si 4xx, con `?symbol=`; anotar en
@@ -959,7 +959,38 @@ tests que nombran las cabeceras `x-rapidapi-host`/`x-rapidapi-key`; ningún valo
   app (selector tipográfico con icono, tarjetas con acento, sin botón «Calcular» ni chip de
   vista; ORO dorado y PLATA turquesa por decisión del autor).
 
-**Pendiente de la credencial (T001)**: no se ha podido comprobar con el proveedor real
+**Confirmación del contrato (T001, 2026-08-25, con la credencial del autor)**: la ruta
+`/api/metal-quote` de la web pública responde **404** para la suscripción; la buena es
+**`/metal-quote`** con **`symbol=`** (`metal=` devuelve un 200 con `{"error":"The symbol field is
+required."}`, que el parser clasifica como respuesta no válida). Los cinco metales responden
+200 en EUR; oro, plata, paladio y rodio en `OUNCE` y **el cobre en `POUND`**, que ha obligado a
+añadir `UnidadPrecio.LIBRA` como unidad de origen (453,59237 g; no seleccionable) y su mapeo.
+Respuesta anonimizada en `UI_Plantillas/Feature_Herramientas/respuesta_ejemplo_metal_quote.json`
+y como fixtures reales de `MetalSentinelDataSourceTest`. Lo siguiente se verifica en emulador con
+la app real (ver más abajo).
+
+**Verificación con el proveedor real (T001, emulador Pixel_10 API 36 en `en-US`, 2026-08-25)**:
+
+- **SC-001 / FR-005**: primera apertura de PRECIO METALES con la app recién instalada
+  (`pm clear`) → cinco filas con precio en ~2 s; el fichero `shared_prefs/cotizaciones.xml`
+  guarda la instantánea con `instanteIntentoEpochMillis = 1787673386338`. Tras
+  `am force-stop` y reabrir Home → Herramientas → PRECIO METALES, los precios aparecen al
+  instante con la caption «Datos guardados de la última consulta» y el instante guardado es
+  **idéntico**: cero peticiones nuevas. ✓
+- **SC-002 / US2**: oro 128,11 €/g ↔ 128.110,52 €/kg; plata 1,89 ↔ 1.893,32; **cobre 0,0124 €/g
+  ↔ 12,38 €/kg convertido desde la libra**; paladio 36,70; rodio 245,24; punto de miles y flechas
+  por signo (roja baja, verde sube). La tarjeta de mercado del metal pulsado muestra los ocho
+  datos convertidos a la unidad elegida (paladio en kilo: ask 37.254,09 · bid 36.151,89 · máximo
+  38.301,17 · mínimo 35.711,02 · variación −740,08 · variación % −2,01 · Kilo · fecha). ✓
+- **FR-011 / FR-030**: la fecha la formatea el sistema: en el emulador `en-US` sale «Aug 25, 2026 ·
+  5:56 PM»; en un dispositivo en español, «25 ago 2026 · 17:56». ✓
+- **FR-024 (cotas)**: tras el ajuste de márgenes dinámicos (a petición del autor), «0,50 mm»,
+  «10,00 mm» y «20,00 mm» entran completas en la ilustración, en oro y en plata. ✓
+- **Pendiente sin verificar**: SC-013 (espera de 60 s tras un fallo real) y el parseo bajo R8 del
+  APK de release instalado; ambos cubiertos por tests JVM (repositorio con reloj falso; DTOs con
+  reglas embebidas de kotlinx-serialization) y el release compila.
+
+**Antes de la credencial no se había podido comprobar con el proveedor real
 `PARAMETRO_METAL` (`metal` frente a `symbol`), la unidad de CU/PD/RH, SC-001 (5 peticiones y
 0 al volver, también tras `am force-stop`), SC-002 (conversión de precios reales), SC-013
 (espera de reintento) ni el parseo de los DTO bajo R8 en release. La lógica equivalente está
@@ -967,6 +998,15 @@ cubierta por tests JVM con la muestra real del proveedor y con fakes; en cuanto 
 tenga `RAPIDAPI_KEY`, basta seguir el §1 y los pasos 2–10 de `quickstart.md`.
 
 ### Desviaciones respecto al plan de tareas
+
+- **Contrato real distinto al documentado**: ruta `/metal-quote` (no `/api/metal-quote`) y
+  parámetro `symbol` (no `metal`); el cobre cotiza por libra (`POUND`). `UnidadPrecio` gana
+  `LIBRA` como unidad solo de origen (`seleccionables` deja fuera la libra) y el conversor
+  `GRAMOS_POR_LIBRA = "453.59237"`. Contrato, data-model, research, quickstart y `CLAUDE.md`
+  actualizados; fixtures reales en `MetalSentinelDataSourceTest`.
+- **Márgenes de la ilustración** (petición del autor tras verla): los márgenes de `DibujoChapa`
+  pasan a calcularse con el ancho de las cotas medidas, y la chapa se desplaza a la derecha lo
+  justo para que la cota del espesor entre completa.
 
 - T040/T042 dejaron ya escritos en `PreciosMetalesViewModel` y `PreciosMetalesContent` el
   selector de unidad, la tarjeta de mercado y los estados de error/espera/reintento que T047,
