@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Inglés (feature 008). Mismo orden y mismos bloques que `values/strings.xml`, que es la fuente
+    de verdad; las cadenas con translatable="false" no se copian aquí a propósito.
+    `TraduccionesTest` vigila que no falte ni sobre ninguna clave y que los %n$s se conserven.
+-->
+<resources>
+
+    <!-- Pantalla de inicio -->
+    <string name="welcome_subtitle">Precision and calculation for your workshop</string>
+    <string name="welcome_start">Get started</string>
+    <string name="welcome_developer">Developed by %1$s</string>
+    <string name="welcome_logo_description">Calculadora de Joyeros logo: a gold ingot on a caliper and a calculator keypad</string>
+
+    <!-- Módulos del menú principal -->
+    <string name="modulo_oro_titulo">GOLD alloys</string>
+    <string name="modulo_oro_descripcion">Basic calculations for 18K, 14K, 12K and 9K gold alloys.</string>
+    <string name="modulo_oro_imagen">Two gold ingots marked with the symbol Au</string>
+    <string name="modulo_plata_titulo">SILVER alloys</string>
+    <string name="modulo_plata_descripcion">Basic calculations for silver alloys.</string>
+    <string name="modulo_plata_imagen">Two silver ingots marked with the symbol Ag</string>
+    <string name="modulo_soldaduras_titulo">Gold and silver solders</string>
+    <string name="modulo_soldaduras_descripcion">Work out solder alloys by fineness and other properties.</string>
+    <string name="modulo_soldaduras_imagen">A jeweller\'s torch, lit</string>
+    <string name="modulo_herramientas_titulo">Tools</string>
+    <string name="modulo_herramientas_descripcion">Specialised calculators and utilities for jewellery work.</string>
+    <string name="modulo_herramientas_imagen">Digital caliper, jeweller\'s loupe, tweezers and a bench tool</string>
+
+    <!-- Barra inferior -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favoritos">Favourites</string>
+    <string name="nav_ajustes">Settings</string>
+
+    <!-- Barra superior -->
+    <string name="topbar_info">About this app</string>
+    <string name="topbar_atras">Back</string>
+
+    <!-- Pantallas aún sin desarrollar -->
+    <string name="placeholder_pendiente">Screen under construction</string>
+
+    <!-- Pantalla de información -->
+    <string name="info_titulo">Information</string>
+    <string name="info_perfil_descripcion">Technology and tradition come together in an app created by José Ramón Blanco, developer and artisan jeweller, with the aim of giving jewellery professionals all over the world useful, modern and accessible tools.</string>
+    <string name="info_perfil_foto">Photograph of José Ramón Blanco</string>
+    <string name="info_enlace_abrir">Open in browser</string>
+    <string name="info_blanco_joyeros_descripcion">Partner and reference in the jewellery trade.</string>
+    <string name="info_blanco_joyeros_logo">Blanco Joyeros logo</string>
+    <string name="info_blanco_joyeros_imagen">Diamond wedding ring beside a jeweller\'s loupe</string>
+    <string name="info_version">Version %1$s</string>
+
+    <!-- Compartido: unidades, metales y acciones -->
+    <string name="metal_oro">Gold</string>
+    <string name="metal_plata">Silver</string>
+    <string name="metal_rodio">Rhodium</string>
+    <string name="metal_oro_fino">Fine gold</string>
+    <string name="metal_plata_fina">Fine silver</string>
+    <string name="metal_cobre">Copper</string>
+    <string name="metal_paladio">Palladium</string>
+    <string name="metal_oro_24k">24K gold</string>
+    <string name="metal_laton">Brass</string>
+    <string name="metal_zinc">Zinc</string>
+    <string name="metal_cadmio">Cadmium</string>
+    <string name="metal_plata_fina_imagen">Two fine silver ingots</string>
+    <string name="metal_cobre_imagen">Two copper ingots marked with the symbol Cu</string>
+    <string name="metal_paladio_imagen">Two palladium ingots marked with the symbol Pd</string>
+    <string name="metal_oro_24k_imagen">Two 24 carat fine gold ingots</string>
+    <string name="metal_laton_imagen">A brass ingot</string>
+    <string name="metal_zinc_imagen">Two zinc ingots marked with the symbol Zn</string>
+    <string name="metal_cadmio_imagen">Two cadmium ingots marked with the symbol Cd</string>
+    <string name="metal_oro_imagen">Gold ingots</string>
+    <string name="metal_plata_imagen">Silver ingots</string>
+    <string name="metal_rodio_imagen">A pile of rhodium grain</string>
+    <string name="accion_limpiar">Clear</string>
+    <string name="accion_guardar_favoritos">Save to favourites</string>
+    <string name="aviso_proximamente">Coming soon</string>
+
+    <!-- Calculadora de aleaciones de oro -->
+    <string name="oro_entrada_titulo">Enter the 24K gold</string>
+    <string name="oro_entrada_imagen">Two fine gold ingots of 999 thousandths</string>
+    <string name="oro_seccion_ley">Type of gold</string>
+    <string name="oro_seccion_color">Gold colour</string>
+    <string name="oro_color_amarillo">Yellow</string>
+    <string name="oro_color_blanco">White</string>
+    <string name="oro_color_rosa">Rose</string>
+    <string name="oro_color_rojo">Red</string>
+    <string name="oro_total">Total %1$s gold:</string>
+    <string name="oro_aviso_12k">500‰ / 12 K is included only as a technical reference for calculation. It is not one of the official gold standards allowed for sale in Spain.</string>
+
+    <!-- Calculadora de aleaciones de plata -->
+    <string name="plata_entrada_titulo">Enter the 999‰ fine silver</string>
+    <string name="plata_entrada_imagen">Two fine silver ingots of 999 thousandths</string>
+    <string name="plata_seccion_ley">Silver fineness to obtain</string>
+    <string name="plata_ley_925">925 (hallmark)</string>
+    <string name="plata_ley_800">800 (hallmark)</string>
+    <string name="plata_total">Total %1$s silver:</string>
+    <string name="plata_aviso_950">Silver 950‰: technical composition. In Spain 950‰ is not one of the official silver hallmark standards; it is above the 925‰ standard.</string>
+    <string name="plata_aviso_900">Silver 900‰: technical composition. In Spain 900‰ is not one of the official silver hallmark standards; it is above 800‰ but does not reach 925‰.</string>
+
+    <!-- Calculadora de soldaduras -->
+    <string name="soldadura_seccion_familia">The solder you want to make</string>
+    <string name="soldadura_familia_oro_ley">GOLD SOLDER</string>
+    <string name="soldadura_familia_clasica">CLASSIC</string>
+    <string name="soldadura_familia_plata">SILVER</string>
+    <string name="soldadura_seccion_modo">Calculation mode</string>
+    <string name="soldadura_modo_tengo_oro18k">I have 18K gold</string>
+    <string name="soldadura_modo_tengo_oro">I have the gold</string>
+    <string name="soldadura_modo_tengo_plata">I have the silver</string>
+    <string name="soldadura_modo_peso_final">Final weight</string>
+    <string name="soldadura_seccion_tipo">Type of solder</string>
+    <string name="soldadura_dureza_muy_floja">Extra easy</string>
+    <string name="soldadura_dureza_floja">Easy</string>
+    <string name="soldadura_dureza_media">Medium</string>
+    <string name="soldadura_dureza_fuerte">Hard</string>
+    <string name="soldadura_dureza_muy_fuerte">Extra hard</string>
+    <string name="soldadura_clasica_floja">Easy</string>
+    <string name="soldadura_clasica_fuerte">Hard</string>
+    <string name="soldadura_clasica_muy_floja_ley">Extra easy (18K)</string>
+    <string name="soldadura_plata_muy_floja">Extra easy</string>
+    <string name="soldadura_plata_floja">Easy</string>
+    <string name="soldadura_plata_normal">Normal</string>
+    <string name="soldadura_plata_fuerte">Hard</string>
+    <string name="soldadura_plata_nota_muy_floja">Recommended for repairs</string>
+    <string name="soldadura_ley_base_titulo">How to make the BASE solder*</string>
+    <string name="soldadura_ley_base_boton">BASE SOLDER</string>
+    <string name="soldadura_ley_base_nota">* An 18K solder with a very, very low melting point</string>
+    <string name="soldadura_entrada_oro_18k">Enter the 18K gold</string>
+    <string name="soldadura_entrada_oro_24k">Enter the 24K gold</string>
+    <string name="soldadura_entrada_peso_final">Final weight wanted</string>
+    <string name="soldadura_base_entrada_peso">Base weight wanted</string>
+    <string name="soldadura_fila_base">BASE solder</string>
+    <string name="soldadura_fila_base_necesaria">BASE solder needed</string>
+    <string name="soldadura_fila_oro18k">18K gold %1$s</string>
+    <string name="soldadura_granalla_imagen">Base solder grain</string>
+    <string name="soldadura_total">Total solder:</string>
+    <string name="soldadura_nota_redondeo">The total may vary slightly because of rounding</string>
+    <string name="soldadura_aviso_seguridad">Safety: heating materials containing cadmium or zinc can give off dangerous fumes. Do not breathe the fumes. Work only with local extraction or adequate ventilation, with the appropriate protective equipment and in line with the applicable safety regulations. This calculator is no substitute for professional training or a risk assessment.</string>
+    <string name="soldadura_ley_consejo_mezcla">Melt and roll once; then melt and roll again to help the mix come out even.</string>
+    <string name="soldadura_base_titulo">Base solder</string>
+    <string name="soldadura_base_proceso_titulo">Process</string>
+    <string name="soldadura_base_proceso_1">Melt the gold, silver and copper first and, once well mixed, add the zinc and the cadmium.</string>
+    <string name="soldadura_base_proceso_2">Lower the flame so the zinc and the cadmium do not burn off.</string>
+    <string name="soldadura_base_proceso_3">Roll the resulting ingot so it can be cut with shears.</string>
+    <string name="soldadura_base_masa_teorica">The calculated mass is theoretical: melting losses are not accounted for.</string>
+    <string name="soldadura_base_proceso_imagen">A jeweller\'s crucible pouring molten metal</string>
+    <string name="soldadura_base_modo_tengo_oro">I have 24K gold</string>
+    <string name="soldadura_base_modo_peso">Base weight</string>
+    <string name="soldadura_base_total">Theoretical weight of the base:</string>
+
+    <!-- Herramientas -->
+    <string name="herramientas_subherramienta_precios">METAL PRICES</string>
+    <string name="herramientas_subherramienta_chapas">SHEET WEIGHT</string>
+    <string name="herramientas_primera_visita_titulo">Choose a tool</string>
+    <string name="herramientas_primera_visita_texto">Up-to-date metal prices and the weight of your sheet from its measurements.</string>
+
+    <!-- Herramientas: precio de metales -->
+    <string name="precios_titulo">Metal prices today</string>
+    <string name="precios_actualizado">Updated %1$s</string>
+    <string name="precios_origen_cache">Saved data from the last request</string>
+    <string name="precios_seccion_unidad">Unit</string>
+    <string name="precios_unidad_gramo">Gram</string>
+    <string name="precios_unidad_kilo">Kilo</string>
+    <string name="precios_unidad_onza">Troy ounce</string>
+    <string name="precios_unidad_libra">Pound</string>
+    <string name="precios_mercado_titulo">Market information</string>
+    <string name="precios_mercado_subtitulo">Provider data for the chosen metal</string>
+    <string name="precios_detalle_maximo">High</string>
+    <string name="precios_detalle_minimo">Low</string>
+    <string name="precios_detalle_variacion">Change</string>
+    <string name="precios_detalle_variacion_pct">Change %</string>
+    <string name="precios_detalle_unidad">Unit</string>
+    <string name="precios_detalle_actualizacion">Updated</string>
+    <string name="precios_nota_orientativos">Indicative prices. They may vary with the market.</string>
+    <string name="precios_fuente">Source: %1$s</string>
+    <string name="precios_cargando">Requesting prices…</string>
+    <string name="precios_accion_reintentar">Try again</string>
+    <string name="precios_desactualizado">Out of date</string>
+    <string name="precios_aviso_espera">You have just tried. Wait a moment before requesting again.</string>
+    <string name="precios_aviso_parcial">Not all metals could be updated.</string>
+    <string name="precios_aviso_desactualizado">The last known prices are shown.</string>
+    <string name="precios_error_sin_credencial">The price service is not set up in this version.</string>
+    <string name="precios_error_credencial">The provider rejected the credentials or the subscription.</string>
+    <string name="precios_error_no_encontrado">The price service is not available.</string>
+    <string name="precios_error_limite">The provider\'s request limit has been reached.</string>
+    <string name="precios_error_servidor">The provider is not responding right now.</string>
+    <string name="precios_error_sin_conexion">Could not connect to the provider.</string>
+    <string name="precios_error_respuesta">The provider returned an invalid response.</string>
+    <string name="precios_error_desconocido">Could not get the price.</string>
+    <string name="precios_tendencia_sube">Up</string>
+    <string name="precios_tendencia_baja">Down</string>
+    <string name="precios_tendencia_plana">No change</string>
+
+    <!-- Herramientas: peso de chapas -->
+    <string name="chapas_titulo">Sheet weight</string>
+    <string name="chapas_subtitulo">Work out the weight of your sheet from its measurements</string>
+    <string name="chapas_seccion_material">Material</string>
+    <string name="chapas_familia_oro">GOLD</string>
+    <string name="chapas_familia_plata">SILVER</string>
+    <string name="chapas_seccion_medidas">Measurements</string>
+    <string name="chapas_medida_ancho">Width</string>
+    <string name="chapas_medida_espesor">Thickness</string>
+    <string name="chapas_medida_largo">Length</string>
+    <string name="chapas_material_oro">Gold %1$s</string>
+    <string name="chapas_material_plata">Silver %1$s</string>
+    <string name="chapas_resultado_titulo">Weight of the sheet</string>
+    <string name="chapas_resultado_para">Calculated for %1$s</string>
+    <string name="chapas_detalle_volumen">Volume</string>
+    <string name="chapas_detalle_densidad">Density</string>
+    <string name="chapas_detalle_pureza">Purity</string>
+    <string name="chapas_dibujo_descripcion">%1$s sheet: %2$s wide, %3$s long and %4$s thick</string>
+    <string name="chapas_dibujo_sin_medida">no measurement</string>
+    <string name="chapas_nota_aproximado">Approximate values. Allow for loss in your own process.</string>
+    <string name="chapas_aviso_rango">Measurement outside the working range: width and length up to 10 000 mm, thickness up to 1 000 mm.</string>
+
+    <!-- Ajustes: idioma de la aplicación -->
+    <string name="ajustes_seccion_idioma">App language</string>
+    <string name="ajustes_idioma_descripcion">Choose the language you want to see the app in.</string>
+    <string name="ajustes_idioma_automatico">Automatic</string>
+    <string name="ajustes_idioma_automatico_detalle">Follows the device language · %1$s</string>
+    <string name="ajustes_idioma_activo">Selected language</string>
+</resources>

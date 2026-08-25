@@ -121,7 +121,11 @@ fun WelcomeContent(
         }
 
         Text(
-            text = stringResource(R.string.welcome_developer),
+            // El nombre no se traduce y va por parámetro; «Desarrollado por» sí (feature 008).
+            text = stringResource(
+                R.string.welcome_developer,
+                stringResource(R.string.info_perfil_nombre),
+            ),
             style = MaterialTheme.typography.labelMedium,
             color = JewelryColors.TextMuted,
             textAlign = TextAlign.Center,

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Alemán (feature 008). Mismo orden y mismos bloques que `values/strings.xml`, que es la fuente
+    de verdad; las cadenas con translatable="false" no se copian aquí a propósito.
+    Tratamiento informal («du»), que es el registro del original en español.
+    `TraduccionesTest` vigila que no falte ni sobre ninguna clave y que los %n$s se conserven.
+-->
+<resources>
+
+    <!-- Pantalla de inicio -->
+    <string name="welcome_subtitle">Präzision und Berechnung für deine Werkstatt</string>
+    <string name="welcome_start">Starten</string>
+    <string name="welcome_developer">Entwickelt von %1$s</string>
+    <string name="welcome_logo_description">Logo von Calculadora de Joyeros: ein Goldbarren auf einem Messschieber und einer Rechnertastatur</string>
+
+    <!-- Módulos del menú principal -->
+    <string name="modulo_oro_titulo">GOLD-Legierungen</string>
+    <string name="modulo_oro_descripcion">Grundlegende Berechnungen für Goldlegierungen mit 18K, 14K, 12K und 9K.</string>
+    <string name="modulo_oro_imagen">Zwei Goldbarren mit dem Symbol Au</string>
+    <string name="modulo_plata_titulo">SILBER-Legierungen</string>
+    <string name="modulo_plata_descripcion">Grundlegende Berechnungen für Silberlegierungen.</string>
+    <string name="modulo_plata_imagen">Zwei Silberbarren mit dem Symbol Ag</string>
+    <string name="modulo_soldaduras_titulo">Gold- und Silberlote</string>
+    <string name="modulo_soldaduras_descripcion">Berechne Lotlegierungen mit Feingehalt und weitere Eigenschaften.</string>
+    <string name="modulo_soldaduras_imagen">Brennender Lötbrenner eines Goldschmieds</string>
+    <string name="modulo_herramientas_titulo">Werkzeuge</string>
+    <string name="modulo_herramientas_descripcion">Spezielle Rechner und Hilfsmittel für die Goldschmiedearbeit.</string>
+    <string name="modulo_herramientas_imagen">Digitaler Messschieber, Juwelierlupe, Pinzette und ein Werkstattwerkzeug</string>
+
+    <!-- Barra inferior -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favoritos">Favoriten</string>
+    <string name="nav_ajustes">Einstellungen</string>
+
+    <!-- Barra superior -->
+    <string name="topbar_info">App-Informationen</string>
+    <string name="topbar_atras">Zurück</string>
+
+    <!-- Pantallas aún sin desarrollar -->
+    <string name="placeholder_pendiente">Bildschirm in Bearbeitung</string>
+
+    <!-- Pantalla de información -->
+    <string name="info_titulo">Informationen</string>
+    <string name="info_perfil_descripcion">Technik und Tradition treffen sich in einer App von José Ramón Blanco, Entwickler und Goldschmiedemeister, mit dem Ziel, Fachleuten der Schmuckbranche in aller Welt nützliche, moderne und zugängliche Werkzeuge an die Hand zu geben.</string>
+    <string name="info_perfil_foto">Foto von José Ramón Blanco</string>
+    <string name="info_enlace_abrir">Im Browser öffnen</string>
+    <string name="info_blanco_joyeros_descripcion">Partner und Referenz der Schmuckbranche.</string>
+    <string name="info_blanco_joyeros_logo">Logo von Blanco Joyeros</string>
+    <string name="info_blanco_joyeros_imagen">Diamant-Ehering neben einer Juwelierlupe</string>
+    <string name="info_version">Version %1$s</string>
+
+    <!-- Compartido: unidades, metales y acciones -->
+    <string name="metal_oro">Gold</string>
+    <string name="metal_plata">Silber</string>
+    <string name="metal_rodio">Rhodium</string>
+    <string name="metal_oro_fino">Feingold</string>
+    <string name="metal_plata_fina">Feinsilber</string>
+    <string name="metal_cobre">Kupfer</string>
+    <string name="metal_paladio">Palladium</string>
+    <string name="metal_oro_24k">24K-Gold</string>
+    <string name="metal_laton">Messing</string>
+    <string name="metal_zinc">Zink</string>
+    <string name="metal_cadmio">Cadmium</string>
+    <string name="metal_plata_fina_imagen">Zwei Feinsilberbarren</string>
+    <string name="metal_cobre_imagen">Zwei Kupferbarren mit dem Symbol Cu</string>
+    <string name="metal_paladio_imagen">Zwei Palladiumbarren mit dem Symbol Pd</string>
+    <string name="metal_oro_24k_imagen">Zwei Feingoldbarren mit 24 Karat</string>
+    <string name="metal_laton_imagen">Ein Messingbarren</string>
+    <string name="metal_zinc_imagen">Zwei Zinkbarren mit dem Symbol Zn</string>
+    <string name="metal_cadmio_imagen">Zwei Cadmiumbarren mit dem Symbol Cd</string>
+    <string name="metal_oro_imagen">Goldbarren</string>
+    <string name="metal_plata_imagen">Silberbarren</string>
+    <string name="metal_rodio_imagen">Ein Haufen Rhodium-Granalien</string>
+    <string name="accion_limpiar">Löschen</string>
+    <string name="accion_guardar_favoritos">In Favoriten speichern</string>
+    <string name="aviso_proximamente">Demnächst</string>
+
+    <!-- Calculadora de aleaciones de oro -->
+    <string name="oro_entrada_titulo">Gib das 24K-Gold ein</string>
+    <string name="oro_entrada_imagen">Zwei Feingoldbarren mit 999 Tausendstel</string>
+    <string name="oro_seccion_ley">Goldart</string>
+    <string name="oro_seccion_color">Goldfarbe</string>
+    <string name="oro_color_amarillo">Gelb</string>
+    <string name="oro_color_blanco">Weiß</string>
+    <string name="oro_color_rosa">Rosé</string>
+    <string name="oro_color_rojo">Rot</string>
+    <string name="oro_total">Gold %1$s insgesamt:</string>
+    <string name="oro_aviso_12k">500‰ / 12 K ist nur als technischer Rechenwert aufgeführt. Es ist keiner der amtlichen Goldfeingehalte, die in Spanien für den Verkauf vorgesehen sind.</string>
+
+    <!-- Calculadora de aleaciones de plata -->
+    <string name="plata_entrada_titulo">Gib das Feinsilber 999‰ ein</string>
+    <string name="plata_entrada_imagen">Zwei Feinsilberbarren mit 999 Tausendstel</string>
+    <string name="plata_seccion_ley">Zu erreichender Silberfeingehalt</string>
+    <string name="plata_ley_925">925 (amtlich)</string>
+    <string name="plata_ley_800">800 (amtlich)</string>
+    <string name="plata_total">Silber %1$s insgesamt:</string>
+    <string name="plata_aviso_950">Silber 950‰: technische Zusammensetzung. In Spanien ist 950‰ keiner der amtlichen Silberfeingehalte; er liegt über dem Feingehalt 925‰.</string>
+    <string name="plata_aviso_900">Silber 900‰: technische Zusammensetzung. In Spanien ist 900‰ keiner der amtlichen Silberfeingehalte; er liegt über 800‰, erreicht aber 925‰ nicht.</string>
+
+    <!-- Calculadora de soldaduras -->
+    <string name="soldadura_seccion_familia">Das Lot, das du herstellen willst</string>
+    <string name="soldadura_familia_oro_ley">GOLDLOT</string>
+    <string name="soldadura_familia_clasica">KLASSISCH</string>
+    <string name="soldadura_familia_plata">SILBER</string>
+    <string name="soldadura_seccion_modo">Rechenmodus</string>
+    <string name="soldadura_modo_tengo_oro18k">Ich habe 18K-Gold</string>
+    <string name="soldadura_modo_tengo_oro">Ich habe das Gold</string>
+    <string name="soldadura_modo_tengo_plata">Ich habe das Silber</string>
+    <string name="soldadura_modo_peso_final">Endgewicht</string>
+    <string name="soldadura_seccion_tipo">Lotart</string>
+    <string name="soldadura_dureza_muy_floja">Sehr weich</string>
+    <string name="soldadura_dureza_floja">Weich</string>
+    <string name="soldadura_dureza_media">Mittel</string>
+    <string name="soldadura_dureza_fuerte">Hart</string>
+    <string name="soldadura_dureza_muy_fuerte">Sehr hart</string>
+    <string name="soldadura_clasica_floja">Weich</string>
+    <string name="soldadura_clasica_fuerte">Hart</string>
+    <string name="soldadura_clasica_muy_floja_ley">Sehr weich (18K)</string>
+    <string name="soldadura_plata_muy_floja">Sehr weich</string>
+    <string name="soldadura_plata_floja">Weich</string>
+    <string name="soldadura_plata_normal">Normal</string>
+    <string name="soldadura_plata_fuerte">Hart</string>
+    <string name="soldadura_plata_nota_muy_floja">Empfohlen für Reparaturen</string>
+    <string name="soldadura_ley_base_titulo">So erhältst du das BASIS-Lot*</string>
+    <string name="soldadura_ley_base_boton">BASIS-LOT</string>
+    <string name="soldadura_ley_base_nota">* Ein 18K-Lot mit einem ganz besonders niedrigen Schmelzpunkt</string>
+    <string name="soldadura_entrada_oro_18k">Gib das 18K-Gold ein</string>
+    <string name="soldadura_entrada_oro_24k">Gib das 24K-Gold ein</string>
+    <string name="soldadura_entrada_peso_final">Gewünschtes Endgewicht</string>
+    <string name="soldadura_base_entrada_peso">Gewünschtes Basisgewicht</string>
+    <string name="soldadura_fila_base">BASIS-Lot</string>
+    <string name="soldadura_fila_base_necesaria">Benötigtes BASIS-Lot</string>
+    <string name="soldadura_fila_oro18k">18K-Gold %1$s</string>
+    <string name="soldadura_granalla_imagen">Granalien des Basislots</string>
+    <string name="soldadura_total">Lot insgesamt:</string>
+    <string name="soldadura_nota_redondeo">Die Summe kann durch Rundung minimal abweichen</string>
+    <string name="soldadura_aviso_seguridad">Sicherheit: Beim Erhitzen von Materialien mit Cadmium oder Zink können gefährliche Dämpfe entstehen. Dämpfe nicht einatmen. Nur mit örtlicher Absaugung oder ausreichender Belüftung, mit der entsprechenden Schutzausrüstung und nach den geltenden Sicherheitsvorschriften arbeiten. Dieser Rechner ersetzt weder eine Fachausbildung noch eine Gefährdungsbeurteilung.</string>
+    <string name="soldadura_ley_consejo_mezcla">Ein erstes Mal schmelzen und walzen; danach erneut schmelzen und walzen, damit sich alles gleichmäßig mischt.</string>
+    <string name="soldadura_base_titulo">Basislot</string>
+    <string name="soldadura_base_proceso_titulo">Ablauf</string>
+    <string name="soldadura_base_proceso_1">Zuerst Gold, Silber und Kupfer schmelzen und, wenn alles gut vermischt ist, Zink und Cadmium zugeben.</string>
+    <string name="soldadura_base_proceso_2">Die Flamme zurücknehmen, damit Zink und Cadmium nicht verdampfen.</string>
+    <string name="soldadura_base_proceso_3">Den erhaltenen Barren walzen, damit er sich mit der Schere schneiden lässt.</string>
+    <string name="soldadura_base_masa_teorica">Die berechnete Masse ist theoretisch: Schmelzverluste werden nicht ausgeglichen.</string>
+    <string name="soldadura_base_proceso_imagen">Tiegel eines Goldschmieds, aus dem geschmolzenes Metall gegossen wird</string>
+    <string name="soldadura_base_modo_tengo_oro">Ich habe 24K-Gold</string>
+    <string name="soldadura_base_modo_peso">Basisgewicht</string>
+    <string name="soldadura_base_total">Theoretisches Gewicht der Basis:</string>
+
+    <!-- Herramientas -->
+    <string name="herramientas_subherramienta_precios">METALLPREISE</string>
+    <string name="herramientas_subherramienta_chapas">BLECHGEWICHT</string>
+    <string name="herramientas_primera_visita_titulo">Wähle ein Werkzeug</string>
+    <string name="herramientas_primera_visita_texto">Tagesaktuelle Metallkurse und das Gewicht deiner Bleche nach Maß.</string>
+
+    <!-- Herramientas: precio de metales -->
+    <string name="precios_titulo">Metallpreise heute</string>
+    <string name="precios_actualizado">Aktualisiert %1$s</string>
+    <string name="precios_origen_cache">Gespeicherte Daten der letzten Abfrage</string>
+    <string name="precios_seccion_unidad">Einheit</string>
+    <string name="precios_unidad_gramo">Gramm</string>
+    <string name="precios_unidad_kilo">Kilo</string>
+    <string name="precios_unidad_onza">Feinunze</string>
+    <string name="precios_unidad_libra">Pfund</string>
+    <string name="precios_mercado_titulo">Marktinformationen</string>
+    <string name="precios_mercado_subtitulo">Daten des Anbieters zum gewählten Metall</string>
+    <string name="precios_detalle_maximo">Höchstwert</string>
+    <string name="precios_detalle_minimo">Tiefstwert</string>
+    <string name="precios_detalle_variacion">Änderung</string>
+    <string name="precios_detalle_variacion_pct">Änderung %</string>
+    <string name="precios_detalle_unidad">Einheit</string>
+    <string name="precios_detalle_actualizacion">Aktualisierung</string>
+    <string name="precios_nota_orientativos">Richtpreise. Sie können je nach Markt abweichen.</string>
+    <string name="precios_fuente">Quelle: %1$s</string>
+    <string name="precios_cargando">Kurse werden abgefragt…</string>
+    <string name="precios_accion_reintentar">Erneut versuchen</string>
+    <string name="precios_desactualizado">Veraltet</string>
+    <string name="precios_aviso_espera">Du hast es gerade erst versucht. Warte einen Moment, bevor du erneut abfragst.</string>
+    <string name="precios_aviso_parcial">Es konnten nicht alle Metalle aktualisiert werden.</string>
+    <string name="precios_aviso_desactualizado">Es werden die letzten bekannten Preise angezeigt.</string>
+    <string name="precios_error_sin_credencial">Der Kursdienst ist in dieser Version nicht eingerichtet.</string>
+    <string name="precios_error_credencial">Der Anbieter hat die Zugangsdaten oder das Abonnement abgelehnt.</string>
+    <string name="precios_error_no_encontrado">Der Kursdienst ist nicht verfügbar.</string>
+    <string name="precios_error_limite">Das Abfragelimit des Anbieters ist erreicht.</string>
+    <string name="precios_error_servidor">Der Anbieter antwortet im Moment nicht.</string>
+    <string name="precios_error_sin_conexion">Es konnte keine Verbindung zum Anbieter hergestellt werden.</string>
+    <string name="precios_error_respuesta">Der Anbieter hat eine ungültige Antwort geliefert.</string>
+    <string name="precios_error_desconocido">Der Kurs konnte nicht abgerufen werden.</string>
+    <string name="precios_tendencia_sube">Steigt</string>
+    <string name="precios_tendencia_baja">Fällt</string>
+    <string name="precios_tendencia_plana">Unverändert</string>
+
+    <!-- Herramientas: peso de chapas -->
+    <string name="chapas_titulo">Blechgewicht</string>
+    <string name="chapas_subtitulo">Berechne das Gewicht deines Blechs nach seinen Maßen</string>
+    <string name="chapas_seccion_material">Material</string>
+    <string name="chapas_familia_oro">GOLD</string>
+    <string name="chapas_familia_plata">SILBER</string>
+    <string name="chapas_seccion_medidas">Maße</string>
+    <string name="chapas_medida_ancho">Breite</string>
+    <string name="chapas_medida_espesor">Dicke</string>
+    <string name="chapas_medida_largo">Länge</string>
+    <string name="chapas_material_oro">Gold %1$s</string>
+    <string name="chapas_material_plata">Silber %1$s</string>
+    <string name="chapas_resultado_titulo">Gewicht des Blechs</string>
+    <string name="chapas_resultado_para">Berechnet für %1$s</string>
+    <string name="chapas_detalle_volumen">Volumen</string>
+    <string name="chapas_detalle_densidad">Dichte</string>
+    <string name="chapas_detalle_pureza">Reinheit</string>
+    <string name="chapas_dibujo_descripcion">Blech aus %1$s: %2$s breit, %3$s lang und %4$s dick</string>
+    <string name="chapas_dibujo_sin_medida">ohne Maß</string>
+    <string name="chapas_nota_aproximado">Näherungswerte. Berücksichtige den Verlust deines Verfahrens.</string>
+    <string name="chapas_aviso_rango">Maß außerhalb des Arbeitsbereichs: Breite und Länge bis 10 000 mm, Dicke bis 1 000 mm.</string>
+
+    <!-- Ajustes: idioma de la aplicación -->
+    <string name="ajustes_seccion_idioma">Sprache der App</string>
+    <string name="ajustes_idioma_descripcion">Wähle die Sprache, in der du die App sehen möchtest.</string>
+    <string name="ajustes_idioma_automatico">Automatisch</string>
+    <string name="ajustes_idioma_automatico_detalle">Folgt der Gerätesprache · %1$s</string>
+    <string name="ajustes_idioma_activo">Ausgewählte Sprache</string>
+</resources>

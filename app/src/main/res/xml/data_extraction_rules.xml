@@ -5,6 +5,11 @@
     derivado con fecha que la app vuelve a pedir al proveedor cuando caduca.
 -->
 <data-extraction-rules>
+    <!--
+        El idioma elegido (feature 008, files/datastore/ajustes.preferences_pb) no aparece en
+        ninguna exclusión a propósito: entra en la copia y en la transferencia, porque es una
+        decisión del joyero y debe acompañarle al móvil nuevo (FR-025).
+    -->
     <cloud-backup>
         <exclude domain="sharedpref" path="cotizaciones.xml" />
     </cloud-backup>

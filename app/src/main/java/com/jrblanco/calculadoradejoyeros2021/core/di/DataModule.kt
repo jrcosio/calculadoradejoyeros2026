@@ -2,7 +2,10 @@ package com.jrblanco.calculadoradejoyeros2021.core.di
 
 import com.jrblanco.calculadoradejoyeros2021.data.repository.AnalyticsRepositoryImpl
 import com.jrblanco.calculadoradejoyeros2021.data.repository.CotizacionesRepositoryImpl
+import com.jrblanco.calculadoradejoyeros2021.data.repository.PreferenciasRepositoryImpl
+import com.jrblanco.calculadoradejoyeros2021.data.source.local.AjustesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.CotizacionesLocalDataSource
+import com.jrblanco.calculadoradejoyeros2021.data.source.local.DataStoreAjustesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.SharedPreferencesCotizacionesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.remote.ClienteHttp
 import com.jrblanco.calculadoradejoyeros2021.data.source.remote.ClienteHttpUrlConnection
@@ -11,6 +14,7 @@ import com.jrblanco.calculadoradejoyeros2021.data.source.remote.FirebaseAnalytic
 import com.jrblanco.calculadoradejoyeros2021.data.source.remote.MetalSentinelDataSource
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.CotizacionesRepository
+import com.jrblanco.calculadoradejoyeros2021.domain.repository.PreferenciasRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -32,4 +36,8 @@ val dataModule = module {
     single { MetalSentinelDataSource(get(), get(), get()) } bind CotizacionesRemoteDataSource::class
     single { SharedPreferencesCotizacionesLocalDataSource(androidContext(), get()) } bind CotizacionesLocalDataSource::class
     single<CotizacionesRepository> { CotizacionesRepositoryImpl(get(), get(), get()) }
+
+    // Ajustes (008): DataStore, con el almacén dentro del data source (ver su KDoc).
+    single { DataStoreAjustesLocalDataSource(androidContext(), get()) } bind AjustesLocalDataSource::class
+    single<PreferenciasRepository> { PreferenciasRepositoryImpl(get()) }
 }

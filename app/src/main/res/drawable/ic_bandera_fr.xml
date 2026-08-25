@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bandera de Francia para el selector de idioma (feature 008). Proporción 3:2 y los colores de
+    francia.svg, con las tres bandas verticales explícitas.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="16dp"
+    android:viewportWidth="60" android:viewportHeight="40">
+    <path android:fillColor="#002395" android:pathData="M0,0 H20 V40 H0 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M20,0 H40 V40 H20 Z" />
+    <path android:fillColor="#ED2939" android:pathData="M40,0 H60 V40 H40 Z" />
+</vector>

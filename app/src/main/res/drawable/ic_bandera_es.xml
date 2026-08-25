@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bandera de España para el selector de idioma (feature 008). Proporción 3:2, la misma que sus
+    cuatro vecinas, para que la lista quede alineada.
+
+    Las tres franjas 1:2:1 sin escudo, que es lo que hace cualquier selector de idioma: el escudo
+    de espana.svg son 172 paths, 94 <ellipse> y 7 <use>, y <use> no existe en VectorDrawable
+    (el importador lo descarta en silencio). Los dos colores son los del SVG entregado.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="16dp"
+    android:viewportWidth="60" android:viewportHeight="40">
+    <path android:fillColor="#C60B1E" android:pathData="M0,0 H60 V40 H0 Z" />
+    <path android:fillColor="#FFC400" android:pathData="M0,10 H60 V30 H0 Z" />
+</vector>

@@ -82,6 +82,14 @@ android {
         // Necesario para BuildConfig.DEBUG al arrancar Koin.
         buildConfig = true
     }
+    bundle {
+        language {
+            // La app elige su idioma por dentro (feature 008). Con los splits por idioma
+            // activados —el valor por defecto—, Play solo instalaría los recursos del idioma del
+            // dispositivo y elegir otra bandera no cambiaría nada en producción.
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {
@@ -99,6 +107,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
+    // El idioma elegido (feature 008): se observa como Flow, y de eso depende que la app se repinte.
+    implementation(libs.androidx.datastore.preferences)
 
     // --- Coroutines ---
     implementation(libs.kotlinx.coroutines.android)
