@@ -831,7 +831,7 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
 
 ## Fase 8 — Pulido y verificación
 
-- [ ] T066 [P] Actualizar `CLAUDE.md`: los tres destinos pendientes pasan a dos (Favoritos y
+- [X] T066 [P] Actualizar `CLAUDE.md`: los tres destinos pendientes pasan a dos (Favoritos y
   Ajustes); «tres motores» → cuatro (`MaterialChapa` + `CalculoChapa`: sin ningún redondeo,
   `movePointLeft(3)`, enum propio con test de paridad frente a `LeyOro`/`LeyPlata`) más el
   conversor de precios; «trece casos de uso» → dieciséis; el párrafo de redondeo de vista gana
@@ -846,7 +846,7 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
   y `Reloj.kt`; iconos nuevos (+5) y `rodio.png`; nota de `verify()` (tipo primario, `bind`,
   defaults solo con lambda explícita); `TestDispatcherProvider`/`RelojFalso`/fakes como patrón
   de test. **Depende de T065**.
-- [ ] T067 [P] *(Opcional, `refactor:`)* Sustituir el `parsearCantidad` privado de
+- [X] T067 [P] *(Opcional, `refactor:`)* Sustituir el `parsearCantidad` privado de
   `OroViewModel`, `PlataViewModel`, `SoldadurasViewModel` y `SoldaduraBaseViewModel` por
   `parsearDecimalPositivo` de `core/util/Decimales.kt`, sin cambiar comportamiento (sus tests
   existentes hacen de regresión). **Depende de T009**.

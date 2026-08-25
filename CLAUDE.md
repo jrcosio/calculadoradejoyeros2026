@@ -62,14 +62,16 @@ Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
 fichero del proyecto que importa `com.google.firebase.*`** (junto a `core/di/FirebaseModule.kt`,
 que los registra). Todo lo demás pasa por `domain/repository/AnalyticsRepository`.
 
-La capa `domain/` tiene **tres motores**, paralelos y sin dependencia entre ellos. Los
-tres son Kotlin puro con `BigDecimal` construido desde literales `String` y no redondean
-pasos intermedios. En oro y plata la única división redondea **a favor de la ley**: a la
-baja en el modo directo y al alza en el inverso, para que la ley resultante nunca quede
-por debajo de la objetivo; en soldaduras no hay ley que proteger y la división va a la
-media (`HALF_UP`). Cada motor lleva sus propias constantes de precisión (`FINURA_ORIGEN`,
-`ESCALA`, `TOLERANCIA`) a propósito: son tres documentos técnicos distintos y ninguno
-debe depender de un tipo que por dentro lleve el nombre de otro metal.
+La capa `domain/` tiene **cuatro motores** de cálculo, paralelos y sin dependencia entre
+ellos, más un conversor de precios. Todos son Kotlin puro con `BigDecimal` construido desde
+literales `String` y no redondean pasos intermedios. En oro y plata la única división redondea
+**a favor de la ley**: a la baja en el modo directo y al alza en el inverso, para que la ley
+resultante nunca quede por debajo de la objetivo; en soldaduras no hay ley que proteger y la
+división va a la media (`HALF_UP`); en chapas **no hay ninguna división** (el ÷ 1 000 es un
+`movePointLeft(3)` exacto) y por eso tampoco hay `ESCALA`. Cada motor lleva sus propias
+constantes de precisión (`FINURA_ORIGEN`, `ESCALA`, `TOLERANCIA`, `MM3_POR_CM3`,
+`GRAMOS_POR_ONZA_TROY`) a propósito: son documentos técnicos distintos y ninguno debe
+depender de un tipo que por dentro lleve el nombre de otro metal.
 
 - **Oro** (feature 004): `RecetasOro` es la **única fuente de verdad** de las 16 recetas
   color×ley; `CalculoAleacion` reparte la liga entre varios metales.
@@ -84,13 +86,27 @@ debe depender de un tipo que por dentro lleve el nombre de otro metal.
   documento (cobre 0,54 / plata 0,80 / zinc 0,92 / cadmio 1,00 por 10 g de oro); el
   mockup los muestra intercambiados y no es fuente. `ColorOroSoldadura` es un enum propio
   de 3 colores: `ColorOro` tiene ROJO y su documento no lo admite.
+- **Chapas** (feature 007): `MaterialChapa` es un enum propio con los 8 materiales
+  (oro 18K/14K/12K/9K, plata 950/925/900/800), sus **densidades orientativas** de §5.1 de su
+  documento y la bandera `esSoloTecnica` (12K, 950, 900). **No reutiliza `LeyOro`/`LeyPlata`**:
+  la densidad es un dato de ese documento y su §19 prevé densidades por color de una misma
+  ley; un test de paridad vigila que milésimas y bandera coincidan. `CalculoChapa` calcula
+  `ancho × largo × espesor × densidad / 1000` sin un solo redondeo. Los límites operativos
+  (10 000 / 1 000 mm) son control de interfaz y viven en el ViewModel, no en el motor.
+- **Cotizaciones** (feature 007): `ConversorUnidadesPrecio` (gramo / kilo / onza troy,
+  `GRAMOS_POR_ONZA_TROY = "31.1034768"`, una sola división a escala 10 `HALF_UP`, siempre desde
+  la cifra del proveedor) y `PoliticaCacheCotizaciones`, la regla de la caché de una hora como
+  **función pura** (`Servir` / `Esperar` / `Actualizar(pendientes)`): vigencia por metal, espera
+  de 60 s entre reintentos (300 s tras un 429) y solo se consultan los metales sin precio
+  vigente. Es la pieza que decide cuándo se gasta cuota, y se prueba sin corrutinas.
 
-Los trece casos de uso se registran en `domainModule` con `factoryOf`. Uno de ellos,
+Los dieciséis casos de uso se registran en `domainModule` con `factoryOf`;
+`ObtenerCotizacionesUseCase` es el primero `suspend` y delega en `CotizacionesRepository`. Uno de ellos,
 `CalcularSoldaduraLeyUseCase` (mezcla desde la base disponible), **no tiene UI**: existe
 y se prueba por mandato de su documento, el mismo precedente que el modo inverso de plata
 en la 005.
 
-**El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las tres
+**El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las cinco
 calculadoras**: `OroViewModel` y los dos ViewModels de soldaduras redondean a la media
 (`HALF_UP`) y `PlataViewModel` **trunca** (`DOWN`). No los unifiques. En plata la cifra
 mostrada es la que el joyero pesa y la Ley 17/1985 no admite tolerancia en menos: con
@@ -101,6 +117,17 @@ En soldaduras no hay ley que proteger (son recetas de taller) y la suma visible 
 desviarse una milésima en los repartos con división infinita: la respuesta es la nota
 «la suma puede variar mínimamente por redondeo» (§8.3 de su documento), nunca ajustar un
 ingrediente para cuadrar la vista.
+
+Las dos herramientas de la 007 añaden políticas propias, también a propósito. **Chapas** muestra
+el peso con **2 decimales** `HALF_UP` (1,558 g → «1,56 g»; volumen y metal fino a 3, pureza a 1):
+lo fija su documento (§7, §21) y las densidades son orientativas, así que un tercer decimal
+sería precisión aparente. **Precios** muestra los importes con 2 decimales si son ≥ 1 y 4 si
+son menores (el cobre por gramo ronda 0,0089 €), con **punto de miles** (el kilo de oro ronda
+148.000 €) y el porcentaje siempre a 2; todo en `FormatoPrecios`, sin `Locale`. La única
+excepción a «el ViewModel formatea todo» son las **fechas**: viajan como `Long` en el `UiState`
+y las formatea la vista con `DateUtils` (localizado por el sistema; `java.time` es API 26+ y
+el proyecto es minSdk 24) porque el nombre del mes depende del idioma y el ViewModel no conoce
+recursos.
 
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
 es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
@@ -113,6 +140,19 @@ sus mapeos enum→recursos compartidos viven en `PresentacionSoldadura.kt`, inte
 paquete, y su `SoldadurasUiState` usa `familia = null` para la primera visita (solo se ve
 el selector de familias). Sus cinco bitmaps (`granalla`, `cadmio`, `zinc`, `laton`,
 `proceso`) viven en `drawable-nodpi/` junto a los demás.
+`ui/herramientas/` es el sexto y el primero con **sub-paquetes**: una sola ruta
+(`Route.Herramientas`) y **tres ViewModels**. `HerramientasViewModel` solo guarda la
+sub-herramienta elegida (`subherramienta = null` en la primera visita: solo el selector y una
+invitación) y emite la `screen_view` `"herramientas"` del placeholder; `precios/` y `chapas/`
+tienen su propio `XSection` (resuelve `koinViewModel()` **al componerse por primera vez**, así la
+API no se toca hasta abrir PRECIO METALES) y su `XContent` sin estado, que pinta una `Column`
+**sin** scaffold, scroll, `imePadding` ni padding exterior: los pone el armazón una sola vez.
+`HerramientasContent` recibe las dos secciones como *slots* `@Composable`, y por eso se prueba
+con marcadores sin conocer los ViewModels. El dueño de los tres ViewModels es la
+`NavBackStackEntry`: el estado sobrevive al cambio de sub-herramienta. `chapas/DibujoChapa.kt` es
+el primer `Canvas` de la app (proyección oblicua, `drawWithCache`, animaciones leídas solo dentro
+de `onDrawBehind`, construcción con `PathMeasure`); en las `@Preview` arranca ya construido vía
+`LocalInspectionMode`. `rodio.png` se suma a los bitmaps de `drawable-nodpi/`.
 
 ### Componentes compartidos
 
@@ -150,7 +190,8 @@ el selector de familias). Sus cinco bitmaps (`granalla`, `cadmio`, `zinc`, `lato
   `seleccionada = -1` para pintar el grupo sin ninguna opción activa (la primera visita
   de soldaduras). `OpcionSegmento.peso` (por defecto 1f) reparte el ancho de la fila:
   una etiqueta claramente más larga que sus vecinas puede pedir más sitio — «Muy floja
-  (18K)» va con 1.5f junto a «Floja» y «Fuerte» en la clásica de soldaduras.
+  (18K)» va con 1.5f junto a «Floja» y «Fuerte» en la clásica de soldaduras. `OpcionSegmento.iconRes` (por defecto `null`) pinta un icono en el hueco del check: lo
+  estrenó el selector de sub-herramientas de Herramientas; con icono no hay check.
 
 Los siete siguientes nacieron privados en `ui/oro/OroScreen.kt` y subieron aquí con la
 feature 005, cuando la calculadora de plata pidió los mismos. Es la regla del proyecto: en
@@ -160,6 +201,10 @@ cada pantalla la que mapea sus enums a imágenes y textos.
 - **`CampoCantidad`** y **`CabeceraSeccion`** (en `Formularios.kt`) — el campo de gramos
   con cifra grande y sufijo «gr», y la cabecera de sección con icono. Los dos toman su
   acento por parámetro: dorado por defecto, plateado en plata.
+- **`CampoMedida`** (en `Formularios.kt`) — campo con etiqueta pequeña, icono, cifra de 20 sp y
+  unidad, para medidas seguidas (ancho / espesor / largo en mm); `error` pinta el filete en
+  `Danger` e `imeAction` encadena los campos. Comparte con `CampoCantidad` el `MarcoCampo`
+  privado (la caja redondeada con filete), que es lo que legitima la extracción.
 - **`BotonDorado`** (en `Botones.kt`) — botón de acción principal. **No** se parametriza el
   color: el dorado es el lenguaje de acción de la app, no el acento de un módulo, así que
   «Limpiar» y «Guardar en favoritos» son dorados también en la pantalla de plata.
@@ -184,14 +229,15 @@ propósito.
 que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawable`
 (`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`,
 `ic_linkedin`, `ic_instagram`, `ic_enlace_externo`, `ic_check`, `ic_aviso`, `ic_refrescar`,
-`ic_estrella`, `ic_balanza`, `ic_lingotes`, `ic_paleta`), de trazo
+`ic_estrella`, `ic_balanza`, `ic_lingotes`, `ic_paleta`, `ic_grafica`, `ic_capas`, `ic_ancho`,
+`ic_espesor`, `ic_regla`), de trazo
 1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Si necesitas uno
 nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 
 ### Pantallas aún sin desarrollar
 
 `ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-tres destinos pendientes (Favoritos, Ajustes y Herramientas). Recibe
+dos destinos pendientes (Favoritos y Ajustes). Recibe
 `title` (traducible) y `analyticsName` (identificador estable para telemetría, que no
 debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
@@ -203,6 +249,13 @@ real, cambia solo su cableado en `AppNavHost`.
 - No importa `androidx.compose.*`: no conoce a su vista.
 - Recibe todo por constructor. Para corrutinas usa el `DispatcherProvider` inyectado,
   nunca `Dispatchers.IO` directo — es lo que permite testearlo con `TestDispatcher`.
+  `PreciosMetalesViewModel` es el primero que lo hace: lanza siempre con
+  `viewModelScope.launch(dispatchers.main)`, y su test inyecta `TestDispatcherProvider`
+  (`app/src/test/.../core/util/`, junto a `RelojFalso` y los fakes de `data/`) sin tocar
+  `Dispatchers.setMain`. Todo lo textual del `UiState` va formateado salvo las fechas (ver
+  arriba); lo que la vista traduce o colorea viaja como enum y se mapea en el
+  `Presentacion*.kt` del paquete. `core/util/Decimales.kt` (`parsearDecimalPositivo`) es el
+  parser de texto compartido: coma y punto valen; vacío, no numérico o ≤ 0 → `null`.
 
 ### Contrato de pantalla
 
@@ -213,6 +266,37 @@ Cada pantalla se parte en dos Composables: uno resuelve el ViewModel con
 
 Rutas **type-safe** con `@Serializable` en `ui/navigation/Routes.kt`, registradas con
 `composable<Route.X>` en `AppNavHost.kt`. No se usan rutas como String.
+
+## Red y caché: cotizaciones de metales
+
+La feature 007 estrenó red, corrutinas y persistencia **sin dependencias nuevas**. Todo vive en
+`data/source/` y detrás de interfaces:
+
+- **`ClienteHttp`** (`data/source/remote/`) con la implementación `ClienteHttpUrlConnection`
+  sobre `java.net.HttpURLConnection` (que en Android va sobre el OkHttp interno). Cinco GET por
+  hora no justifican OkHttp/Retrofit; si llega un backend propio, se cambia la implementación.
+- **`MetalSentinelDataSource`** es el **único punto que habla con el proveedor**
+  (Metal Sentinel vía RapidAPI). Contrato en `specs/007-herramientas/contracts/metal-quote.md`.
+  `PARAMETRO_METAL` es **una sola constante** (la documentación pública del proveedor se
+  contradice, `metal` frente a `symbol`) y se confirma con la credencial real; prohibido probar
+  variantes en cada carga, gasta cuota. Los DTO son `@Serializable` con `ignoreUnknownKeys` y
+  `BigDecimalExactoSerializer` toma el **literal del cable**, nunca `Double`.
+- **Caché**: `SharedPreferences` (fichero `cotizaciones`, **una sola clave** con el JSON de la
+  instantánea: escritura atómica) tras `CotizacionesLocalDataSource`; `CodificadorInstantanea`
+  es puro y se prueba en JVM. El fichero está **excluido del backup** (`res/xml/`). La decisión
+  de tocar la red es de `PoliticaCacheCotizaciones` (dominio) y el `Mutex` de
+  `CotizacionesRepositoryImpl` es el *single-flight*; solo se captura `MetalSentinelException`.
+- **`Reloj`** (`core/util/`, registrado en `coreModule`) es la hora del sistema tras interfaz:
+  la caché de una hora se prueba con `RelojFalso` en milisegundos de ejecución.
+- **Credencial**: `RAPIDAPI_KEY` en `local.properties` (ignorado por git), leída en
+  `app/build.gradle.kts` con la API de `providers` (compatible con la caché de configuración) y
+  volcada a `BuildConfig.RAPIDAPI_KEY`. Vacía, la build avisa y la pantalla muestra «servicio
+  no configurado» sin tocar la red. **Es extraíble del APK**: integración de prototipo; la
+  cuota gratuita (15 000 peticiones/mes, 5 por carga) no da para una app pública. El backend con
+  caché compartida es una feature aparte. La clave no aparece en código, registros ni tests
+  (`git grep -i rapidapi` solo debe dar `build.gradle.kts`, `CLAUDE.md`, `specs/` y
+  `UI_Plantillas/`).
+- El permiso `INTERNET` está en el manifest; solo HTTPS.
 
 ## Añadir dependencias a Koin
 
@@ -226,7 +310,13 @@ Rutas **type-safe** con `@Serializable` en `ui/navigation/Routes.kt`, registrada
    Eso basta para que `KoinModulesTest` lo verifique automáticamente.
 
 `KoinModulesTest` recorre el grafo con `verify()` y falla si a algún constructor le
-falta una dependencia. `firebaseModule` queda fuera de ese `verify()` a propósito:
+falta una dependencia. **Ojo con lo que verifica**: solo inspecciona los constructores del **tipo primario** de
+cada definición, así que `single<Interfaz> { Impl(get()) }` no comprueba nada de `Impl`; por eso
+los data sources de cotizaciones van concretos con `bind` a su interfaz. Acepta parámetros con
+valor por defecto, pero `viewModelOf`/`factoryOf` los resuelven todos con `get()` en runtime
+ignorando defaults: un default de un tipo no registrado pasa el test y peta al arrancar. Regla:
+defaults solo en clases registradas con lambda explícita, y los tipos de infraestructura
+(`Reloj`, `DispatcherProvider`) siempre en el grafo. `firebaseModule` queda fuera de ese `verify()` a propósito:
 sus definiciones nacen de fábricas estáticas (`Firebase.analytics`), no de
 constructores, así que la reflexión acabaría inspeccionando tipos internos de Google
 Play Services. Sus tipos entran como `extraTypes`.
