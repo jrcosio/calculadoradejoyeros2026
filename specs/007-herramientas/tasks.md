@@ -785,7 +785,7 @@ la chapa y sus cotas cambiar; cambiar a PLATA y ver el tono plateado-turquesa.
 **Test independiente**: modo avión con y sin caché, un metal fallido simulado, build sin
 credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos botones.
 
-- [ ] T062 [US5] Ampliar `PreciosMetalesViewModel`: `fun onReintentar() = cargar(esReintento = true)`
+- [X] T062 [US5] Ampliar `PreciosMetalesViewModel`: `fun onReintentar() = cargar(esReintento = true)`
   (ignorado con carga en curso); en `derivar`: fila con `Error` → `error = motivo`, y si
   `ultimaConocida != null` → `precioFormateado` de esa cotización con `desactualizada = true`,
   si no `precioFormateado = null`; `fase = ERROR` si los 5 son `Error` (conservando filas con
@@ -795,7 +795,7 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
   telemetría `herramientas_precios_error {motivo}` cuando los 5 fallan y `recordError(causa)`
   por cada `Error` con motivo `DESCONOCIDO` o `RESPUESTA_INVALIDA` que traiga causa. **Depende de
   T049 (US2 en verde)**.
-- [ ] T063 [US5] Ampliar `PreciosMetalesContent`: fila con `error != null` muestra
+- [X] T063 [US5] Ampliar `PreciosMetalesContent`: fila con `error != null` muestra
   `Text(stringResource(error.mensajeRes), bodySmall, Danger)` bajo el nombre y, si hay precio,
   la cifra en `TextMuted` con la caption `precios_desactualizado`; sobre la lista, según estado:
   `fase == ERROR` → `AvisoTecnico(stringResource(errorGlobal.mensajeRes))` (con filas
@@ -805,14 +805,14 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
   `reintentando` → indicador pequeño junto al título. `SIN_CREDENCIAL` usa su mensaje sin botón
   de reintento (no cambiará hasta otra build). Previews `PARCIAL` y `ERROR` con dato antiguo.
   **Depende de T062**.
-- [ ] T064 [US5] Ampliar `PesoChapasViewModel` con
+- [X] T064 [US5] Ampliar `PesoChapasViewModel` con
   `fun onLimpiar() { ultimoMaterialRegistrado = null; _uiState.value = PesoChapasUiState() }` y
   `fun onGuardarFavoritos() = analytics.logEvent("herramientas_chapa_favoritos_proximamente")`;
   ampliar `PesoChapasContent` con la fila `Row(spacedBy(Md)) { BotonDorado(ic_refrescar, accion_limpiar, onLimpiar, weight(1f)); BotonDorado(ic_estrella, accion_guardar_favoritos, onGuardarFavoritos, weight(1f)) }`
   al final, y `PesoChapasSection` con el Toast `R.string.aviso_proximamente` desde la vista
   (patrón plata; el ViewModel no conoce Android). PRECIO METALES y la primera visita no llevan
   botones (FR-025). **Depende de T057 (US3 en verde)**.
-- [ ] T065 [P] [US5] Ampliar los tests: `PreciosMetalesViewModelTest` — 4 éxitos + rodio
+- [X] T065 [P] [US5] Ampliar los tests: `PreciosMetalesViewModelTest` — 4 éxitos + rodio
   `SIN_CONEXION` → `PARCIAL`, fila de rodio con `error` y `precioFormateado == null`,
   `puedeReintentar`; rodio con `ultimaConocida` → precio y `desactualizada == true`; 5 errores →
   `ERROR`, `errorGlobal == SIN_CONEXION`, `herramientas_precios_error {motivo=sin_conexion}`;

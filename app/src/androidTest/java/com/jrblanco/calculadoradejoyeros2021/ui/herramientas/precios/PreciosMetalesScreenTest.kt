@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalCotizado
+import com.jrblanco.calculadoradejoyeros2021.domain.model.MotivoErrorCotizacion
 import com.jrblanco.calculadoradejoyeros2021.domain.model.OrigenDatos
 import com.jrblanco.calculadoradejoyeros2021.domain.model.Tendencia
 import com.jrblanco.calculadoradejoyeros2021.domain.model.UnidadPrecio
@@ -159,5 +160,61 @@ class PreciosMetalesScreenTest {
         composeRule.onNodeWithText("148,07").assertExists()
         composeRule.onNodeWithText("-0,97").assertExists()
         composeRule.onNodeWithText(texto(R.string.precios_mercado_metal, texto(R.string.metal_oro), "AU")).assertExists()
+    }
+
+    // --- US5: fallos, espera y reintento ---
+
+    private val filaRodioFallida = FilaMetalPrecio(MetalCotizado.RODIO, null, null, null, null, MotivoErrorCotizacion.SIN_CONEXION, false)
+
+    @Test
+    fun parcial_muestraElMotivoEnLaFilaElAvisoYReintentar() {
+        montar(estadoListo.copy(fase = FasePrecios.PARCIAL, filas = filas.dropLast(1) + filaRodioFallida, puedeReintentar = true))
+
+        composeRule.onNodeWithText(texto(R.string.precios_error_sin_conexion)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.precios_aviso_parcial)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.precios_accion_reintentar)).assertExists()
+    }
+
+    @Test
+    fun pulsarReintentar_propaga() {
+        var reintentado = false
+        montar(estadoListo.copy(fase = FasePrecios.PARCIAL, filas = filas.dropLast(1) + filaRodioFallida, puedeReintentar = true), onReintentar = { reintentado = true })
+
+        composeRule.onNodeWithText(texto(R.string.precios_accion_reintentar)).performClick()
+
+        assertEquals(true, reintentado)
+    }
+
+    @Test
+    fun errorConDatoAntiguo_muestraDesactualizadoYElAvisoCompuesto() {
+        val antiguas = filas.map { it.copy(error = MotivoErrorCotizacion.SIN_CONEXION, desactualizada = true) }
+        montar(
+            estadoListo.copy(
+                fase = FasePrecios.ERROR,
+                errorGlobal = MotivoErrorCotizacion.SIN_CONEXION,
+                filas = antiguas,
+                detalle = detalleOro.copy(desactualizada = true),
+                puedeReintentar = true,
+            ),
+        )
+
+        composeRule.onNodeWithText(texto(R.string.precios_error_sin_conexion) + " " + texto(R.string.precios_aviso_desactualizado)).assertExists()
+        composeRule.onAllNodesWithText(texto(R.string.precios_desactualizado)).assertCountEquals(6)
+        composeRule.onNodeWithText("148,10").assertExists()
+    }
+
+    @Test
+    fun avisoDeEspera_seMuestra() {
+        montar(estadoListo.copy(avisoEspera = true))
+        composeRule.onNodeWithText(texto(R.string.precios_aviso_espera)).assertExists()
+    }
+
+    @Test
+    fun sinCredencial_seExplicaYNoHayReintentar() {
+        val sinDato = MetalCotizado.entries.map { FilaMetalPrecio(it, null, null, null, null, MotivoErrorCotizacion.SIN_CREDENCIAL, false) }
+        montar(PreciosMetalesUiState(fase = FasePrecios.ERROR, filas = sinDato, errorGlobal = MotivoErrorCotizacion.SIN_CREDENCIAL, puedeReintentar = false))
+
+        composeRule.onAllNodesWithText(texto(R.string.precios_error_sin_credencial)).assertCountEquals(6)
+        composeRule.onAllNodesWithText(texto(R.string.precios_accion_reintentar)).assertCountEquals(0)
     }
 }

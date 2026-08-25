@@ -8,6 +8,7 @@ import com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionesDePrueba.c
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionesDePrueba.exito
 import com.jrblanco.calculadoradejoyeros2021.domain.model.InstantaneaCotizaciones
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalCotizado
+import com.jrblanco.calculadoradejoyeros2021.domain.model.MotivoErrorCotizacion
 import com.jrblanco.calculadoradejoyeros2021.domain.model.OrigenDatos
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoCotizacion
 import com.jrblanco.calculadoradejoyeros2021.domain.model.Tendencia
@@ -258,6 +259,175 @@ class PreciosMetalesViewModelTest {
         assertNull(detalle.unidad)
         assertEquals("LB", detalle.etiquetaUnidadOrigen)
         assertEquals("2,49", viewModel.uiState.value.filas.single { it.metal == MetalCotizado.COBRE }.precioFormateado)
+    }
+
+    // --- US5: fallos, espera y reintento ---
+
+    @Test
+    fun `un metal fallido deja la fase parcial con su motivo y permite reintentar`() = runTest {
+        repositorio.respuesta = CotizacionesDePrueba.instantaneaParcial(obtenidoEn = t0).copy(origen = OrigenDatos.RED)
+
+        val estado = crearViewModel().uiState.value
+
+        assertEquals(FasePrecios.PARCIAL, estado.fase)
+        val rodio = estado.filas.single { it.metal == MetalCotizado.RODIO }
+        assertEquals(MotivoErrorCotizacion.SIN_CONEXION, rodio.error)
+        assertNull(rodio.precioFormateado)
+        assertFalse(rodio.desactualizada)
+        assertEquals(4, estado.filas.count { it.precioFormateado != null })
+        assertTrue(estado.puedeReintentar)
+        assertNull(estado.errorGlobal)
+        verify(exactly = 1) {
+            analytics.logEvent("herramientas_precios_cargados", mapOf("fuente" to "red", "parcial" to "true"))
+        }
+    }
+
+    @Test
+    fun `un fallo con ultima conocida muestra el precio desactualizado`() = runTest {
+        val antigua = cotizacion(metal = MetalCotizado.RODIO, obtenidoEn = t0 - 3_600_000L)
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.associateWith { exito(it, obtenidoEn = t0) } +
+                (MetalCotizado.RODIO to CotizacionesDePrueba.error(MetalCotizado.RODIO, ultimaConocida = antigua)),
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+        val viewModel = crearViewModel()
+
+        val rodio = viewModel.uiState.value.filas.single { it.metal == MetalCotizado.RODIO }
+        assertEquals("148,10", rodio.precioFormateado)
+        assertTrue(rodio.desactualizada)
+        assertEquals(MotivoErrorCotizacion.SIN_CONEXION, rodio.error)
+
+        viewModel.onMetalSeleccionado(MetalCotizado.RODIO)
+        assertTrue(viewModel.uiState.value.detalle!!.desactualizada)
+    }
+
+    @Test
+    fun `si fallan los cinco la fase es error con el motivo dominante`() = runTest {
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.associateWith { CotizacionesDePrueba.error(it, MotivoErrorCotizacion.SIN_CONEXION) } +
+                (MetalCotizado.ORO to CotizacionesDePrueba.error(MetalCotizado.ORO, MotivoErrorCotizacion.SERVIDOR)),
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+
+        val estado = crearViewModel().uiState.value
+
+        assertEquals(FasePrecios.ERROR, estado.fase)
+        assertEquals(MotivoErrorCotizacion.SIN_CONEXION, estado.errorGlobal)
+        assertTrue(estado.puedeReintentar)
+        assertTrue(estado.filas.all { it.precioFormateado == null })
+        assertNull(estado.ultimaConsultaEpochMillis)
+        assertNull(estado.detalle)
+        verify(exactly = 1) { analytics.logEvent("herramientas_precios_error", mapOf("motivo" to "sin_conexion")) }
+        verify(exactly = 0) { analytics.logEvent("herramientas_precios_cargados", any()) }
+    }
+
+    @Test
+    fun `con cinco errores y ultimas conocidas se ven los precios antiguos`() = runTest {
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.associateWith {
+                CotizacionesDePrueba.error(it, ultimaConocida = cotizacion(metal = it, obtenidoEn = t0 - 7_200_000L))
+            },
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+
+        val estado = crearViewModel().uiState.value
+
+        assertEquals(FasePrecios.ERROR, estado.fase)
+        assertTrue(estado.filas.all { it.precioFormateado == "148,10" && it.desactualizada })
+        assertNotNull(estado.detalle)
+        assertTrue(estado.detalle!!.desactualizada)
+    }
+
+    @Test
+    fun `sin credencial no se ofrece reintentar`() = runTest {
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.associateWith { CotizacionesDePrueba.error(it, MotivoErrorCotizacion.SIN_CREDENCIAL) },
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+
+        val estado = crearViewModel().uiState.value
+
+        assertEquals(FasePrecios.ERROR, estado.fase)
+        assertEquals(MotivoErrorCotizacion.SIN_CREDENCIAL, estado.errorGlobal)
+        assertFalse(estado.puedeReintentar)
+    }
+
+    @Test
+    fun `reintentar vuelve a consultar y se ignora mientras hay una carga en curso`() = runTest {
+        repositorio.respuesta = CotizacionesDePrueba.instantaneaParcial(obtenidoEn = t0).copy(origen = OrigenDatos.RED)
+        val viewModel = crearViewModel()
+        assertEquals(1, repositorio.llamadas)
+
+        val puerta = CompletableDeferred<Unit>()
+        repositorio.puerta = puerta
+        viewModel.onReintentar()
+        assertEquals(2, repositorio.llamadas)
+        assertTrue(viewModel.uiState.value.reintentando)
+        assertEquals(FasePrecios.PARCIAL, viewModel.uiState.value.fase)
+
+        viewModel.onReintentar()
+        assertEquals(2, repositorio.llamadas)
+
+        repositorio.respuesta = completa()
+        puerta.complete(Unit)
+        assertFalse(viewModel.uiState.value.reintentando)
+        assertEquals(FasePrecios.LISTO, viewModel.uiState.value.fase)
+    }
+
+    @Test
+    fun `reintentar demasiado pronto avisa de la espera y el siguiente exito la quita`() = runTest {
+        val parcial = CotizacionesDePrueba.instantaneaParcial(obtenidoEn = t0)
+        repositorio.respuesta = parcial.copy(origen = OrigenDatos.RED)
+        val viewModel = crearViewModel()
+        assertFalse(viewModel.uiState.value.avisoEspera)
+
+        repositorio.respuesta = parcial.copy(origen = OrigenDatos.CACHE_EN_ESPERA)
+        viewModel.onReintentar()
+        assertTrue(viewModel.uiState.value.avisoEspera)
+        assertEquals(FasePrecios.PARCIAL, viewModel.uiState.value.fase)
+
+        repositorio.respuesta = completa()
+        viewModel.onReintentar()
+        assertFalse(viewModel.uiState.value.avisoEspera)
+        assertEquals(FasePrecios.LISTO, viewModel.uiState.value.fase)
+    }
+
+    @Test
+    fun `una excepcion inesperada va a crashlytics y deja error desconocido conservando las filas`() = runTest {
+        repositorio.respuesta = completa()
+        val viewModel = crearViewModel()
+
+        repositorio.excepcion = IllegalStateException("bug")
+        viewModel.onReintentar()
+
+        val estado = viewModel.uiState.value
+        assertEquals(FasePrecios.ERROR, estado.fase)
+        assertEquals(MotivoErrorCotizacion.DESCONOCIDO, estado.errorGlobal)
+        assertEquals(5, estado.filas.count { it.precioFormateado != null })
+        assertTrue(estado.puedeReintentar)
+        assertFalse(estado.reintentando)
+        verify(exactly = 1) { analytics.recordError(any()) }
+    }
+
+    @Test
+    fun `las respuestas invalidas con causa van a crashlytics y los fallos de red no`() = runTest {
+        val causa = IllegalStateException("json raro")
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.associateWith { exito(it, obtenidoEn = t0) } +
+                (MetalCotizado.RODIO to ResultadoCotizacion.Error(MetalCotizado.RODIO, MotivoErrorCotizacion.RESPUESTA_INVALIDA, null, causa)) +
+                (MetalCotizado.COBRE to ResultadoCotizacion.Error(MetalCotizado.COBRE, MotivoErrorCotizacion.SIN_CONEXION, null, IllegalStateException("red"))),
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+
+        crearViewModel()
+
+        verify(exactly = 1) { analytics.recordError(causa) }
+        verify(exactly = 1) { analytics.recordError(any()) }
     }
 
     private fun conCobre(cobre: com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionMetal): InstantaneaCotizaciones =
