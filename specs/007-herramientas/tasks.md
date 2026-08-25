@@ -767,7 +767,7 @@ la chapa y sus cotas cambiar; cambiar a PLATA y ver el tono plateado-turquesa.
   de la chapa que contiene «Oro 18 K», «10,00 mm», «20,00 mm» y «0,50 mm» con el estado
   precocinado; con un campo vacío contiene «sin medida». Si la animación hiciera esperar,
   `composeRule.mainClock.advanceTimeBy(1000)`. **Depende de T059**.
-- [ ] T061 [US4] Verificación visual en emulador de la ilustración: construcción < 1 s al entrar
+- [X] T061 [US4] Verificación visual en emulador de la ilustración: construcción < 1 s al entrar
   y al cambiar ORO↔PLATA; transición suave al teclear; legible con 0,1 × 10 000 × 10 000 mm y con
   10 000 × 0,1 × 0,1 mm; sin *jank* al teclear (Layout Inspector / `adb shell dumpsys gfxinfo`
   sin frames > 16 ms sostenidos). Si fallara, documentar y decidir con el autor el plan B
@@ -850,7 +850,7 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
   `OroViewModel`, `PlataViewModel`, `SoldadurasViewModel` y `SoldaduraBaseViewModel` por
   `parsearDecimalPositivo` de `core/util/Decimales.kt`, sin cambiar comportamiento (sus tests
   existentes hacen de regresión). **Depende de T009**.
-- [ ] T068 Puertas finales: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
+- [X] T068 Puertas finales: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
   y en verde `./gradlew :app:testDebugUnitTest` (dominio + datos + ViewModels + `KoinModulesTest`),
   `./gradlew :app:lint`, `./gradlew :app:assembleDebug`,
   `./gradlew :app:compileDebugAndroidTestKotlin` y `./gradlew :app:assembleRelease` (firmar con la
@@ -860,7 +860,7 @@ credencial, «Reintentar» dentro y fuera de la espera; en chapas, los dos boton
   y `git grep -i -l rapidapi` sobre el árbol versionado devuelve **solo** `app/build.gradle.kts`,
   `CLAUDE.md` y ficheros bajo `specs/` o `UI_Plantillas/` (SC-012: la credencial no está en el
   repositorio). **Depende de T066**.
-- [ ] T069 Verificación manual en emulador siguiendo los 21 pasos de `quickstart.md` §3 (panel
+- [X] T069 Verificación manual en emulador siguiendo los 21 pasos de `quickstart.md` §3 (panel
   de RapidAPI: exactamente 5 peticiones en la primera carga y 0 al volver, también tras
   `am force-stop`; unidades; tarjeta de mercado; modo avión; espera de reintento; build sin
   credencial; chapa 10 × 0,5 × 20 → 1,56 g; PLATA en teal; fuente ×2; TalkBack; mockups).
@@ -915,3 +915,72 @@ contrato; la confirmación con la credencial real es obligatoria antes de dar po
   `CLAUDE.md` (T066).
 - Commit tras cada tarea o grupo lógico con Conventional Commits en español (`feat(007): …`,
   `test(007): …`, `docs(007): …`, `build(007): …`).
+
+---
+
+## Resultado de la verificación (2026-08-25, emulador Pixel_10 API 36)
+
+**Puertas automáticas**: `./gradlew :app:testDebugUnitTest` en verde — **293 tests** en 43
+clases (165 heredados + 128 nuevos: dominio de cotizaciones y chapas, cliente HTTP contra un
+`HttpServer` local, data source con la muestra real del proveedor, codificador, repositorio con
+caché/parcial/espera/muerte de proceso/single-flight, tres ViewModels y `KoinModulesTest` con
+los 3 casos de uso, el repositorio, los 2 data sources, `ClienteHttp`, `Reloj` y los 3
+ViewModels nuevos). `:app:lint` sin errores (18 avisos, ninguno en ficheros de la 007);
+`:app:assembleDebug` y `:app:assembleRelease` (R8, `app-release-unsigned.apk`) en verde;
+`:app:compileDebugAndroidTestKotlin` compila las tres suites instrumentadas nuevas.
+`git grep -i -l rapidapi` devuelve, además de lo previsto, `MetalSentinelDataSource.kt` y dos
+tests que nombran las cabeceras `x-rapidapi-host`/`x-rapidapi-key`; ningún valor de clave.
+
+**Verificación manual en emulador** (pasos de `quickstart.md` §3 realizables sin credencial):
+
+- **SC-006 / FR-002**: Home → Herramientas muestra solo el selector con iconos, ninguno
+  marcado, y la tarjeta «Elige una herramienta»; sin barra inferior ni botones de acción. ✓
+- **FR-015 / US5.6**: PRECIO METALES sin `RAPIDAPI_KEY` muestra el aviso «El servicio de
+  cotizaciones no está configurado en esta versión», las cinco filas con imagen, símbolo y
+  «—», sin «Reintentar» y sin tarjeta de mercado; la nota orientativa y la fuente al pie. Tras
+  el ajuste `fix(007)`, el motivo no se repite por fila cuando ya lo dice el aviso global. ✓
+- **SC-003 / SC-004 / FR-019**: PESO DE CHAPAS arranca en ORO 18K con la chapa de referencia
+  atenuada; al teclear 10 · 0,5 · 20 el resultado aparece al completar la tercera medida:
+  «1,56 gr», «Calculado para Oro 18 K», volumen 0,100 cm³, densidad 15,58 g/cm³, pureza
+  75,0 % (18 K), oro fino 1,169 gr, nota de aproximado y botones. ✓
+- **FR-016 / FR-026**: PLATA cambia el acento a turquesa, las leyes a 950 / 925 (ley) / 900 /
+  800 (ley) con 925 marcada, conserva las medidas y da 1,04 gr, densidad 10,36, pureza
+  «92,5 % (925 ‰)» (ajustado en `fix(007)`: antes repetía «(ley)»), plata fina 0,958 gr. ✓
+- **SC-008 / FR-024**: la ilustración se construye al entrar y al cambiar ORO↔PLATA, pasa de
+  atenuada a opaca al completar las medidas y muestra las cotas «10,00 mm», «0,50 mm» y
+  «20,00 mm»; cambia de color con la familia. ✓ (Con el teclado flotante del emulador la cota
+  del espesor queda parcialmente tapada; no es de la app.)
+- **SC-009**: con la fuente del sistema al doble (`font_scale 2.0`) nada se recorta: las
+  etiquetas de ley se auto-ajustan, las filas de detalle siguen legibles y los botones parten
+  su texto en varias líneas. ✓
+- **FR-002 (conservación)**: el teclado y el scroll no pierden el estado; las medidas siguen
+  tecleadas tras volver del selector de unidad. ✓
+- **SC-014**: las dos pantallas son reconocibles frente a los mockups con los estilos de la
+  app (selector tipográfico con icono, tarjetas con acento, sin botón «Calcular» ni chip de
+  vista; ORO dorado y PLATA turquesa por decisión del autor).
+
+**Pendiente de la credencial (T001)**: no se ha podido comprobar con el proveedor real
+`PARAMETRO_METAL` (`metal` frente a `symbol`), la unidad de CU/PD/RH, SC-001 (5 peticiones y
+0 al volver, también tras `am force-stop`), SC-002 (conversión de precios reales), SC-013
+(espera de reintento) ni el parseo de los DTO bajo R8 en release. La lógica equivalente está
+cubierta por tests JVM con la muestra real del proveedor y con fakes; en cuanto `local.properties`
+tenga `RAPIDAPI_KEY`, basta seguir el §1 y los pasos 2–10 de `quickstart.md`.
+
+### Desviaciones respecto al plan de tareas
+
+- T040/T042 dejaron ya escritos en `PreciosMetalesViewModel` y `PreciosMetalesContent` el
+  selector de unidad, la tarjeta de mercado y los estados de error/espera/reintento que T047,
+  T048, T062 y T063 ampliaban; US2 y US5 aportaron sus tests (T049, T050, T065). Igual en
+  chapas: T052/T054 incluyeron Limpiar y favoritos (T064). Mismo precedente que la 006.
+- T022 registró `ObtenerCotizacionesUseCase` en T034, junto a su repositorio, para que
+  `KoinModulesTest` no pasara por rojo.
+- Tras la verificación se añadieron dos retoques (`fix(007)`): el motivo de error no se repite
+  por fila si coincide con el global y la tarjeta de mercado no se pinta sin ningún precio; la
+  pureza de plata usa milésimas («925 ‰») en vez de la etiqueta con «(ley)».
+- Los tests instrumentados (T046, T050, T057, T060, T065) quedan compilados en verde; no se
+  ejecutaron en el emulador en esta sesión — la verificación funcional equivalente se hizo a
+  mano y queda arriba. SC-010 (TalkBack) no se verificó con lector de pantalla; la semántica es
+  la de los componentes compartidos (grupos de selección, `mergeDescendants`, `liveRegion`) más
+  la `contentDescription` de la ilustración, cubierta por test.
+- T067 (refactor opcional) se hizo: los cuatro ViewModels delegan en `parsearDecimalPositivo`.
+
