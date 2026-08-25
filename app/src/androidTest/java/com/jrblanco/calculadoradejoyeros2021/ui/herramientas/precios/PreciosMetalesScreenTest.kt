@@ -1,9 +1,12 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalCotizado
@@ -11,6 +14,7 @@ import com.jrblanco.calculadoradejoyeros2021.domain.model.OrigenDatos
 import com.jrblanco.calculadoradejoyeros2021.domain.model.Tendencia
 import com.jrblanco.calculadoradejoyeros2021.domain.model.UnidadPrecio
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -101,5 +105,59 @@ class PreciosMetalesScreenTest {
         composeRule.onNodeWithText(texto(R.string.precios_cargando)).assertExists()
         composeRule.onAllNodesWithText(texto(R.string.metal_oro)).assertCountEquals(0)
         composeRule.onAllNodesWithText(texto(R.string.precios_mercado_titulo)).assertCountEquals(0)
+    }
+
+    // --- US2: unidad e información del mercado ---
+
+    @Test
+    fun listo_lasTresUnidadesEstanEnElSelector() {
+        montar(estadoListo)
+
+        composeRule.onNodeWithText(texto(R.string.precios_unidad_gramo)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.precios_unidad_kilo)).assertExists()
+        composeRule.onNodeWithText(texto(R.string.precios_unidad_onza)).assertExists()
+    }
+
+    @Test
+    fun pulsarKilo_propagaLaUnidad() {
+        var elegida: UnidadPrecio? = null
+        montar(estadoListo, onUnidadSeleccionada = { elegida = it })
+
+        composeRule.onNodeWithText(texto(R.string.precios_unidad_kilo)).performClick()
+
+        assertEquals(UnidadPrecio.KILO, elegida)
+    }
+
+    @Test
+    fun pulsarLaFilaDePlata_propagaElMetal() {
+        var elegido: MetalCotizado? = null
+        montar(estadoListo, onMetalSeleccionado = { elegido = it })
+
+        composeRule.onNodeWithText(texto(R.string.metal_plata)).performClick()
+
+        assertEquals(MetalCotizado.PLATA, elegido)
+    }
+
+    @Test
+    fun listo_laFilaSeleccionadaEsLaDelOro() {
+        montar(estadoListo)
+
+        composeRule.onNode(hasText(texto(R.string.metal_oro)) and isSelected()).assertExists()
+        composeRule.onNode(hasText(texto(R.string.metal_plata)) and isSelected()).assertDoesNotExist()
+    }
+
+    @Test
+    fun conDetalle_seVenLasOchoEtiquetasYSusValores() {
+        montar(estadoListo)
+
+        listOf(
+            R.string.precios_detalle_ask, R.string.precios_detalle_bid, R.string.precios_detalle_maximo,
+            R.string.precios_detalle_minimo, R.string.precios_detalle_variacion, R.string.precios_detalle_variacion_pct,
+            R.string.precios_detalle_unidad, R.string.precios_detalle_actualizacion,
+        ).forEach { composeRule.onNodeWithText(texto(it)).assertExists() }
+        composeRule.onNodeWithText("148,13").assertExists()
+        composeRule.onNodeWithText("148,07").assertExists()
+        composeRule.onNodeWithText("-0,97").assertExists()
+        composeRule.onNodeWithText(texto(R.string.precios_mercado_metal, texto(R.string.metal_oro), "AU")).assertExists()
     }
 }

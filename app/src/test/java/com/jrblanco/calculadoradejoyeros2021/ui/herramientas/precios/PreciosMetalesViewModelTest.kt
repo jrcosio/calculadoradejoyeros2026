@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios
 
 import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ConversorUnidadesPrecio
 import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeCotizacionesRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionesDePrueba
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionesDePrueba.cotizacion
@@ -158,6 +159,105 @@ class PreciosMetalesViewModelTest {
         crearViewModel()
 
         assertEquals(1, repositorio.llamadas)
+    }
+
+    // --- US2: unidad e información del mercado ---
+
+    @Test
+    fun `cambiar a kilo y onza convierte todas las filas sin volver a consultar`() = runTest {
+        repositorio.respuesta = completa()
+        val viewModel = crearViewModel()
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.KILO)
+        assertEquals("148.099,20", viewModel.uiState.value.filas.first().precioFormateado)
+        assertEquals(UnidadPrecio.KILO, viewModel.uiState.value.unidad)
+        assertEquals(UnidadPrecio.KILO, viewModel.uiState.value.filas.first().unidad)
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.ONZA_TROY)
+        assertEquals("4.606,40", viewModel.uiState.value.filas.first().precioFormateado)
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.GRAMO)
+        assertEquals("148,10", viewModel.uiState.value.filas.first().precioFormateado)
+
+        assertEquals(1, repositorio.llamadas)
+        verify(exactly = 1) { analytics.logEvent("herramientas_unidad_cambiada", mapOf("unidad" to "kilo")) }
+        verify(exactly = 1) { analytics.logEvent("herramientas_unidad_cambiada", mapOf("unidad" to "onza_troy")) }
+        verify(exactly = 1) { analytics.logEvent("herramientas_unidad_cambiada", mapOf("unidad" to "gramo")) }
+    }
+
+    @Test
+    fun `reseleccionar la misma unidad no emite telemetria`() = runTest {
+        repositorio.respuesta = completa()
+        val viewModel = crearViewModel()
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.GRAMO)
+
+        verify(exactly = 0) { analytics.logEvent("herramientas_unidad_cambiada", any()) }
+    }
+
+    @Test
+    fun `en kilo el detalle convierte los importes pero no el porcentaje`() = runTest {
+        repositorio.respuesta = completa()
+        val viewModel = crearViewModel()
+
+        viewModel.onUnidadSeleccionada(UnidadPrecio.KILO)
+        val detalle = viewModel.uiState.value.detalle!!
+
+        val askEsperado = FormatoPrecios.importe(
+            ConversorUnidadesPrecio.convertir(java.math.BigDecimal("4607.4"), UnidadPrecio.ONZA_TROY, UnidadPrecio.KILO),
+        )
+        assertEquals(askEsperado, detalle.ask)
+        assertEquals("148.131,35", detalle.ask)
+        assertEquals("-0,97", detalle.variacionPorcentaje)
+        assertEquals(UnidadPrecio.KILO, detalle.unidad)
+        assertEquals("OUNCE", detalle.etiquetaUnidadOrigen)
+    }
+
+    @Test
+    fun `pulsar un metal cambia el detalle y lo registra`() = runTest {
+        repositorio.respuesta = completa()
+        val viewModel = crearViewModel()
+
+        viewModel.onMetalSeleccionado(MetalCotizado.PLATA)
+
+        assertEquals(MetalCotizado.PLATA, viewModel.uiState.value.seleccionado)
+        assertEquals(MetalCotizado.PLATA, viewModel.uiState.value.detalle?.metal)
+        assertEquals(1, repositorio.llamadas)
+        verify(exactly = 1) { analytics.logEvent("herramientas_metal_seleccionado", mapOf("metal" to "plata")) }
+
+        viewModel.onMetalSeleccionado(MetalCotizado.PLATA)
+        verify(exactly = 1) { analytics.logEvent("herramientas_metal_seleccionado", any()) }
+    }
+
+    @Test
+    fun `un metal sin dato alguno no tiene detalle`() = runTest {
+        repositorio.respuesta = InstantaneaCotizaciones(
+            resultados = MetalCotizado.entries.filter { it != MetalCotizado.RODIO }.associateWith { exito(it, obtenidoEn = t0) },
+            instanteIntentoEpochMillis = t0,
+            origen = OrigenDatos.RED,
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.onMetalSeleccionado(MetalCotizado.RODIO)
+
+        assertNull(viewModel.uiState.value.detalle)
+        assertNull(viewModel.uiState.value.filas.single { it.metal == MetalCotizado.RODIO }.precioFormateado)
+    }
+
+    @Test
+    fun `con unidad de origen desconocida el detalle va en origen y el selector no lo altera`() = runTest {
+        repositorio.respuesta = conCobre(
+            cotizacion(metal = MetalCotizado.COBRE, mid = "2.49", ask = "2.5", unidadOrigen = null, etiquetaUnidadOrigen = "LB", obtenidoEn = t0),
+        )
+        val viewModel = crearViewModel()
+        viewModel.onMetalSeleccionado(MetalCotizado.COBRE)
+        viewModel.onUnidadSeleccionada(UnidadPrecio.KILO)
+
+        val detalle = viewModel.uiState.value.detalle!!
+        assertEquals("2,50", detalle.ask)
+        assertNull(detalle.unidad)
+        assertEquals("LB", detalle.etiquetaUnidadOrigen)
+        assertEquals("2,49", viewModel.uiState.value.filas.single { it.metal == MetalCotizado.COBRE }.precioFormateado)
     }
 
     private fun conCobre(cobre: com.jrblanco.calculadoradejoyeros2021.domain.model.CotizacionMetal): InstantaneaCotizaciones =

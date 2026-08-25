@@ -575,7 +575,7 @@ pulsables y tarjeta «Información del mercado» del metal elegido.
 148.099,20 €/kg ↔ 4.606,40 €/oz) y pulsar cada metal comprobando que la tarjeta cambia; 0
 peticiones nuevas.
 
-- [ ] T047 [US2] Ampliar `PreciosMetalesViewModel` con `fun onUnidadSeleccionada(unidad: UnidadPrecio)`
+- [X] T047 [US2] Ampliar `PreciosMetalesViewModel` con `fun onUnidadSeleccionada(unidad: UnidadPrecio)`
   (si es la actual, nada; si no, re-deriva filas y detalle desde `instantanea` **sin red** y
   emite `herramientas_unidad_cambiada {unidad}`), `fun onMetalSeleccionado(metal: MetalCotizado)`
   (ídem con `herramientas_metal_seleccionado {metal}`) y la derivación de
@@ -585,7 +585,7 @@ peticiones nuevas.
   FormatoPrecios.porcentaje` (sin convertir), `tendencia`, `unidad`, `etiquetaUnidadOrigen`,
   `instanteMercadoEpochMillis` (la vista lo formatea con `fechaHoraLocal`), `desactualizada`; `null` si el
   seleccionado no tiene dato alguno. **Depende de T045 (US1 en verde)**.
-- [ ] T048 [US2] Ampliar `PreciosMetalesContent`: bajo el título, `CabeceraSeccion(ic_balanza, precios_seccion_unidad, tinte = TealPrimary)`
+- [X] T048 [US2] Ampliar `PreciosMetalesContent`: bajo el título, `CabeceraSeccion(ic_balanza, precios_seccion_unidad, tinte = TealPrimary)`
   + `SelectorSegmentado(UnidadPrecio.entries.map { OpcionSegmento(stringResource(it.etiquetaRes), TealPrimary) }, seleccionada = unidad.ordinal, onSeleccion = { onUnidadSeleccionada(UnidadPrecio.entries[it]) })`;
   las filas pasan a ser `clickable(role = Role.Button) { onMetalSeleccionado(metal) }` y la
   seleccionada lleva borde `TealPrimary` (`border(1.dp, TealPrimary.copy(alpha = 0.65f), RoundedCornerShape(Small))`)
@@ -598,7 +598,7 @@ peticiones nuevas.
   `unidad` o `etiquetaUnidadOrigen`) / Actualización; con `detalle == null` la tarjeta muestra
   «—». Sin chevron de navegación (spec, Assumptions). Previews con kilo y con plata seleccionada.
   **Depende de T047**.
-- [ ] T049 [P] [US2] Ampliar `PreciosMetalesViewModelTest`: kilo → oro `"148.099,20"` y
+- [X] T049 [P] [US2] Ampliar `PreciosMetalesViewModelTest`: kilo → oro `"148.099,20"` y
   `unidad == KILO`; onza → `"4.606,40"`; volver a gramo → `"148,10"`; cambiar unidad no llama al
   repositorio otra vez y emite `herramientas_unidad_cambiada {unidad=kilo}`; reseleccionar la
   misma unidad no emite; `detalle` inicial del oro con `ask "4.607,40"`, `bid "4.605,40"`,
@@ -606,7 +606,7 @@ peticiones nuevas.
   convierte y `variacionPorcentaje` no; pulsar PLATA cambia `seleccionado` y `detalle.metal`,
   emite `herramientas_metal_seleccionado {metal=plata}`; metal sin dato → `detalle == null`;
   unidad de origen desconocida → detalle en origen sin conversión. **Depende de T047**.
-- [ ] T050 [P] [US2] Ampliar `PreciosMetalesScreenTest`: las tres unidades visibles; pulsar
+- [X] T050 [P] [US2] Ampliar `PreciosMetalesScreenTest`: las tres unidades visibles; pulsar
   «Kilo» propaga `KILO`; pulsar la fila de Plata propaga `PLATA`; con `detalle` precocinado se
   ven las ocho etiquetas y sus valores; la fila seleccionada tiene `isSelected()`. **Depende de T048**.
 
