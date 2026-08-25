@@ -1,19 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Reglas de extracción de datos (API 31+). La caché de cotizaciones (feature 007) queda fuera
+    tanto de la copia en la nube como de la transferencia entre dispositivos: es un dato
+    derivado con fecha que la app vuelve a pedir al proveedor cuando caduca.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="sharedpref" path="cotizaciones.xml" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <exclude domain="sharedpref" path="cotizaciones.xml" />
     </device-transfer>
-    -->
 </data-extraction-rules>

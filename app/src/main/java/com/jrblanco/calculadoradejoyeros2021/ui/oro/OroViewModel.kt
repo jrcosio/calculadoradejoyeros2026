@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.oro
 
 import androidx.lifecycle.ViewModel
+import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyOro
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
@@ -73,12 +74,8 @@ class OroViewModel(
         )
     }
 
-    /** Coma y punto valen (§16): se normalizan antes de parsear. Inválido o ≤ 0 → null. */
-    private fun parsearCantidad(texto: String): BigDecimal? =
-        texto.trim()
-            .replace(',', '.')
-            .toBigDecimalOrNull()
-            ?.takeIf { it > BigDecimal.ZERO }
+    /** Coma y punto valen (§16): se normalizan antes de parsear. Inválido o ≤ 0 → null. Delegado en `core/util/Decimales.kt`. */
+    private fun parsearCantidad(texto: String): BigDecimal? = parsearDecimalPositivo(texto)
 
     private fun registrarCalculo(ley: LeyOro, color: ColorOro) {
         val combinacion = ley to color

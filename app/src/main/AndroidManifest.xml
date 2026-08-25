@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Cotizaciones de metales (feature 007): solo HTTPS. Permiso normal, sin diálogo. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".CalculadoraApp"
         android:allowBackup="true"

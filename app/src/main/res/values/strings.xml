@@ -54,6 +54,17 @@
 
     <!-- Compartido: unidades, metales y acciones -->
     <string name="unidad_gramos">gr</string>
+    <string name="unidad_milimetros">mm</string>
+    <string name="unidad_cm3">cm³</string>
+    <string name="unidad_g_cm3">g/cm³</string>
+    <string name="unidad_euro_gramo">€/g</string>
+    <string name="unidad_euro_kilo">€/kg</string>
+    <string name="unidad_euro_onza">€/oz</string>
+    <string name="unidad_euro_libra">€/lb</string>
+    <string name="metal_oro">Oro</string>
+    <string name="metal_plata">Plata</string>
+    <string name="metal_rodio">Rodio</string>
+    <string name="metal_oro_fino">Oro fino</string>
     <string name="metal_plata_fina">Plata fina</string>
     <string name="metal_cobre">Cobre</string>
     <string name="metal_paladio">Paladio</string>
@@ -68,6 +79,9 @@
     <string name="metal_laton_imagen">Un lingote de latón</string>
     <string name="metal_zinc_imagen">Dos lingotes de zinc marcados con el símbolo Zn</string>
     <string name="metal_cadmio_imagen">Dos lingotes de cadmio marcados con el símbolo Cd</string>
+    <string name="metal_oro_imagen">Lingotes de oro</string>
+    <string name="metal_plata_imagen">Lingotes de plata</string>
+    <string name="metal_rodio_imagen">Montón de granalla de rodio</string>
     <string name="accion_limpiar">Limpiar</string>
     <string name="accion_guardar_favoritos">Guardar en favoritos</string>
     <string name="aviso_proximamente">Próximamente</string>
@@ -149,4 +163,75 @@
     <string name="soldadura_base_modo_tengo_oro">Tengo oro 24K</string>
     <string name="soldadura_base_modo_peso">Peso de base</string>
     <string name="soldadura_base_total">Peso teórico de la base:</string>
+
+    <!-- Herramientas -->
+    <string name="herramientas_subherramienta_precios">PRECIO METALES</string>
+    <string name="herramientas_subherramienta_chapas">PESO DE CHAPAS</string>
+    <string name="herramientas_primera_visita_titulo">Elige una herramienta</string>
+    <string name="herramientas_primera_visita_texto">Cotizaciones de metales al día y el peso de tus chapas por medidas.</string>
+
+    <!-- Herramientas: precio de metales -->
+    <string name="precios_titulo">Precio de metales hoy</string>
+    <string name="precios_actualizado">Actualizado %1$s</string>
+    <string name="precios_origen_cache">Datos guardados de la última consulta</string>
+    <string name="precios_seccion_unidad">Unidad</string>
+    <string name="precios_unidad_gramo">Gramo</string>
+    <string name="precios_unidad_kilo">Kilo</string>
+    <string name="precios_unidad_onza">Onza troy</string>
+    <string name="precios_unidad_libra">Libra</string>
+    <string name="precios_mercado_titulo">Información del mercado</string>
+    <string name="precios_mercado_subtitulo">Datos del proveedor para el metal elegido</string>
+    <string name="precios_mercado_metal">%1$s (%2$s)</string>
+    <string name="precios_detalle_ask">Ask</string>
+    <string name="precios_detalle_bid">Bid</string>
+    <string name="precios_detalle_maximo">Máximo</string>
+    <string name="precios_detalle_minimo">Mínimo</string>
+    <string name="precios_detalle_variacion">Variación</string>
+    <string name="precios_detalle_variacion_pct">Variación %</string>
+    <string name="precios_detalle_unidad">Unidad</string>
+    <string name="precios_detalle_actualizacion">Actualización</string>
+    <string name="precios_nota_orientativos">Precios orientativos. Pueden variar según el mercado.</string>
+    <string name="precios_fuente">Fuente: Metal Sentinel</string>
+    <string name="precios_cargando">Consultando cotizaciones…</string>
+    <string name="precios_accion_reintentar">Reintentar</string>
+    <string name="precios_desactualizado">Desactualizado</string>
+    <string name="precios_aviso_espera">Acabas de reintentar. Espera un momento antes de volver a consultar.</string>
+    <string name="precios_aviso_parcial">No se han podido actualizar todos los metales.</string>
+    <string name="precios_aviso_desactualizado">Se muestran los últimos precios conocidos.</string>
+    <string name="precios_error_sin_credencial">El servicio de cotizaciones no está configurado en esta versión.</string>
+    <string name="precios_error_credencial">El proveedor ha rechazado la credencial o la suscripción.</string>
+    <string name="precios_error_no_encontrado">El servicio de cotizaciones no está disponible.</string>
+    <string name="precios_error_limite">Se ha alcanzado el límite de consultas al proveedor.</string>
+    <string name="precios_error_servidor">El proveedor no responde en este momento.</string>
+    <string name="precios_error_sin_conexion">No se ha podido conectar con el proveedor.</string>
+    <string name="precios_error_respuesta">El proveedor ha devuelto una respuesta no válida.</string>
+    <string name="precios_error_desconocido">No se ha podido obtener la cotización.</string>
+    <string name="precios_tendencia_sube">Sube</string>
+    <string name="precios_tendencia_baja">Baja</string>
+    <string name="precios_tendencia_plana">Sin cambio</string>
+
+    <!-- Herramientas: peso de chapas -->
+    <string name="chapas_titulo">Peso de chapas</string>
+    <string name="chapas_subtitulo">Calcula el peso de tu chapa según sus medidas</string>
+    <string name="chapas_seccion_material">Material</string>
+    <string name="chapas_familia_oro">ORO</string>
+    <string name="chapas_familia_plata">PLATA</string>
+    <string name="chapas_seccion_medidas">Medidas</string>
+    <string name="chapas_medida_ancho">Ancho</string>
+    <string name="chapas_medida_espesor">Espesor</string>
+    <string name="chapas_medida_largo">Largo</string>
+    <string name="chapas_material_oro">Oro %1$s</string>
+    <string name="chapas_material_plata">Plata %1$s</string>
+    <string name="chapas_resultado_titulo">Peso de la chapa</string>
+    <string name="chapas_resultado_para">Calculado para %1$s</string>
+    <string name="chapas_detalle_volumen">Volumen</string>
+    <string name="chapas_detalle_densidad">Densidad</string>
+    <string name="chapas_detalle_pureza">Pureza</string>
+    <string name="chapas_pureza_formato">%1$s %% (%2$s)</string>
+    <string name="chapas_ley_milesimas">%1$d ‰</string>
+    <string name="chapas_dibujo_descripcion">Chapa de %1$s: %2$s de ancho, %3$s de largo y %4$s de espesor</string>
+    <string name="chapas_dibujo_medida">%1$s mm</string>
+    <string name="chapas_dibujo_sin_medida">sin medida</string>
+    <string name="chapas_nota_aproximado">Valores aproximados. Considera merma según tu proceso.</string>
+    <string name="chapas_aviso_rango">Medida fuera del rango operativo: ancho y largo hasta 10 000 mm, espesor hasta 1 000 mm.</string>
 </resources>

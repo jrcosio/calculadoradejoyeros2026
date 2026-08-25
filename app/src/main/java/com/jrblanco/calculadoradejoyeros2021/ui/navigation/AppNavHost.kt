@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryBottomBar
 import com.jrblanco.calculadoradejoyeros2021.ui.components.MainTab
+import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.HerramientasScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeModule
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
@@ -111,7 +112,7 @@ fun AppNavHost(
             SoldaduraBaseScreen(onInfo = onInfo, onBack = onBack)
         }
         composable<Route.Herramientas> {
-            PlaceholderScreen(stringResource(R.string.modulo_herramientas_titulo), "herramientas", onInfo, onBack = onBack)
+            HerramientasScreen(onInfo = onInfo, onBack = onBack)
         }
 
         // --- Otros ---

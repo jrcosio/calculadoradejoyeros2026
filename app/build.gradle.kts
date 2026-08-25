@@ -6,6 +6,29 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
+// Credencial del proveedor de cotizaciones (feature 007). Se lee de forma compatible con la
+// caché de configuración de Gradle: variable de entorno (CI) → propiedad de Gradle →
+// local.properties. Nunca se imprime su valor. Ojo: todo lo que llega a BuildConfig es
+// extraíble del APK; esta integración directa es de prototipo (specs/007-herramientas/research.md, R6).
+val rapidApiKey: String = providers.environmentVariable("RAPIDAPI_KEY")
+    .orElse(providers.gradleProperty("RAPIDAPI_KEY"))
+    .orElse(
+        providers.fileContents(isolated.rootProject.projectDirectory.file("local.properties")).asText
+            .map { texto ->
+                texto.lineSequence()
+                    .map(String::trim)
+                    .firstOrNull { it.startsWith("RAPIDAPI_KEY=") }
+                    ?.substringAfter('=')
+                    ?.trim()
+                    .orEmpty()
+            },
+    )
+    .getOrElse("")
+
+if (rapidApiKey.isBlank()) {
+    logger.warn("RAPIDAPI_KEY no configurada: la pantalla de precios mostrará «servicio no configurado»")
+}
+
 android {
     namespace = "com.jrblanco.calculadoradejoyeros2021"
     compileSdk {
@@ -20,6 +43,13 @@ android {
         versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Credencial de RapidAPI escapada para el literal Java de BuildConfig (ver arriba).
+        buildConfigField(
+            "String",
+            "RAPIDAPI_KEY",
+            "\"${rapidApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
+        )
     }
 
     buildTypes {

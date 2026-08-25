@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.plata
 
 import androidx.lifecycle.ViewModel
+import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionPlataUseCase
@@ -68,12 +69,8 @@ class PlataViewModel(
         )
     }
 
-    /** Coma y punto valen (§26): se normalizan antes de parsear. Inválido o ≤ 0 → null. */
-    private fun parsearCantidad(texto: String): BigDecimal? =
-        texto.trim()
-            .replace(',', '.')
-            .toBigDecimalOrNull()
-            ?.takeIf { it > BigDecimal.ZERO }
+    /** Coma y punto valen (§26): se normalizan antes de parsear. Inválido o ≤ 0 → null. Delegado en `core/util/Decimales.kt`. */
+    private fun parsearCantidad(texto: String): BigDecimal? = parsearDecimalPositivo(texto)
 
     private fun registrarCalculo(ley: LeyPlata) {
         if (ley == ultimaLeyRegistrada) return
