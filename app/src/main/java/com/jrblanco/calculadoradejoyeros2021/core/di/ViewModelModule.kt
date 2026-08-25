@@ -1,9 +1,11 @@
 package com.jrblanco.calculadoradejoyeros2021.core.di
 
+import com.jrblanco.calculadoradejoyeros2021.ui.ajustes.AjustesViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.HerramientasViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas.PesoChapasViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios.PreciosMetalesViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeViewModel
+import com.jrblanco.calculadoradejoyeros2021.ui.idioma.IdiomaAppViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroViewModel
 import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderViewModel
@@ -28,4 +30,7 @@ val viewModelModule = module {
     viewModelOf(::HerramientasViewModel)
     viewModelOf(::PreciosMetalesViewModel)
     viewModelOf(::PesoChapasViewModel)
+    // Ajustes (008): la pantalla, y el idioma de la app entera, que lo posee la Activity.
+    viewModelOf(::AjustesViewModel)
+    viewModelOf(::IdiomaAppViewModel)
 }

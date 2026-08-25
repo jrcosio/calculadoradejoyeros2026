@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bandera del Reino Unido para el selector de idioma «English» (feature 008). Proporción 3:2 como
+    sus vecinas, aunque la oficial sea 1:2: en una lista de idiomas manda la alineación.
+
+    Redibujada, no convertida: ingles.svg aplica un clip-path a un path con `stroke` para el
+    contracambio de las diagonales, y eso VectorDrawable no lo reproduce. Aquí las proporciones son
+    las oficiales, relativas al alto (h = 40): aspa blanca h/5, aspa roja 2h/15, cruz blanca h/3,
+    cruz roja h/5. El grupo exterior recorta el rebose del trazo en las esquinas (recorte recto, sin
+    dientes de sierra); el interior selecciona, con los cuatro triángulos del SVG original, en qué
+    mitad de cada brazo se ve el rojo.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="16dp"
+    android:viewportWidth="60" android:viewportHeight="40">
+    <group>
+        <clip-path android:pathData="M0,0 H60 V40 H0 Z" />
+
+        <path android:fillColor="#012169" android:pathData="M0,0 H60 V40 H0 Z" />
+
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="8"
+            android:pathData="M0,0 L60,40 M60,0 L0,40" />
+
+        <group>
+            <clip-path android:pathData="M30,20 H60 V40 Z M30,20 V40 H0 Z M30,20 H0 V0 Z M30,20 V0 H60 Z" />
+            <path
+                android:strokeColor="#C8102E"
+                android:strokeWidth="5.333"
+                android:pathData="M0,0 L60,40 M60,0 L0,40" />
+        </group>
+
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="13.333"
+            android:pathData="M30,0 V40 M0,20 H60" />
+
+        <path
+            android:strokeColor="#C8102E"
+            android:strokeWidth="8"
+            android:pathData="M30,0 V40 M0,20 H60" />
+    </group>
+</vector>

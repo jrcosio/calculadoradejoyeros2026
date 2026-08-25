@@ -16,6 +16,8 @@ import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLeyUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarIdiomaUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObservarIdiomaUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -39,4 +41,7 @@ val domainModule = module {
     factoryOf(::CalcularPesoChapaUseCase)
     factoryOf(::ConvertirCotizacionUseCase)
     factoryOf(::ObtenerCotizacionesUseCase)
+    // Ajustes (008): el idioma de la app.
+    factoryOf(::ObservarIdiomaUseCase)
+    factoryOf(::GuardarIdiomaUseCase)
 }

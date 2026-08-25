@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Francés (feature 008). Mismo orden y mismos bloques que `values/strings.xml`, que es la fuente
+    de verdad; las cadenas con translatable="false" no se copian aquí a propósito.
+    Tratamiento de cortesía («vous»), que es la convención del francés en una app profesional.
+    `TraduccionesTest` vigila que no falte ni sobre ninguna clave y que los %n$s se conserven.
+-->
+<resources>
+
+    <!-- Pantalla de inicio -->
+    <string name="welcome_subtitle">Précision et calcul pour votre atelier</string>
+    <string name="welcome_start">Commencer</string>
+    <string name="welcome_developer">Développé par %1$s</string>
+    <string name="welcome_logo_description">Logo de Calculadora de Joyeros : un lingot d\'or sur un pied à coulisse et un clavier de calculatrice</string>
+
+    <!-- Módulos del menú principal -->
+    <string name="modulo_oro_titulo">Alliages d\'OR</string>
+    <string name="modulo_oro_descripcion">Calculs de base pour obtenir des alliages d\'or 18K, 14K, 12K et 9K.</string>
+    <string name="modulo_oro_imagen">Deux lingots d\'or marqués du symbole Au</string>
+    <string name="modulo_plata_titulo">Alliages d\'ARGENT</string>
+    <string name="modulo_plata_descripcion">Calculs de base pour obtenir des alliages d\'argent.</string>
+    <string name="modulo_plata_imagen">Deux lingots d\'argent marqués du symbole Ag</string>
+    <string name="modulo_soldaduras_titulo">Soudures d\'or et d\'argent</string>
+    <string name="modulo_soldaduras_descripcion">Calculez les alliages de soudure au titre et leurs autres propriétés.</string>
+    <string name="modulo_soldaduras_imagen">Chalumeau de bijoutier allumé</string>
+    <string name="modulo_herramientas_titulo">Outils</string>
+    <string name="modulo_herramientas_descripcion">Calculatrices spécialisées et utilitaires pour la bijouterie.</string>
+    <string name="modulo_herramientas_imagen">Pied à coulisse numérique, loupe de bijoutier, brucelles et un outil d\'atelier</string>
+
+    <!-- Barra inferior -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_favoritos">Favoris</string>
+    <string name="nav_ajustes">Réglages</string>
+
+    <!-- Barra superior -->
+    <string name="topbar_info">Informations sur l\'application</string>
+    <string name="topbar_atras">Retour</string>
+
+    <!-- Pantallas aún sin desarrollar -->
+    <string name="placeholder_pendiente">Écran en construction</string>
+
+    <!-- Pantalla de información -->
+    <string name="info_titulo">Informations</string>
+    <string name="info_perfil_descripcion">La technologie et la tradition se rejoignent dans une application créée par José Ramón Blanco, développeur et bijoutier artisan, avec l\'idée d\'offrir aux professionnels de la bijouterie du monde entier des outils utiles, modernes et accessibles.</string>
+    <string name="info_perfil_foto">Photographie de José Ramón Blanco</string>
+    <string name="info_enlace_abrir">Ouvrir dans le navigateur</string>
+    <string name="info_blanco_joyeros_descripcion">Partenaire et référence du secteur de la bijouterie.</string>
+    <string name="info_blanco_joyeros_logo">Logo de Blanco Joyeros</string>
+    <string name="info_blanco_joyeros_imagen">Alliance en diamants à côté d\'une loupe de bijoutier</string>
+    <string name="info_version">Version %1$s</string>
+
+    <!-- Compartido: unidades, metales y acciones -->
+    <string name="metal_oro">Or</string>
+    <string name="metal_plata">Argent</string>
+    <string name="metal_rodio">Rhodium</string>
+    <string name="metal_oro_fino">Or fin</string>
+    <string name="metal_plata_fina">Argent fin</string>
+    <string name="metal_cobre">Cuivre</string>
+    <string name="metal_paladio">Palladium</string>
+    <string name="metal_oro_24k">Or 24K</string>
+    <string name="metal_laton">Laiton</string>
+    <string name="metal_zinc">Zinc</string>
+    <string name="metal_cadmio">Cadmium</string>
+    <string name="metal_plata_fina_imagen">Deux lingots d\'argent fin</string>
+    <string name="metal_cobre_imagen">Deux lingots de cuivre marqués du symbole Cu</string>
+    <string name="metal_paladio_imagen">Deux lingots de palladium marqués du symbole Pd</string>
+    <string name="metal_oro_24k_imagen">Deux lingots d\'or fin de 24 carats</string>
+    <string name="metal_laton_imagen">Un lingot de laiton</string>
+    <string name="metal_zinc_imagen">Deux lingots de zinc marqués du symbole Zn</string>
+    <string name="metal_cadmio_imagen">Deux lingots de cadmium marqués du symbole Cd</string>
+    <string name="metal_oro_imagen">Lingots d\'or</string>
+    <string name="metal_plata_imagen">Lingots d\'argent</string>
+    <string name="metal_rodio_imagen">Tas de grenaille de rhodium</string>
+    <string name="accion_limpiar">Effacer</string>
+    <string name="accion_guardar_favoritos">Ajouter aux favoris</string>
+    <string name="aviso_proximamente">Bientôt disponible</string>
+
+    <!-- Calculadora de aleaciones de oro -->
+    <string name="oro_entrada_titulo">Saisissez l\'or 24K</string>
+    <string name="oro_entrada_imagen">Deux lingots d\'or fin à 999 millièmes</string>
+    <string name="oro_seccion_ley">Type d\'or</string>
+    <string name="oro_seccion_color">Couleur de l\'or</string>
+    <string name="oro_color_amarillo">Jaune</string>
+    <string name="oro_color_blanco">Blanc</string>
+    <string name="oro_color_rosa">Rose</string>
+    <string name="oro_color_rojo">Rouge</string>
+    <string name="oro_total">Total d\'or %1$s :</string>
+    <string name="oro_aviso_12k">500‰ / 12 K n\'est indiqué qu\'à titre de référence technique de calcul. Ce n\'est pas l\'un des titres d\'or officiels autorisés à la vente en Espagne.</string>
+
+    <!-- Calculadora de aleaciones de plata -->
+    <string name="plata_entrada_titulo">Saisissez l\'argent fin 999‰</string>
+    <string name="plata_entrada_imagen">Deux lingots d\'argent fin à 999 millièmes</string>
+    <string name="plata_seccion_ley">Millièmes d\'argent à obtenir</string>
+    <string name="plata_ley_925">925 (titre)</string>
+    <string name="plata_ley_800">800 (titre)</string>
+    <string name="plata_total">Total d\'argent %1$s :</string>
+    <string name="plata_aviso_950">Argent 950‰ : composition technique. En Espagne, 950‰ n\'est pas l\'un des titres officiels de garantie de l\'argent ; il dépasse le titre 925‰.</string>
+    <string name="plata_aviso_900">Argent 900‰ : composition technique. En Espagne, 900‰ n\'est pas l\'un des titres officiels de garantie de l\'argent ; il dépasse 800‰ mais n\'atteint pas 925‰.</string>
+
+    <!-- Calculadora de soldaduras -->
+    <string name="soldadura_seccion_familia">La soudure que vous voulez fabriquer</string>
+    <string name="soldadura_familia_oro_ley">OR AU TITRE</string>
+    <string name="soldadura_familia_clasica">CLASSIQUE</string>
+    <string name="soldadura_familia_plata">ARGENT</string>
+    <string name="soldadura_seccion_modo">Mode de calcul</string>
+    <string name="soldadura_modo_tengo_oro18k">J\'ai de l\'or 18K</string>
+    <string name="soldadura_modo_tengo_oro">J\'ai l\'or</string>
+    <string name="soldadura_modo_tengo_plata">J\'ai l\'argent</string>
+    <string name="soldadura_modo_peso_final">Poids final</string>
+    <string name="soldadura_seccion_tipo">Type de soudure</string>
+    <string name="soldadura_dureza_muy_floja">Très tendre</string>
+    <string name="soldadura_dureza_floja">Tendre</string>
+    <string name="soldadura_dureza_media">Moyenne</string>
+    <string name="soldadura_dureza_fuerte">Dure</string>
+    <string name="soldadura_dureza_muy_fuerte">Très dure</string>
+    <string name="soldadura_clasica_floja">Tendre</string>
+    <string name="soldadura_clasica_fuerte">Dure</string>
+    <string name="soldadura_clasica_muy_floja_ley">Très tendre (18K)</string>
+    <string name="soldadura_plata_muy_floja">Très tendre</string>
+    <string name="soldadura_plata_floja">Tendre</string>
+    <string name="soldadura_plata_normal">Normale</string>
+    <string name="soldadura_plata_fuerte">Dure</string>
+    <string name="soldadura_plata_nota_muy_floja">Recommandée pour les réparations</string>
+    <string name="soldadura_ley_base_titulo">Comment obtenir la soudure de BASE*</string>
+    <string name="soldadura_ley_base_boton">SOUDURE DE BASE</string>
+    <string name="soldadura_ley_base_nota">* C\'est une soudure 18K dont le point de fusion est très très bas</string>
+    <string name="soldadura_entrada_oro_18k">Saisissez l\'or 18K</string>
+    <string name="soldadura_entrada_oro_24k">Saisissez l\'or 24K</string>
+    <string name="soldadura_entrada_peso_final">Poids final souhaité</string>
+    <string name="soldadura_base_entrada_peso">Poids de base souhaité</string>
+    <string name="soldadura_fila_base">Soudure de BASE</string>
+    <string name="soldadura_fila_base_necesaria">Soudure de BASE nécessaire</string>
+    <string name="soldadura_fila_oro18k">Or 18K %1$s</string>
+    <string name="soldadura_granalla_imagen">Grenaille de soudure de base</string>
+    <string name="soldadura_total">Total de soudure :</string>
+    <string name="soldadura_nota_redondeo">La somme peut varier très légèrement du fait de l\'arrondi</string>
+    <string name="soldadura_aviso_seguridad">Sécurité : le chauffage de matériaux contenant du cadmium ou du zinc peut dégager des fumées dangereuses. Ne pas inhaler les fumées. Travailler uniquement avec une aspiration localisée ou une ventilation adaptée, avec les équipements de protection correspondants et conformément à la réglementation de sécurité applicable. Cette calculatrice ne remplace ni une formation professionnelle ni une évaluation des risques.</string>
+    <string name="soldadura_ley_consejo_mezcla">Fondre et laminer une première fois ; puis fondre et laminer de nouveau pour favoriser un mélange homogène.</string>
+    <string name="soldadura_base_titulo">Soudure de base</string>
+    <string name="soldadura_base_proceso_titulo">Procédé</string>
+    <string name="soldadura_base_proceso_1">Fondre d\'abord l\'or, l\'argent et le cuivre puis, une fois le mélange homogène, ajouter le zinc et le cadmium.</string>
+    <string name="soldadura_base_proceso_2">Baisser l\'intensité de la flamme pour que le zinc et le cadmium ne se volatilisent pas.</string>
+    <string name="soldadura_base_proceso_3">Laminer le lingot obtenu pour pouvoir le couper aux ciseaux.</string>
+    <string name="soldadura_base_masa_teorica">La masse calculée est théorique : les pertes de fonte ne sont pas compensées.</string>
+    <string name="soldadura_base_proceso_imagen">Creuset de bijoutier versant du métal en fusion</string>
+    <string name="soldadura_base_modo_tengo_oro">J\'ai de l\'or 24K</string>
+    <string name="soldadura_base_modo_peso">Poids de base</string>
+    <string name="soldadura_base_total">Poids théorique de la base :</string>
+
+    <!-- Herramientas -->
+    <string name="herramientas_subherramienta_precios">PRIX DES MÉTAUX</string>
+    <string name="herramientas_subherramienta_chapas">POIDS DES TÔLES</string>
+    <string name="herramientas_primera_visita_titulo">Choisissez un outil</string>
+    <string name="herramientas_primera_visita_texto">Les cours des métaux du jour et le poids de vos tôles d\'après leurs mesures.</string>
+
+    <!-- Herramientas: precio de metales -->
+    <string name="precios_titulo">Prix des métaux aujourd\'hui</string>
+    <string name="precios_actualizado">Mis à jour %1$s</string>
+    <string name="precios_origen_cache">Données enregistrées lors de la dernière requête</string>
+    <string name="precios_seccion_unidad">Unité</string>
+    <string name="precios_unidad_gramo">Gramme</string>
+    <string name="precios_unidad_kilo">Kilo</string>
+    <string name="precios_unidad_onza">Once troy</string>
+    <string name="precios_unidad_libra">Livre</string>
+    <string name="precios_mercado_titulo">Informations du marché</string>
+    <string name="precios_mercado_subtitulo">Données du fournisseur pour le métal choisi</string>
+    <string name="precios_detalle_maximo">Plus haut</string>
+    <string name="precios_detalle_minimo">Plus bas</string>
+    <string name="precios_detalle_variacion">Variation</string>
+    <string name="precios_detalle_variacion_pct">Variation %</string>
+    <string name="precios_detalle_unidad">Unité</string>
+    <string name="precios_detalle_actualizacion">Mise à jour</string>
+    <string name="precios_nota_orientativos">Prix indicatifs. Ils peuvent varier selon le marché.</string>
+    <string name="precios_fuente">Source : %1$s</string>
+    <string name="precios_cargando">Consultation des cours…</string>
+    <string name="precios_accion_reintentar">Réessayer</string>
+    <string name="precios_desactualizado">Périmé</string>
+    <string name="precios_aviso_espera">Vous venez de réessayer. Attendez un instant avant de relancer la requête.</string>
+    <string name="precios_aviso_parcial">Tous les métaux n\'ont pas pu être mis à jour.</string>
+    <string name="precios_aviso_desactualizado">Les derniers prix connus sont affichés.</string>
+    <string name="precios_error_sin_credencial">Le service de cours n\'est pas configuré dans cette version.</string>
+    <string name="precios_error_credencial">Le fournisseur a refusé les identifiants ou l\'abonnement.</string>
+    <string name="precios_error_no_encontrado">Le service de cours n\'est pas disponible.</string>
+    <string name="precios_error_limite">La limite de requêtes du fournisseur est atteinte.</string>
+    <string name="precios_error_servidor">Le fournisseur ne répond pas pour le moment.</string>
+    <string name="precios_error_sin_conexion">Impossible de se connecter au fournisseur.</string>
+    <string name="precios_error_respuesta">Le fournisseur a renvoyé une réponse non valide.</string>
+    <string name="precios_error_desconocido">Impossible d\'obtenir le cours.</string>
+    <string name="precios_tendencia_sube">En hausse</string>
+    <string name="precios_tendencia_baja">En baisse</string>
+    <string name="precios_tendencia_plana">Stable</string>
+
+    <!-- Herramientas: peso de chapas -->
+    <string name="chapas_titulo">Poids des tôles</string>
+    <string name="chapas_subtitulo">Calculez le poids de votre tôle d\'après ses mesures</string>
+    <string name="chapas_seccion_material">Matériau</string>
+    <string name="chapas_familia_oro">OR</string>
+    <string name="chapas_familia_plata">ARGENT</string>
+    <string name="chapas_seccion_medidas">Mesures</string>
+    <string name="chapas_medida_ancho">Largeur</string>
+    <string name="chapas_medida_espesor">Épaisseur</string>
+    <string name="chapas_medida_largo">Longueur</string>
+    <string name="chapas_material_oro">Or %1$s</string>
+    <string name="chapas_material_plata">Argent %1$s</string>
+    <string name="chapas_resultado_titulo">Poids de la tôle</string>
+    <string name="chapas_resultado_para">Calculé pour %1$s</string>
+    <string name="chapas_detalle_volumen">Volume</string>
+    <string name="chapas_detalle_densidad">Densité</string>
+    <string name="chapas_detalle_pureza">Pureté</string>
+    <string name="chapas_dibujo_descripcion">Tôle de %1$s : %2$s de largeur, %3$s de longueur et %4$s d\'épaisseur</string>
+    <string name="chapas_dibujo_sin_medida">sans mesure</string>
+    <string name="chapas_nota_aproximado">Valeurs approximatives. Tenez compte des pertes de votre procédé.</string>
+    <string name="chapas_aviso_rango">Mesure hors de la plage de travail : largeur et longueur jusqu\'à 10 000 mm, épaisseur jusqu\'à 1 000 mm.</string>
+
+    <!-- Ajustes: idioma de la aplicación -->
+    <string name="ajustes_seccion_idioma">Langue de l\'application</string>
+    <string name="ajustes_idioma_descripcion">Choisissez la langue dans laquelle vous voulez voir l\'application.</string>
+    <string name="ajustes_idioma_automatico">Automatique</string>
+    <string name="ajustes_idioma_automatico_detalle">Suit la langue de l\'appareil · %1$s</string>
+    <string name="ajustes_idioma_activo">Langue sélectionnée</string>
+</resources>

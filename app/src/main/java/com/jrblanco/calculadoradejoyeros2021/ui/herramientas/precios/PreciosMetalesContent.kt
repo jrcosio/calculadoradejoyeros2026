@@ -167,7 +167,11 @@ private fun TarjetaPrecios(
             modifier = Modifier.fillMaxWidth(),
         )
         Text(
-            text = stringResource(R.string.precios_fuente),
+            // El nombre del proveedor no se traduce y va por parámetro (feature 008).
+            text = stringResource(
+                R.string.precios_fuente,
+                stringResource(R.string.precios_fuente_nombre),
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = JewelryColors.TealPrimary,
             textAlign = TextAlign.Center,

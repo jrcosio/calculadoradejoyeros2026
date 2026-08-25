@@ -33,7 +33,8 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 ./gradlew :app:assembleDebug        # APK debug
 ./gradlew :app:testDebugUnitTest    # tests unitarios (JVM)
-./gradlew :app:lint                 # lint de Android
+./gradlew :app:lint                 # lint de Android; puerta de calidad desde la 008
+                                    # (MissingTranslation / ExtraTranslation)
 
 # un solo test o una sola clase
 ./gradlew :app:testDebugUnitTest --tests "*HomeViewModelTest"
@@ -100,8 +101,9 @@ depender de un tipo que por dentro lleve el nombre de otro metal.
   de 60 s entre reintentos (300 s tras un 429) y solo se consultan los metales sin precio
   vigente. Es la pieza que decide cuándo se gasta cuota, y se prueba sin corrutinas.
 
-Los dieciséis casos de uso se registran en `domainModule` con `factoryOf`;
-`ObtenerCotizacionesUseCase` es el primero `suspend` y delega en `CotizacionesRepository`. Uno de ellos,
+Los diecinueve casos de uso se registran en `domainModule` con `factoryOf`;
+`ObtenerCotizacionesUseCase` es el primero `suspend` y delega en `CotizacionesRepository`, y
+`ObservarIdiomaUseCase` (008) el primero que devuelve un `Flow`. Uno de ellos,
 `CalcularSoldaduraLeyUseCase` (mezcla desde la base disponible), **no tiene UI**: existe
 y se prueba por mandato de su documento, el mismo precedente que el modo inverso de plata
 en la 005.
@@ -125,9 +127,13 @@ sería precisión aparente. **Precios** muestra los importes con 2 decimales si 
 son menores (el cobre por gramo ronda 0,0089 €), con **punto de miles** (el kilo de oro ronda
 148.000 €) y el porcentaje siempre a 2; todo en `FormatoPrecios`, sin `Locale`. La única
 excepción a «el ViewModel formatea todo» son las **fechas**: viajan como `Long` en el `UiState`
-y las formatea la vista con `DateUtils` (localizado por el sistema; `java.time` es API 26+ y
-el proyecto es minSdk 24) porque el nombre del mes depende del idioma y el ViewModel no conoce
-recursos.
+y las formatea la vista, porque el nombre del mes depende del idioma y el ViewModel no conoce
+recursos. Se formatean con `android.text.format.DateFormat.getMediumDateFormat(contexto)` y
+`getTimeFormat(contexto)` —API 3, y `java.time` es API 26+ con minSdk 24—, **no con
+`DateUtils.formatDateTime`**: esa toma el orden de la fecha de `Locale.getDefault()`, que es el del
+sistema, y con la app en un idioma y el móvil en otro mostraba «25/08/2026» en inglés. Las dos
+`DateFormat` usan el locale de la configuración del contexto, que es el que `ui/idioma/` deja ya
+localizado.
 
 `ui/home/` es la pantalla de referencia: copia su forma al crear una nueva. `ui/info/`
 es el segundo ejemplo, con tarjetas propias de pantalla y apertura de enlaces externos.
@@ -153,6 +159,10 @@ con marcadores sin conocer los ViewModels. El dueño de los tres ViewModels es l
 el primer `Canvas` de la app (proyección oblicua, `drawWithCache`, animaciones leídas solo dentro
 de `onDrawBehind`, construcción con `PathMeasure`); en las `@Preview` arranca ya construido vía
 `LocalInspectionMode`. `rodio.png` se suma a los bitmaps de `drawable-nodpi/`.
+`ui/ajustes/` es el séptimo, y el más corto de todos: una tarjeta con seis filas de selección
+(«Automático» más los cinco idiomas) sobre `TarjetaAcento`, con `FilaIdioma` privada del fichero.
+`ui/idioma/` es el octavo y **el primer paquete de `ui/` sin ruta ni pantalla**: no es de nadie en
+particular, es del árbol entero (ver la sección de idioma).
 
 ### Componentes compartidos
 
@@ -230,14 +240,17 @@ que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawab
 (`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`,
 `ic_linkedin`, `ic_instagram`, `ic_enlace_externo`, `ic_check`, `ic_aviso`, `ic_refrescar`,
 `ic_estrella`, `ic_balanza`, `ic_lingotes`, `ic_paleta`, `ic_grafica`, `ic_capas`, `ic_ancho`,
-`ic_espesor`, `ic_regla`), de trazo
-1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Si necesitas uno
+`ic_espesor`, `ic_regla`, `ic_idioma`), de trazo
+1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Las **cinco banderas**
+(`ic_bandera_es`, `_en`, `_fr`, `_de`, `_it`) también son vectores propios, pero de relleno y en
+3:2: la de España va sin escudo y la británica está redibujada con paths de relleno, porque
+`<use>` no existe en VectorDrawable y su `clip-path` sobre un trazo no se reproduce. Si necesitas uno
 nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
 
 ### Pantallas aún sin desarrollar
 
-`ui/placeholder/PlaceholderScreen` es **un composable parametrizado** que sirve a los
-dos destinos pendientes (Favoritos y Ajustes). Recibe
+`ui/placeholder/PlaceholderScreen` es **un composable parametrizado**. Desde la 008 le queda un
+solo destino, Favoritos: Ajustes ya tiene pantalla propia. Recibe
 `title` (traducible) y `analyticsName` (identificador estable para telemetría, que no
 debe traducirse). Cuando un destino reciba su feature
 real, cambia solo su cableado en `AppNavHost`.
@@ -266,6 +279,75 @@ Cada pantalla se parte en dos Composables: uno resuelve el ViewModel con
 
 Rutas **type-safe** con `@Serializable` en `ui/navigation/Routes.kt`, registradas con
 `composable<Route.X>` en `AppNavHost.kt`. No se usan rutas como String.
+
+## Idioma de la app: cinco carpetas y un proveedor
+
+La feature 008 hizo la app multilingüe: **español, inglés, francés, alemán e italiano**, con la
+elección guardada en Preferences DataStore y aplicada al instante.
+
+- **Cinco `strings.xml`**: `values/` es el **español y la fuente de verdad** —aquí se añade y se
+  borra—, más `values-en`, `values-fr`, `values-de` y `values-it`. 217 cadenas, de las que **33 son
+  `translatable="false"`** y 184 se traducen. La regla de lo no traducible: **no queda ni una palabra
+  dentro** (marca, nombres propios, «Ask»/«Bid», símbolos del SI, cifras con su quilate, plantillas
+  de formato y los cinco endónimos de idioma). Cuando una cadena mezcla palabra y nombre propio se
+  parte en `%1$s`: así están `precios_fuente` + `precios_fuente_nombre` y `welcome_developer` +
+  `info_perfil_nombre`. Contrato completo en `specs/008-ajustes-idioma/contracts/traducciones.md`.
+- **`TraduccionesTest`** (`app/src/test/.../recursos/`) parsea los cinco ficheros y falla si falta o
+  sobra una clave, si se traduce algo no traducible, si cambian los `%n$s`, el `%%` o los `\n`, o si
+  una cadena larga es idéntica al español en los cuatro idiomas. **`./gradlew :app:lint` es la
+  segunda red y puerta de calidad de la app**: `MissingTranslation` y `ExtraTranslation`.
+- **El cambio de idioma no recrea nada**: `ui/idioma/ProveedorIdioma` envuelve al `NavHost` en
+  `MainActivity` y provee `LocalContext` (contexto de `createConfigurationContext` con el idioma) y
+  `LocalConfiguration`. `stringResource` lee `LocalResources`, que es un
+  `compositionLocalWithComputedDefaultOf` derivado de esos dos, así que se recalcula solo: **no
+  proveas `LocalResources` a mano**. La configuración se lee de `LocalConfiguration.current` y no de
+  `contexto.resources.configuration` —lint lo vigila con `LocalContextConfigurationRead`—, porque si
+  no, un cambio real del sistema (el tamaño de letra) dejaría el contexto con la configuración vieja.
+  De regalo, los cinco `Toast` y las fechas de precios salen en el idioma elegido.
+- **Nada de AppCompat**: `AppCompatDelegate.setApplicationLocales` exigiría la dependencia,
+  `AppCompatActivity` y un tema AppCompat —y el actual está ajustado a mano por el splash de Android
+  12+—, y por debajo de API 33 no actúa sobre una `ComponentActivity`. Tampoco `attachBaseContext` +
+  `recreate()`: leería DataStore bloqueando el arranque y perdería lo que el joyero tenga escrito.
+- **La precedencia vive en el dominio**: `SeleccionIdioma.efectivo = elegido ?: sistema`. `IdiomaApp`
+  son los cinco idiomas y **«Automático» es `null`**, no un sexto valor del enum: un valor que nunca
+  puede llegar a `Locale.forLanguageTag` acabaría colándose en una conversión. `IdiomaApp.desdeEtiqueta`
+  ignora la región (`es-ES`, `es_MX`, `es-419` → `ESPANOL`) y devuelve `null` si no está soportado,
+  para que el llamante decida: el idioma del sistema cae a `PREDETERMINADO` (español, el de `values/`)
+  y una preferencia ilegible se comporta como si no hubiera preferencia.
+- **`IdiomaSistema`** (`core/util/`, hermano de `Reloj`) es el idioma del dispositivo tras interfaz,
+  JVM puro sobre `Locale.getDefault()`. **No lo leas del `Configuration` de la app**: con el proveedor
+  en marcha, la configuración dice el idioma *elegido* y «Automático» dejaría de saber a qué seguir.
+- **La raíz no pinta hasta saberlo**: `IdiomaAppUiState.idioma` nulo significa «aún no sé» y en ese
+  estado `MainActivity` no compone el `NavHost`; el hueco lo cubre el `windowBackground` del tema, que
+  ya es el azul de la portada. Así no hay un fotograma en el idioma equivocado.
+- **Dos ViewModels observan el mismo flujo**: `IdiomaAppViewModel` (de la Activity, solo observa y no
+  emite telemetría) y `AjustesViewModel` (de la pantalla, escribe y registra `ajustes_idioma`; su
+  `screen_view` sigue siendo `"ajustes"`, el nombre del placeholder). El estado de Ajustes se escribe
+  cuando **el flujo lo confirma**, no al guardar.
+- **Persistencia**: `data/source/local/DataStoreAjustesLocalDataSource`, fichero `ajustes`, una sola
+  clave con la etiqueta BCP-47. **La ausencia de clave es «Automático»**, no hay valor centinela. Una
+  etiqueta desconocida se ignora **sin borrarla** (al contrario que la caché de cotizaciones, que sí
+  descarta lo que no entiende: aquí es una decisión del joyero, no un dato derivado). El almacén se
+  crea `by lazy` dentro del data source y **no** se registra en Koin: `verify()` solo inspecciona
+  constructores del tipo primario, y un `DataStore` de fábrica habría que meterlo en `extraTypes`.
+- **El fichero de DataStore sí entra en la copia de seguridad**, y los dos XML de `res/xml/` lo dicen
+  en un comentario: el idioma elegido debe acompañar al joyero a un móvil nuevo.
+- **`bundle { language { enableSplit = false } }`** en `app/build.gradle.kts`. Sin eso, un App Bundle
+  publicado en Play instala solo el idioma del dispositivo y elegir otra bandera no cambiaría nada en
+  producción; el APK de debug no lo delata porque lleva los cinco idiomas dentro.
+- **No se declara `android:localeConfig`**: el selector de idioma del sistema (API 33+) sería una
+  segunda fuente de verdad que nuestra preferencia ignoraría.
+- **El formato de las cifras no se localiza** (decisión del autor): `FormatoPrecios` y los cinco
+  ViewModels que formatean siguen con coma decimal determinista, así que en inglés se ve «127,89
+  €/g». Alemán, francés e italiano comparten la coma con el español. Es deuda conocida de una feature
+  aparte, junto con la moneda cableada al euro.
+- **Al traducir, vigila los desbordes**: el alemán es más largo. `JewelryBottomBar` y `BotonDorado`
+  pintan su etiqueta con `BasicText` + `TextAutoSize` a una línea, y las pestañas de la barra ocupan
+  un tercio del ancho cada una (`weight(1f)` con 96 dp de mínimo) porque «Einstellungen» no cabía en
+  96 dp con la fuente del sistema al doble.
+- **Para probar en el emulador**: `adb shell cmd locale set-app-locales <pkg> --locales fr-FR` cambia
+  lo que el sistema entrega a la app y **no necesita root**, al contrario que
+  `setprop persist.sys.locale`, que en una imagen de producción falla en silencio.
 
 ## Red y caché: cotizaciones de metales
 

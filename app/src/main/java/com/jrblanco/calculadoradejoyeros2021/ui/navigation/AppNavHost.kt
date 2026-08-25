@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jrblanco.calculadoradejoyeros2021.R
+import com.jrblanco.calculadoradejoyeros2021.ui.ajustes.AjustesScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryBottomBar
 import com.jrblanco.calculadoradejoyeros2021.ui.components.MainTab
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.HerramientasScreen
@@ -83,14 +84,7 @@ fun AppNavHost(
         }
 
         composable<Route.Ajustes> {
-            PlaceholderScreen(
-                title = stringResource(R.string.nav_ajustes),
-                analyticsName = "ajustes",
-                onInfo = onInfo,
-                bottomBar = {
-                    JewelryBottomBar(selected = MainTab.AJUSTES, onSelect = ::goToTab)
-                },
-            )
+            AjustesScreen(onTabSelect = ::goToTab, onInfo = onInfo)
         }
 
         // --- Secciones de módulo: pantalla completa, con flecha de retroceso ---

@@ -7,4 +7,8 @@
 -->
 <full-backup-content>
     <exclude domain="sharedpref" path="cotizaciones.xml" />
+    <!--
+        El idioma elegido (feature 008, files/datastore/ajustes.preferences_pb) NO se excluye a
+        propósito: es una decisión del joyero y debe acompañarle al móvil nuevo (FR-025).
+    -->
 </full-backup-content>

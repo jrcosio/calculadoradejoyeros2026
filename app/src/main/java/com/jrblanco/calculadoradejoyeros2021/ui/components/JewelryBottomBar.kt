@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,7 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySize
@@ -69,6 +73,10 @@ fun JewelryBottomBar(
                     tab = tab,
                     isSelected = tab == selected,
                     onClick = { onSelect(tab) },
+                    // Un tercio del ancho para cada una en vez de 96 dp fijos: es lo que hace
+                    // que «Einstellungen» quepa con la fuente del sistema al doble, y de paso
+                    // agranda la zona pulsable. Con tres pestañas centradas apenas se nota.
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -85,7 +93,7 @@ private fun TabItem(
     val color = if (isSelected) JewelryColors.GoldPrimary else JewelryColors.TextMuted
     Column(
         modifier = modifier
-            .width(96.dp)
+            .widthIn(min = 96.dp)
             .clickable(
                 // Sin ondas: la barra debe verse plana y limpia, como pide la design spec.
                 interactionSource = remember { MutableInteractionSource() },
@@ -103,10 +111,16 @@ private fun TabItem(
             modifier = Modifier.size(26.dp),
         )
         Spacer(Modifier.height(4.dp))
-        Text(
+        // Auto-ajustable y a una línea: «Einstellungen» no cabe a 12 sp en 96 dp, y si se
+        // partiera en dos líneas desbordaría el alto de la barra (feature 008).
+        BasicText(
             text = stringResource(tab.labelRes),
-            style = MaterialTheme.typography.labelMedium,
-            color = color,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = color,
+                textAlign = TextAlign.Center,
+            ),
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = 6.sp, maxFontSize = 12.sp),
         )
         Spacer(Modifier.height(6.dp))
         Box(
