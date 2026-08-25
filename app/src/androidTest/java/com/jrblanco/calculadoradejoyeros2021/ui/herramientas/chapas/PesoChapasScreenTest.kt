@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -157,5 +158,34 @@ class PesoChapasScreenTest {
 
         assertEquals(true, limpiado)
         assertEquals(true, guardado)
+    }
+
+    // --- US4: la ilustración ---
+
+    @Test
+    fun laIlustracionAnunciaElMaterialYLasTresMedidas() {
+        montar(estadoConResultado)
+
+        val descripcion = texto(
+            R.string.chapas_dibujo_descripcion,
+            texto(R.string.chapas_material_oro, texto(R.string.oro_ley_18k)),
+            texto(R.string.chapas_dibujo_medida, "10,00"),
+            texto(R.string.chapas_dibujo_medida, "20,00"),
+            texto(R.string.chapas_dibujo_medida, "0,50"),
+        )
+        composeRule.onNodeWithContentDescription(descripcion).assertExists()
+    }
+
+    @Test
+    fun sinMedidas_laIlustracionDiceSinMedida() {
+        montar(PesoChapasUiState(material = MaterialChapa.PLATA_925))
+
+        val sinMedida = texto(R.string.chapas_dibujo_sin_medida)
+        val descripcion = texto(
+            R.string.chapas_dibujo_descripcion,
+            texto(R.string.chapas_material_plata, texto(R.string.plata_ley_925)),
+            sinMedida, sinMedida, sinMedida,
+        )
+        composeRule.onNodeWithContentDescription(descripcion).assertExists()
     }
 }

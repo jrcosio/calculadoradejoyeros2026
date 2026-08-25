@@ -148,7 +148,7 @@ fun PesoChapasContent(
     }
 }
 
-/** Título, subtítulo y la ilustración de la chapa (llega en US4; hasta entonces, el hueco). */
+/** Título, subtítulo y la ilustración de la chapa, que se redibuja con las medidas. */
 @Composable
 private fun TarjetaIlustracion(uiState: PesoChapasUiState, acento: Color) {
     TarjetaAcento(acento = acento) {
@@ -163,14 +163,26 @@ private fun TarjetaIlustracion(uiState: PesoChapasUiState, acento: Color) {
             color = JewelryColors.TextMuted,
         )
         Spacer(Modifier.height(JewelrySpacing.Sm))
-        Ilustracion(uiState = uiState, modifier = Modifier.fillMaxWidth().aspectRatio(2.4f))
+        DibujoChapa(
+            estado = uiState.dibujo,
+            familia = uiState.material.familia,
+            descripcion = descripcionDibujo(uiState),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2.4f),
+        )
     }
 }
 
+/** Lo que anuncia el lector de pantalla al llegar a la ilustración: material y tres medidas. */
 @Composable
-private fun Ilustracion(uiState: PesoChapasUiState, modifier: Modifier = Modifier) {
-    // Hueco reservado: DibujoChapa lo ocupa en la historia 4.
-    Box(modifier = modifier)
+private fun descripcionDibujo(uiState: PesoChapasUiState): String {
+    val sinMedida = stringResource(R.string.chapas_dibujo_sin_medida)
+    val ancho = uiState.dibujo.etiquetaAncho?.let { stringResource(R.string.chapas_dibujo_medida, it) } ?: sinMedida
+    val largo = uiState.dibujo.etiquetaLargo?.let { stringResource(R.string.chapas_dibujo_medida, it) } ?: sinMedida
+    val espesor = uiState.dibujo.etiquetaEspesor?.let { stringResource(R.string.chapas_dibujo_medida, it) } ?: sinMedida
+    val material = stringResource(uiState.material.familia.nombreMaterialRes, stringResource(uiState.material.etiquetaRes))
+    return stringResource(R.string.chapas_dibujo_descripcion, material, ancho, largo, espesor)
 }
 
 @Composable

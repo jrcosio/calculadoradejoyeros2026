@@ -725,7 +725,7 @@ redibuja con cada medida en el color del metal.
 **Test independiente**: abrir PESO DE CHAPAS y ver la construcción (< 1 s); teclear medidas y ver
 la chapa y sus cotas cambiar; cambiar a PLATA y ver el tono plateado-turquesa.
 
-- [ ] T058 [US4] Crear `$SRC/ui/herramientas/chapas/DibujoChapa.kt`:
+- [X] T058 [US4] Crear `$SRC/ui/herramientas/chapas/DibujoChapa.kt`:
   `@Composable fun DibujoChapa(estado: DibujoChapaUiState, familia: FamiliaChapa, descripcion: String, modifier: Modifier = Modifier)`.
   Ejes: ancho → x (arista frontal, cota debajo), largo → z (arista en fuga, cota a la derecha),
   espesor → y (cota a la izquierda). Proyección oblicua *cabinet* con `COS30 = 0.866f`,
@@ -759,11 +759,11 @@ la chapa y sus cotas cambiar; cambiar a PLATA y ver el tono plateado-turquesa.
   `onDrawBehind`; `Modifier.semantics { contentDescription = descripcion }`. KDoc: las
   proporciones dibujadas jamás alimentan el cálculo (FR-024); `chapa.png` es el plan B si el
   Canvas resultara inviable. **Depende de T051**.
-- [ ] T059 [US4] Integrar en `PesoChapasContent` sustituyendo el `Box` reservado por
+- [X] T059 [US4] Integrar en `PesoChapasContent` sustituyendo el `Box` reservado por
   `DibujoChapa(estado = uiState.dibujo, familia = material.familia, descripcion = stringResource(R.string.chapas_dibujo_descripcion, stringResource(familia.nombreMaterialRes, stringResource(material.etiquetaRes)), etiquetaAncho ?: sinMedida, etiquetaLargo ?: sinMedida, etiquetaEspesor ?: sinMedida), modifier = Modifier.fillMaxWidth().aspectRatio(2.4f))`
   con `sinMedida = stringResource(R.string.chapas_dibujo_sin_medida)`; actualizar las previews
   (renderizan con progreso 1 gracias a `LocalInspectionMode`). **Depende de T058**.
-- [ ] T060 [P] [US4] Ampliar `PesoChapasScreenTest`: existe un nodo con la `contentDescription`
+- [X] T060 [P] [US4] Ampliar `PesoChapasScreenTest`: existe un nodo con la `contentDescription`
   de la chapa que contiene «Oro 18 K», «10,00 mm», «20,00 mm» y «0,50 mm» con el estado
   precocinado; con un campo vacío contiene «sin medida». Si la animación hiciera esperar,
   `composeRule.mainClock.advanceTimeBy(1000)`. **Depende de T059**.
