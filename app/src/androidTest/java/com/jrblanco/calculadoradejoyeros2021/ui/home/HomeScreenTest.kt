@@ -4,9 +4,9 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
-import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import com.jrblanco.calculadoradejoyeros2021.ui.EnIdiomaDeTest
+import com.jrblanco.calculadoradejoyeros2021.ui.contextoDeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -19,12 +19,12 @@ class HomeScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+    private val context = contextoDeTest()
     private fun string(id: Int) = context.getString(id)
 
     private fun setContent(onModuleClick: (HomeModule) -> Unit = {}) {
         composeRule.setContent {
-            Calculadoradejoyeros2021Theme {
+            EnIdiomaDeTest {
                 HomeContent(
                     uiState = HomeUiState(modules = HomeModule.entries),
                     onModuleClick = onModuleClick,

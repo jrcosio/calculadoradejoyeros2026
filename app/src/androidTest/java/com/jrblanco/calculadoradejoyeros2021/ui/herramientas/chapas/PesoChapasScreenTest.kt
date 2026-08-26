@@ -1,18 +1,25 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.FamiliaChapa
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MaterialChapa
-import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import com.jrblanco.calculadoradejoyeros2021.ui.EnIdiomaDeTest
+import com.jrblanco.calculadoradejoyeros2021.ui.contextoDeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +30,8 @@ class PesoChapasScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val contexto = InstrumentationRegistry.getInstrumentation().targetContext
+    private val contexto = contextoDeTest()
+    private fun texto(id: Int) = contexto.getString(id)
     private fun texto(id: Int, vararg args: Any) = contexto.getString(id, *args)
 
     private val estadoConResultado = PesoChapasUiState(
@@ -41,15 +49,25 @@ class PesoChapasScreenTest {
         onGuardarFavoritos: () -> Unit = {},
     ) {
         composeRule.setContent {
-            Calculadoradejoyeros2021Theme {
-                PesoChapasContent(
-                    uiState = uiState,
-                    onFamiliaSeleccionada = onFamiliaSeleccionada,
-                    onMaterialSeleccionado = onMaterialSeleccionado,
-                    onMedidaCambiada = onMedidaCambiada,
-                    onLimpiar = onLimpiar,
-                    onGuardarFavoritos = onGuardarFavoritos,
-                )
+            EnIdiomaDeTest {
+                // `PesoChapasContent` es una sección sin scaffold ni scroll a propósito: los pone el
+                // armazón de Herramientas. El test tiene que ponerlos también, o la columna se mide
+                // contra la altura de la ventana, los últimos hijos se quedan en altura cero y un
+                // clic sobre ellos se inyecta en (0,0) de la raíz sin que nadie se queje.
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    PesoChapasContent(
+                        uiState = uiState,
+                        onFamiliaSeleccionada = onFamiliaSeleccionada,
+                        onMaterialSeleccionado = onMaterialSeleccionado,
+                        onMedidaCambiada = onMedidaCambiada,
+                        onLimpiar = onLimpiar,
+                        onGuardarFavoritos = onGuardarFavoritos,
+                    )
+                }
             }
         }
     }
@@ -153,8 +171,14 @@ class PesoChapasScreenTest {
         var guardado = false
         montar(estadoConResultado, onLimpiar = { limpiado = true }, onGuardarFavoritos = { guardado = true })
 
-        composeRule.onNodeWithText(texto(R.string.accion_limpiar)).performClick()
-        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos)).performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_limpiar))
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos))
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
 
         assertEquals(true, limpiado)
         assertEquals(true, guardado)

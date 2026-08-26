@@ -1,20 +1,22 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.compose.ui.test.performScrollTo
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
-import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import com.jrblanco.calculadoradejoyeros2021.ui.EnIdiomaDeTest
+import com.jrblanco.calculadoradejoyeros2021.ui.contextoDeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +30,8 @@ class SoldadurasScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val contexto = InstrumentationRegistry.getInstrumentation().targetContext
+    private val contexto = contextoDeTest()
+    private fun texto(id: Int) = contexto.getString(id)
     private fun texto(id: Int, vararg args: Any) = contexto.getString(id, *args)
 
     private val estadoOroLey = SoldadurasUiState(
@@ -54,7 +57,7 @@ class SoldadurasScreenTest {
         onGuardarFavoritos: () -> Unit = {},
     ) {
         composeRule.setContent {
-            Calculadoradejoyeros2021Theme {
+            EnIdiomaDeTest {
                 SoldadurasContent(
                     uiState = uiState,
                     onFamiliaSeleccionada = onFamiliaSeleccionada,
@@ -339,8 +342,17 @@ class SoldadurasScreenTest {
             onGuardarFavoritos = { guardado = true },
         )
 
-        composeRule.onNodeWithText(texto(R.string.accion_limpiar)).performClick()
-        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos)).performClick()
+        // Los dos botones cierran una columna más alta que la ventana, así que hay que
+        // desplazarse hasta ellos: un nodo recortado por el scroll tiene bounds cero y el toque
+        // se inyectaría en (0,0) de la raíz sin que `performClick` se queje.
+        composeRule.onNodeWithText(texto(R.string.accion_limpiar))
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
+        composeRule.onNodeWithText(texto(R.string.accion_guardar_favoritos))
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
 
         assertEquals(true, limpiado)
         assertEquals(true, guardado)

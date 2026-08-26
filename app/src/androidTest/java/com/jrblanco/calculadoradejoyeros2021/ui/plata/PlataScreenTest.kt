@@ -7,10 +7,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
-import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import com.jrblanco.calculadoradejoyeros2021.ui.EnIdiomaDeTest
+import com.jrblanco.calculadoradejoyeros2021.ui.contextoDeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,8 @@ class PlataScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val contexto = InstrumentationRegistry.getInstrumentation().targetContext
+    private val contexto = contextoDeTest()
+    private fun texto(id: Int) = contexto.getString(id)
     private fun texto(id: Int, vararg args: Any) = contexto.getString(id, *args)
 
     private val estado925 = PlataUiState(
@@ -43,7 +44,7 @@ class PlataScreenTest {
         onGuardarFavoritos: () -> Unit = {},
     ) {
         composeRule.setContent {
-            Calculadoradejoyeros2021Theme {
+            EnIdiomaDeTest {
                 PlataContent(
                     uiState = uiState,
                     onCantidadCambiada = onCantidadCambiada,

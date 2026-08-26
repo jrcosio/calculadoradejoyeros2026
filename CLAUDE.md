@@ -364,6 +364,17 @@ elección guardada en Preferences DataStore y aplicada al instante.
 - **Para probar en el emulador**: `adb shell cmd locale set-app-locales <pkg> --locales fr-FR` cambia
   lo que el sistema entrega a la app y **no necesita root**, al contrario que
   `setprop persist.sys.locale`, que en una imagen de producción falla en silencio.
+- **Un `Dialog` rompe el proveedor y hay que reponerlo dentro.** Abre ventana propia y la plataforma
+  vuelve a proveer allí `LocalContext` y `LocalConfiguration`, así que un `stringResource` llamado
+  dentro del diálogo se resuelve con el idioma del **dispositivo**. `DialogoConfirmacion` captura
+  los dos locales antes de abrir la ventana y los repone con `CompositionLocalProvider`. Lo mismo
+  valdrá para cualquier ventana nueva (un `ModalBottomSheet`, un `Popup`).
+- **Los tests instrumentados anclan el idioma**, y no lo heredan del emulador: `ui/EntornoDeTest.kt`
+  (en `androidTest`) da `EnIdiomaDeTest { … }` para envolver el contenido —tema y proveedor, el orden
+  de `MainActivity`— y `contextoDeTest()` para resolver los textos esperados. **Las dos puntas van
+  juntas**: anclar solo el árbol dejaría las expectativas en el idioma del dispositivo, que es peor
+  que no anclar nada. Con eso, un literal con tildes en un test es legítimo y determinista, que es
+  justo lo que `WelcomeScreenTest` necesita para comprobar que la fuente cubre el latín extendido.
 
 ## Favoritos: Room, una tabla y una firma
 
