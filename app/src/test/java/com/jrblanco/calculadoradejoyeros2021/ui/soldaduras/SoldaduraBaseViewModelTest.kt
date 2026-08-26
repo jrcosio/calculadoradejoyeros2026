@@ -1,14 +1,26 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import app.cash.turbine.test
+import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeFavoritosRepository
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
+import com.jrblanco.calculadoradejoyeros2021.domain.model.FavoritosDePrueba
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import io.mockk.mockk
 import io.mockk.verify
+import java.math.BigDecimal
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -18,11 +30,15 @@ import org.junit.Test
 class SoldaduraBaseViewModelTest {
 
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
+    private val favoritos = FakeFavoritosRepository()
 
     private fun crearViewModel() = SoldaduraBaseViewModel(
         calcularBase = CalcularSoldaduraBaseUseCase(),
         calcularBaseInversa = CalcularSoldaduraBaseInversaUseCase(),
+        guardarFavorito = GuardarFavoritoUseCase(favoritos),
+        obtenerFavorito = ObtenerFavoritoUseCase(favoritos),
         analytics = analytics,
+        dispatchers = TestDispatcherProvider(),
     )
 
     @Test
@@ -177,15 +193,54 @@ class SoldaduraBaseViewModelTest {
         }
     }
 
+    // --- Favoritos (009) ---
+
     @Test
-    fun `guardar favoritos solo emite su evento y no altera el estado`() {
+    fun `guardar manda la cantidad y el modo`() = runTest {
         val viewModel = crearViewModel()
         viewModel.onCantidadCambiada("10")
-        val antes = viewModel.uiState.value
 
         viewModel.onGuardarFavoritos()
 
-        assertEquals(antes, viewModel.uiState.value)
-        verify(exactly = 1) { analytics.logEvent("soldadura_base_favoritos_proximamente") }
+        assertEquals(
+            EntradasFavorito.SoldaduraBase(BigDecimal("10"), ModoEntradaSoldadura.DESDE_METAL),
+            favoritos.guardados.single(),
+        )
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) {
+            analytics.logEvent("soldadura_base_favorito_guardado", mapOf("resultado" to "nuevo"))
+        }
+    }
+
+    @Test
+    fun `guardar con el campo vacio pide completar el calculo`() = runTest {
+        val viewModel = crearViewModel()
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `cargar un favorito fija modo y cantidad de una vez`() = runTest {
+        favoritos.flujo.value = listOf(
+            FavoritosDePrueba.favorito(
+                id = 5L,
+                entradas = EntradasFavorito.SoldaduraBase(
+                    BigDecimal("13"),
+                    ModoEntradaSoldadura.PESO_FINAL,
+                ),
+            ),
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(5L)
+
+        val estado = viewModel.uiState.value
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, estado.modo)
+        // `onModoCambiado` vacía la cantidad por FR-023: aquí no puede pasar.
+        assertEquals("13", estado.cantidadTexto)
+        assertNotNull(estado.resultado)
     }
 }

@@ -35,9 +35,6 @@
     <string name="topbar_info">About this app</string>
     <string name="topbar_atras">Back</string>
 
-    <!-- Pantallas aún sin desarrollar -->
-    <string name="placeholder_pendiente">Screen under construction</string>
-
     <!-- Pantalla de información -->
     <string name="info_titulo">Information</string>
     <string name="info_perfil_descripcion">Technology and tradition come together in an app created by José Ramón Blanco, developer and artisan jeweller, with the aim of giving jewellery professionals all over the world useful, modern and accessible tools.</string>
@@ -72,7 +69,10 @@
     <string name="metal_rodio_imagen">A pile of rhodium grain</string>
     <string name="accion_limpiar">Clear</string>
     <string name="accion_guardar_favoritos">Save to favourites</string>
-    <string name="aviso_proximamente">Coming soon</string>
+    <string name="favoritos_aviso_guardado">Saved to favourites</string>
+    <string name="favoritos_aviso_repetido">Already in favourites</string>
+    <string name="favoritos_aviso_sin_datos">Finish the calculation before saving</string>
+    <string name="accion_cancelar">Cancel</string>
 
     <!-- Calculadora de aleaciones de oro -->
     <string name="oro_entrada_titulo">Enter the 24K gold</string>
@@ -217,4 +217,14 @@
     <string name="ajustes_idioma_automatico">Automatic</string>
     <string name="ajustes_idioma_automatico_detalle">Follows the device language · %1$s</string>
     <string name="ajustes_idioma_activo">Selected language</string>
+
+    <!-- Favourites -->
+    <string name="favoritos_vacio_titulo">No favourites yet</string>
+    <string name="favoritos_vacio_texto">Save any calculation with «%1$s» and you will find it here, ready to repeat.</string>
+    <string name="favoritos_quitar">Remove from favourites</string>
+    <string name="favoritos_guardado_el">Saved on %1$s</string>
+    <string name="favoritos_mas_lineas">+%1$d more</string>
+    <string name="favoritos_borrar_titulo">Remove from favourites?</string>
+    <string name="favoritos_borrar_mensaje">«%1$s» will be removed. You can save it again whenever you like.</string>
+    <string name="favoritos_borrar_confirmar">Remove</string>
 </resources>

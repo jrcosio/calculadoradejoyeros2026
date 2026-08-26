@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.plata
 
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 
 /**
  * Estado de la calculadora de aleaciones de plata.
@@ -17,6 +18,11 @@ data class PlataUiState(
     val ley: LeyPlata = LeyPlata.LEY_925,
     /** Presente solo con entrada válida; ausente = no se pinta nada. */
     val resultado: ResultadoPlata? = null,
+    /**
+     * Lo que hay que decirle al joyero tras pulsar «Guardar en favoritos», de un solo uso: la vista
+     * lo muestra y llama a `onAvisoFavoritoMostrado()`. Nulo mientras no hay nada que decir.
+     */
+    val avisoFavorito: AvisoFavorito? = null,
 )
 
 /**

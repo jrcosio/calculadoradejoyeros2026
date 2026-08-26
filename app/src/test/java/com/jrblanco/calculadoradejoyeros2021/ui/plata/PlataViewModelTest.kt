@@ -1,10 +1,18 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.plata
 
 import app.cash.turbine.test
+import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeFavoritosRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoPlata
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
+import com.jrblanco.calculadoradejoyeros2021.domain.model.FavoritosDePrueba
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import io.mockk.mockk
 import io.mockk.verify
 import java.math.BigDecimal
@@ -12,6 +20,7 @@ import java.math.RoundingMode
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,8 +33,15 @@ import org.junit.Test
 class PlataViewModelTest {
 
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
+    private val favoritos = FakeFavoritosRepository()
 
-    private fun crearViewModel() = PlataViewModel(CalcularAleacionPlataUseCase(), analytics)
+    private fun crearViewModel() = PlataViewModel(
+        calcularAleacion = CalcularAleacionPlataUseCase(),
+        guardarFavorito = GuardarFavoritoUseCase(favoritos),
+        obtenerFavorito = ObtenerFavoritoUseCase(favoritos),
+        analytics = analytics,
+        dispatchers = TestDispatcherProvider(),
+    )
 
     @Test
     fun `el estado inicial es campo vacio con 925 y sin resultado`() = runTest {
@@ -245,17 +261,66 @@ class PlataViewModelTest {
         assertEquals("2,000", viewModel.uiState.value.resultado?.cobreFormateado)
     }
 
+    // --- Favoritos (009) ---
+
     @Test
-    fun `guardar en favoritos solo registra telemetria y no toca el estado`() {
+    fun `guardar un calculo nuevo lo manda al repositorio y avisa`() = runTest {
         val viewModel = crearViewModel()
-        viewModel.onCantidadCambiada("10")
-        val estadoAntes = viewModel.uiState.value
+        viewModel.onCantidadCambiada("100")
 
         viewModel.onGuardarFavoritos()
+
+        assertEquals(
+            EntradasFavorito.Plata(BigDecimal("100"), LeyPlata.LEY_925),
+            favoritos.guardados.single(),
+        )
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) { analytics.logEvent("plata_favorito_guardado", mapOf("resultado" to "nuevo")) }
+    }
+
+    @Test
+    fun `guardar lo mismo dos veces avisa de que ya estaba`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("100")
         viewModel.onGuardarFavoritos()
 
-        assertEquals(estadoAntes, viewModel.uiState.value)
-        verify(exactly = 2) { analytics.logEvent("plata_favoritos_proximamente") }
+        favoritos.resultadoGuardar = ResultadoGuardado.YaExistia(1L)
+        viewModel.onGuardarFavoritos()
+
+        assertEquals(AvisoFavorito.REPETIDO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) { analytics.logEvent("plata_favorito_guardado", mapOf("resultado" to "repetido")) }
+    }
+
+    @Test
+    fun `guardar con el campo vacio pide completar el calculo`() = runTest {
+        val viewModel = crearViewModel()
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `cargar un favorito rellena la ley y la cantidad y es idempotente`() = runTest {
+        favoritos.flujo.value = listOf(
+            FavoritosDePrueba.favorito(
+                id = 2L,
+                entradas = EntradasFavorito.Plata(BigDecimal("250"), LeyPlata.LEY_800),
+            ),
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(2L)
+
+        assertEquals("250", viewModel.uiState.value.cantidadTexto)
+        assertEquals(LeyPlata.LEY_800, viewModel.uiState.value.ley)
+        assertNotNull(viewModel.uiState.value.resultado)
+
+        viewModel.onCantidadCambiada("12")
+        viewModel.cargarFavorito(2L)
+
+        assertEquals("12", viewModel.uiState.value.cantidadTexto)
     }
 
     @Test

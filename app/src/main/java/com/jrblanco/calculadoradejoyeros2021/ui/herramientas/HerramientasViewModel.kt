@@ -29,6 +29,18 @@ class HerramientasViewModel(
         analytics.logEvent(EVENT_SUBHERRAMIENTA, mapOf(PARAM_SUBHERRAMIENTA to subherramienta.analyticsId))
     }
 
+    /**
+     * Abre la sub-herramienta de chapas porque llega un favorito, no porque el joyero la haya
+     * elegido — y por eso **no emite `herramientas_subherramienta`**: ese evento mide una decisión
+     * suya, y contaminarlo con aperturas de favorito corrompería la métrica.
+     *
+     * Idempotente, como el resto de las cargas de favorito.
+     */
+    fun abrirFavoritoDeChapa() {
+        if (_uiState.value.subherramienta == Subherramienta.CHAPAS) return
+        _uiState.value = HerramientasUiState(subherramienta = Subherramienta.CHAPAS)
+    }
+
     private companion object {
         const val SCREEN_NAME = "herramientas"
         const val EVENT_SUBHERRAMIENTA = "herramientas_subherramienta"

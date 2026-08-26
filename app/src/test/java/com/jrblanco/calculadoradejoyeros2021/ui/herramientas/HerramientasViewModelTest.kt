@@ -57,4 +57,36 @@ class HerramientasViewModelTest {
             analytics.logEvent("herramientas_subherramienta", mapOf("subherramienta" to "precios"))
         }
     }
+
+    // --- Favoritos (009) ---
+
+    @Test
+    fun `abrir un favorito de chapa fija la sub-herramienta`() {
+        val viewModel = crearViewModel()
+
+        viewModel.abrirFavoritoDeChapa()
+
+        assertEquals(Subherramienta.CHAPAS, viewModel.uiState.value.subherramienta)
+    }
+
+    @Test
+    fun `abrir un favorito de chapa no emite el evento de eleccion del joyero`() {
+        val viewModel = crearViewModel()
+
+        viewModel.abrirFavoritoDeChapa()
+
+        // Ese evento mide una decisión del joyero: contaminarlo con aperturas de favorito
+        // corrompería la métrica.
+        verify(exactly = 0) { analytics.logEvent("herramientas_subherramienta", any()) }
+    }
+
+    @Test
+    fun `abrir un favorito de chapa dos veces es idempotente`() {
+        val viewModel = crearViewModel()
+
+        viewModel.abrirFavoritoDeChapa()
+        viewModel.abrirFavoritoDeChapa()
+
+        assertEquals(Subherramienta.CHAPAS, viewModel.uiState.value.subherramienta)
+    }
 }

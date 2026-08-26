@@ -1,16 +1,13 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios
 
-import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalCotizado
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MotivoErrorCotizacion
 import com.jrblanco.calculadoradejoyeros2021.domain.model.Tendencia
 import com.jrblanco.calculadoradejoyeros2021.domain.model.UnidadPrecio
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
-import java.util.Date
 
 /**
  * Mapeos de presentación de la sub-herramienta de precios, internos al paquete. `domain/` no
@@ -95,24 +92,5 @@ internal val Tendencia.rotacionFlecha: Float
         Tendencia.PLANA -> 0f
     }
 
-/**
- * Fecha y hora locales de un instante, en el idioma elegido en Ajustes («25 ago 2026 · 10:33» en
- * español, «Aug 25, 2026 · 10:33 AM» en inglés). Es el único texto de la pantalla que no formatea
- * el ViewModel: el nombre del mes depende del idioma y `domain`/ViewModel no conocen recursos
- * (FR-030).
- *
- * Los dos formateadores salen del **contexto**, que `ui/idioma/ProveedorIdioma` entrega ya
- * localizado (feature 008), y por eso siguen al idioma de la app y no al del dispositivo.
- * `DateUtils.formatDateTime` no servía: toma el orden de la fecha de `Locale.getDefault()`, que es
- * el del sistema, así que con la app en inglés y el móvil en portugués mostraba «25/08/2026».
- * `getMediumDateFormat` usa el locale de la configuración del contexto, y `getTimeFormat` además
- * respeta el ajuste de 12/24 horas del dispositivo. Las dos son API 3, como el resto del fichero.
- */
-@Composable
-internal fun fechaHoraLocal(epochMillis: Long): String {
-    val contexto = LocalContext.current
-    val instante = Date(epochMillis)
-    val fecha = DateFormat.getMediumDateFormat(contexto).format(instante)
-    val hora = DateFormat.getTimeFormat(contexto).format(instante)
-    return "$fecha · $hora"
-}
+// La fecha y la hora localizadas viven en `ui/components/Fechas.kt` desde la feature 009: el
+// listado de favoritos pidió la fecha sin la hora, y con dos consumidores dejan de ser de aquí.

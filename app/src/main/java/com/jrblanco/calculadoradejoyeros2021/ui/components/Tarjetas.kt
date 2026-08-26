@@ -3,6 +3,7 @@ package com.jrblanco.calculadoradejoyeros2021.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -20,11 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +44,16 @@ import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
  * Nació privada en la pantalla de información (como `TarjetaDorada`); se comparte
  * desde que la calculadora de oro pidió la misma tarjeta con acento teal — el mismo
  * movimiento que hizo `DiamondDivider` al salir de la portada.
+ *
+ * [onClick] es opcional y llegó con la feature 009, cuando las tarjetas del listado de favoritos
+ * pidieron ser pulsables. Con `null` —el valor por defecto— la tarjeta se pinta exactamente igual
+ * que antes y ningún llamante existente cambia.
  */
 @Composable
 fun TarjetaAcento(
     modifier: Modifier = Modifier,
     acento: Color = JewelryColors.GoldPrimary,
+    onClick: (() -> Unit)? = null,
     contenido: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = RoundedCornerShape(JewelryRadius.Large)
@@ -63,6 +71,19 @@ fun TarjetaAcento(
                 shape,
             )
             .border(1.dp, acento.copy(alpha = 0.65f), shape)
+            // El clic va justo aquí, entre el filete y el padding, para que el anillo de 12 dp
+            // también sea zona pulsable. Y el `clip` es CONDICIONAL a propósito: aplicarlo siempre
+            // cambiaría el pintado de los consumidores actuales, y uno de ellos lleva dentro el
+            // `Canvas` de chapas, cuyas cotas sobresalen del borde de la tarjeta.
+            .then(
+                if (onClick == null) {
+                    Modifier
+                } else {
+                    Modifier
+                        .clip(shape)
+                        .clickable(role = Role.Button, onClick = onClick)
+                },
+            )
             .padding(JewelrySpacing.Md),
         content = contenido,
     )

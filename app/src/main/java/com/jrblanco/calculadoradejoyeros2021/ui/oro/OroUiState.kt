@@ -3,6 +3,7 @@ package com.jrblanco.calculadoradejoyeros2021.ui.oro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalLiga
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 
 /**
  * Estado de la calculadora de aleaciones de oro.
@@ -18,6 +19,11 @@ data class OroUiState(
     val color: ColorOro = ColorOro.AMARILLO,
     /** Presente solo con entrada válida; ausente = no se pinta nada. */
     val resultado: ResultadoOro? = null,
+    /**
+     * Lo que hay que decirle al joyero tras pulsar «Guardar en favoritos», de un solo uso: la vista
+     * lo muestra y llama a `onAvisoFavoritoMostrado()`. Nulo mientras no hay nada que decir.
+     */
+    val avisoFavorito: AvisoFavorito? = null,
 )
 
 /**

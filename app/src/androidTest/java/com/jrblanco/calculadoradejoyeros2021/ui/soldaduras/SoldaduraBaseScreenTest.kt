@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import org.junit.Assert.assertEquals
 import org.junit.Rule

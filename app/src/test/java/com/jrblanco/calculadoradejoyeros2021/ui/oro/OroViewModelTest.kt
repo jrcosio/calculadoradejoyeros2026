@@ -1,16 +1,26 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.oro
 
 import app.cash.turbine.test
+import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeFavoritosRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOro
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
+import com.jrblanco.calculadoradejoyeros2021.domain.model.FavoritosDePrueba
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyOro
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalLiga
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionOroUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import io.mockk.mockk
 import io.mockk.verify
+import java.math.BigDecimal
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,8 +33,15 @@ import org.junit.Test
 class OroViewModelTest {
 
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
+    private val favoritos = FakeFavoritosRepository()
 
-    private fun crearViewModel() = OroViewModel(CalcularAleacionOroUseCase(), analytics)
+    private fun crearViewModel() = OroViewModel(
+        calcularAleacion = CalcularAleacionOroUseCase(),
+        guardarFavorito = GuardarFavoritoUseCase(favoritos),
+        obtenerFavorito = ObtenerFavoritoUseCase(favoritos),
+        analytics = analytics,
+        dispatchers = TestDispatcherProvider(),
+    )
 
     @Test
     fun `el estado inicial es campo vacio con 18K amarillo y sin resultado`() = runTest {
@@ -190,16 +207,102 @@ class OroViewModelTest {
         }
     }
 
+    // --- Favoritos (009) ---
+
     @Test
-    fun `guardar en favoritos solo registra telemetria y no toca el estado`() {
+    fun `guardar un calculo nuevo lo manda al repositorio y avisa`() = runTest {
         val viewModel = crearViewModel()
         viewModel.onCantidadCambiada("10")
-        val estadoAntes = viewModel.uiState.value
 
         viewModel.onGuardarFavoritos()
+
+        assertEquals(1, favoritos.guardados.size)
+        assertEquals(EntradasFavorito.Oro(BigDecimal("10"), ColorOro.AMARILLO, LeyOro.LEY_18K), favoritos.guardados.single())
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) { analytics.logEvent("oro_favorito_guardado", mapOf("resultado" to "nuevo")) }
+    }
+
+    @Test
+    fun `guardar lo mismo dos veces deja un solo favorito y avisa de que ya estaba`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onGuardarFavoritos()
+        favoritos.resultadoGuardar = ResultadoGuardado.YaExistia(1L)
         viewModel.onGuardarFavoritos()
 
-        assertEquals(estadoAntes, viewModel.uiState.value)
-        verify(exactly = 2) { analytics.logEvent("oro_favoritos_proximamente") }
+        assertEquals(AvisoFavorito.REPETIDO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) { analytics.logEvent("oro_favorito_guardado", mapOf("resultado" to "repetido")) }
+    }
+
+    @Test
+    fun `guardar sin datos validos no llama al repositorio y pide completar el calculo`() = runTest {
+        val viewModel = crearViewModel()
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `la vista consume el aviso y el siguiente guardado vuelve a avisar`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onGuardarFavoritos()
+        viewModel.onAvisoFavoritoMostrado()
+
+        assertNull(viewModel.uiState.value.avisoFavorito)
+
+        viewModel.onGuardarFavoritos()
+
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `el aviso se apaga en cuanto el joyero toca algo`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onCantidadCambiada("10")
+
+        viewModel.onGuardarFavoritos()
+        viewModel.onCantidadCambiada("7")
+
+        assertNull(viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `cargar un favorito rellena el formulario y es idempotente`() = runTest {
+        favoritos.flujo.value = listOf(
+            FavoritosDePrueba.favorito(
+                id = 4L,
+                entradas = EntradasFavorito.Oro(BigDecimal("30"), ColorOro.BLANCO, LeyOro.LEY_9K),
+            ),
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(4L)
+
+        assertEquals("30", viewModel.uiState.value.cantidadTexto)
+        assertEquals(ColorOro.BLANCO, viewModel.uiState.value.color)
+        assertEquals(LeyOro.LEY_9K, viewModel.uiState.value.ley)
+        assertNotNull(viewModel.uiState.value.resultado)
+
+        // Una recomposición por cambio de configuración no puede machacar lo editado.
+        viewModel.onCantidadCambiada("55")
+        viewModel.cargarFavorito(4L)
+
+        assertEquals("55", viewModel.uiState.value.cantidadTexto)
+    }
+
+    @Test
+    fun `cargar un favorito que no existe o de otro tipo se ignora en silencio`() = runTest {
+        favoritos.flujo.value = listOf(FavoritosDePrueba.favorito(id = 9L, entradas = FavoritosDePrueba.plata()))
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(9L)
+
+        assertEquals("", viewModel.uiState.value.cantidadTexto)
+        assertNull(viewModel.uiState.value.resultado)
     }
 }

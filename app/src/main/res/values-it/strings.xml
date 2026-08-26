@@ -36,9 +36,6 @@
     <string name="topbar_info">Informazioni sull\'app</string>
     <string name="topbar_atras">Indietro</string>
 
-    <!-- Pantallas aún sin desarrollar -->
-    <string name="placeholder_pendiente">Schermata in costruzione</string>
-
     <!-- Pantalla de información -->
     <string name="info_titulo">Informazioni</string>
     <string name="info_perfil_descripcion">Tecnologia e tradizione si incontrano in un\'applicazione creata da José Ramón Blanco, sviluppatore e orafo artigiano, con l\'intento di offrire ai professionisti dell\'oreficeria di tutto il mondo strumenti utili, moderni e accessibili.</string>
@@ -73,7 +70,10 @@
     <string name="metal_rodio_imagen">Mucchio di granuli di rodio</string>
     <string name="accion_limpiar">Cancella</string>
     <string name="accion_guardar_favoritos">Salva nei preferiti</string>
-    <string name="aviso_proximamente">Prossimamente</string>
+    <string name="favoritos_aviso_guardado">Salvato nei preferiti</string>
+    <string name="favoritos_aviso_repetido">Già nei preferiti</string>
+    <string name="favoritos_aviso_sin_datos">Completa il calcolo prima di salvare</string>
+    <string name="accion_cancelar">Annulla</string>
 
     <!-- Calculadora de aleaciones de oro -->
     <string name="oro_entrada_titulo">Inserisci l\'oro 24K</string>
@@ -218,4 +218,14 @@
     <string name="ajustes_idioma_automatico">Automatico</string>
     <string name="ajustes_idioma_automatico_detalle">Segue la lingua del dispositivo · %1$s</string>
     <string name="ajustes_idioma_activo">Lingua selezionata</string>
+
+    <!-- Preferiti -->
+    <string name="favoritos_vacio_titulo">Ancora nessun preferito</string>
+    <string name="favoritos_vacio_texto">Salva qualsiasi calcolo con «%1$s» e lo troverai qui, pronto da ripetere.</string>
+    <string name="favoritos_quitar">Rimuovi dai preferiti</string>
+    <string name="favoritos_guardado_el">Salvato il %1$s</string>
+    <string name="favoritos_mas_lineas">+%1$d in più</string>
+    <string name="favoritos_borrar_titulo">Rimuovere dai preferiti?</string>
+    <string name="favoritos_borrar_mensaje">«%1$s» verrà rimosso. Potrai salvarlo di nuovo quando vuoi.</string>
+    <string name="favoritos_borrar_confirmar">Rimuovi</string>
 </resources>

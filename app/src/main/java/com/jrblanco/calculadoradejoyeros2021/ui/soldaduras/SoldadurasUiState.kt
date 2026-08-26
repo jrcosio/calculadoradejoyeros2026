@@ -2,8 +2,10 @@ package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 
 /**
  * Las tres familias de soldadura de la pantalla. Concepto de UI, como `HomeModule`:
@@ -13,19 +15,6 @@ enum class FamiliaSoldadura {
     ORO_LEY,
     CLASICA,
     PLATA,
-    ;
-
-    /** Identificador estable para telemetría, independiente del idioma. */
-    val analyticsId: String get() = name.lowercase()
-}
-
-/** Los dos modos de entrada del conmutador (§2.3 del documento técnico). */
-enum class ModoEntradaSoldadura {
-    /** El de los mockups: se introduce el metal que se tiene (oro o plata). */
-    DESDE_METAL,
-
-    /** El mínimo de la spec: se introduce el peso final de soldadura deseado. */
-    PESO_FINAL,
     ;
 
     /** Identificador estable para telemetría, independiente del idioma. */
@@ -89,4 +78,9 @@ data class SoldadurasUiState(
     val tipoPlata: TipoSoldaduraPlata = TipoSoldaduraPlata.MUY_FLOJA,
     /** Presente solo con familia elegida y entrada válida; ausente = no se pinta nada. */
     val resultado: ResultadoSoldaduras? = null,
+    /**
+     * Lo que hay que decirle al joyero tras pulsar «Guardar en favoritos», de un solo uso: la vista
+     * lo muestra y llama a `onAvisoFavoritoMostrado()`. Nulo mientras no hay nada que decir.
+     */
+    val avisoFavorito: AvisoFavorito? = null,
 )

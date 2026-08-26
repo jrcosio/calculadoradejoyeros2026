@@ -1,5 +1,8 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
+
 /**
  * Estado de la pantalla de la soldadura BASE.
  *
@@ -13,6 +16,11 @@ data class SoldaduraBaseUiState(
     val cantidadTexto: String = "",
     /** Presente solo con entrada válida; ausente = no se pinta nada. */
     val resultado: ResultadoSoldaduraBase? = null,
+    /**
+     * Lo que hay que decirle al joyero tras pulsar «Guardar en favoritos», de un solo uso: la vista
+     * lo muestra y llama a `onAvisoFavoritoMostrado()`. Nulo mientras no hay nada que decir.
+     */
+    val avisoFavorito: AvisoFavorito? = null,
 )
 
 /**

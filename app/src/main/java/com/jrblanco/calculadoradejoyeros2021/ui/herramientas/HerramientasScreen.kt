@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,9 +48,17 @@ fun HerramientasScreen(
     onInfo: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    favoritoId: Long? = null,
     viewModel: HerramientasViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Un favorito de chapa abre su sub-herramienta. El id baja por el *slot*, así que
+    // `HerramientasContent` no cambia de firma y `PreciosMetalesSection` sigue sin componerse:
+    // abrir un favorito de chapa no debe gastar cuota de la API de precios.
+    LaunchedEffect(favoritoId) {
+        if (favoritoId != null) viewModel.abrirFavoritoDeChapa()
+    }
 
     HerramientasContent(
         uiState = uiState,
@@ -58,7 +67,7 @@ fun HerramientasScreen(
         onBack = onBack,
         modifier = modifier,
         precios = { PreciosMetalesSection() },
-        chapas = { PesoChapasSection() },
+        chapas = { PesoChapasSection(favoritoId = favoritoId) },
     )
 }
 

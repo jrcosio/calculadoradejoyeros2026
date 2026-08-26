@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
@@ -55,6 +57,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaTotal
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.mensajeRes
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryRadius
@@ -72,10 +75,28 @@ fun SoldadurasScreen(
     onBack: () -> Unit,
     onSoldaduraBase: () -> Unit,
     modifier: Modifier = Modifier,
+    favoritoId: Long? = null,
     viewModel: SoldadurasViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // Aviso efímero del sistema: los Toast se reemplazan solos y no se acumulan por muchas
+    // pulsaciones que haya. El ViewModel decide **qué** decir —el guardado va a almacenamiento y su
+    // resultado no se sabe en el momento del clic—; la vista solo lo muestra y lo consume.
+    val aviso = uiState.avisoFavorito
+    LaunchedEffect(aviso) {
+        if (aviso != null) {
+            Toast.makeText(context, aviso.mensajeRes, Toast.LENGTH_SHORT).show()
+            viewModel.onAvisoFavoritoMostrado()
+        }
+    }
+
+    // Un favorito reabierto rellena el formulario. El ViewModel es idempotente, así que una
+    // recomposición por cambio de configuración no machaca lo que el joyero llevara editado.
+    LaunchedEffect(favoritoId) {
+        favoritoId?.let(viewModel::cargarFavorito)
+    }
 
     SoldadurasContent(
         uiState = uiState,
@@ -88,12 +109,7 @@ fun SoldadurasScreen(
         onTipoPlataSeleccionado = viewModel::onTipoPlataSeleccionado,
         onSoldaduraBase = onSoldaduraBase,
         onLimpiar = viewModel::onLimpiar,
-        onGuardarFavoritos = {
-            viewModel.onGuardarFavoritos()
-            // Aviso efímero del sistema: los Toast se reemplazan solos y no se
-            // acumulan por muchas pulsaciones que haya. El ViewModel no lo conoce.
-            Toast.makeText(context, R.string.aviso_proximamente, Toast.LENGTH_SHORT).show()
-        },
+        onGuardarFavoritos = viewModel::onGuardarFavoritos,
         onInfo = onInfo,
         onBack = onBack,
         modifier = modifier,
@@ -559,55 +575,8 @@ private fun TarjetaResultado(
     }
 }
 
-// --- Cómo se pinta cada familia. El resto de mapeos compartidos con la pantalla de ---
-// --- la base viven en PresentacionSoldadura.kt.                                    ---
-
-private val FamiliaSoldadura.etiquetaRes: Int
-    get() = when (this) {
-        FamiliaSoldadura.ORO_LEY -> R.string.soldadura_familia_oro_ley
-        FamiliaSoldadura.CLASICA -> R.string.soldadura_familia_clasica
-        FamiliaSoldadura.PLATA -> R.string.soldadura_familia_plata
-    }
-
-/** La etiqueta del modo directo, que nombra el metal de entrada de cada familia. */
-private val FamiliaSoldadura.etiquetaModoDirectoRes: Int
-    get() = when (this) {
-        FamiliaSoldadura.ORO_LEY -> R.string.soldadura_modo_tengo_oro18k
-        FamiliaSoldadura.CLASICA -> R.string.soldadura_modo_tengo_oro
-        FamiliaSoldadura.PLATA -> R.string.soldadura_modo_tengo_plata
-    }
-
-/** Las dos familias de oro en dorado y la de plata en plateado, como el mockup. */
-private val FamiliaSoldadura.acento: Color
-    get() = when (this) {
-        FamiliaSoldadura.ORO_LEY -> JewelryColors.GoldPrimary
-        FamiliaSoldadura.CLASICA -> JewelryColors.GoldPrimary
-        FamiliaSoldadura.PLATA -> JewelryColors.SilverPrimary
-    }
-
-private val TipoSoldaduraPlata.etiquetaRes: Int
-    get() = when (this) {
-        TipoSoldaduraPlata.MUY_FLOJA -> R.string.soldadura_plata_muy_floja
-        TipoSoldaduraPlata.FLOJA -> R.string.soldadura_plata_floja
-        TipoSoldaduraPlata.NORMAL -> R.string.soldadura_plata_normal
-        TipoSoldaduraPlata.FUERTE -> R.string.soldadura_plata_fuerte
-    }
-
-private val TipoSoldaduraClasica.etiquetaRes: Int
-    get() = when (this) {
-        TipoSoldaduraClasica.FLOJA -> R.string.soldadura_clasica_floja
-        TipoSoldaduraClasica.FUERTE -> R.string.soldadura_clasica_fuerte
-        TipoSoldaduraClasica.MUY_FLOJA_LEY -> R.string.soldadura_clasica_muy_floja_ley
-    }
-
-private val DurezaSoldaduraLey.etiquetaRes: Int
-    get() = when (this) {
-        DurezaSoldaduraLey.MUY_FLOJA -> R.string.soldadura_dureza_muy_floja
-        DurezaSoldaduraLey.FLOJA -> R.string.soldadura_dureza_floja
-        DurezaSoldaduraLey.MEDIA -> R.string.soldadura_dureza_media
-        DurezaSoldaduraLey.FUERTE -> R.string.soldadura_dureza_fuerte
-        DurezaSoldaduraLey.MUY_FUERTE -> R.string.soldadura_dureza_muy_fuerte
-    }
+// --- Los mapeos de familia, tipo y dureza viven en PresentacionSoldadura.kt desde la ---
+// --- feature 009: la pantalla de Favoritos es su segundo consumidor.                  ---
 
 @Preview(showBackground = true, widthDp = 411, heightDp = 891)
 @Composable

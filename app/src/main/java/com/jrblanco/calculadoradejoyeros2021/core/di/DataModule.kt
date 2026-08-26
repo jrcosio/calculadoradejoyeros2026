@@ -2,9 +2,12 @@ package com.jrblanco.calculadoradejoyeros2021.core.di
 
 import com.jrblanco.calculadoradejoyeros2021.data.repository.AnalyticsRepositoryImpl
 import com.jrblanco.calculadoradejoyeros2021.data.repository.CotizacionesRepositoryImpl
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FavoritosRepositoryImpl
 import com.jrblanco.calculadoradejoyeros2021.data.repository.PreferenciasRepositoryImpl
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.AjustesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.CotizacionesLocalDataSource
+import com.jrblanco.calculadoradejoyeros2021.data.source.local.FavoritosLocalDataSource
+import com.jrblanco.calculadoradejoyeros2021.data.source.local.RoomFavoritosLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.DataStoreAjustesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.local.SharedPreferencesCotizacionesLocalDataSource
 import com.jrblanco.calculadoradejoyeros2021.data.source.remote.ClienteHttp
@@ -14,6 +17,7 @@ import com.jrblanco.calculadoradejoyeros2021.data.source.remote.FirebaseAnalytic
 import com.jrblanco.calculadoradejoyeros2021.data.source.remote.MetalSentinelDataSource
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.CotizacionesRepository
+import com.jrblanco.calculadoradejoyeros2021.domain.repository.FavoritosRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.PreferenciasRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.bind
@@ -36,6 +40,11 @@ val dataModule = module {
     single { MetalSentinelDataSource(get(), get(), get()) } bind CotizacionesRemoteDataSource::class
     single { SharedPreferencesCotizacionesLocalDataSource(androidContext(), get()) } bind CotizacionesLocalDataSource::class
     single<CotizacionesRepository> { CotizacionesRepositoryImpl(get(), get(), get()) }
+
+    // Favoritos (009): Room, con la base dentro del data source (ver su KDoc). El data source
+    // va concreto con `bind` para que `verify()` compruebe de verdad su constructor.
+    single { RoomFavoritosLocalDataSource(androidContext()) } bind FavoritosLocalDataSource::class
+    single<FavoritosRepository> { FavoritosRepositoryImpl(get(), get()) }
 
     // Ajustes (008): DataStore, con el almacén dentro del data source (ver su KDoc).
     single { DataStoreAjustesLocalDataSource(androidContext(), get()) } bind AjustesLocalDataSource::class

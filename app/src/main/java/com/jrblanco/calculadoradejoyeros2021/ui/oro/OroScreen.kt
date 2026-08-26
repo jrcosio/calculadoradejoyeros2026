@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaTotal
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.mensajeRes
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
@@ -58,10 +60,28 @@ fun OroScreen(
     onInfo: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    favoritoId: Long? = null,
     viewModel: OroViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // Aviso efímero del sistema: los Toast se reemplazan solos y no se acumulan por muchas
+    // pulsaciones que haya. El ViewModel decide **qué** decir —el guardado va a almacenamiento y su
+    // resultado no se sabe en el momento del clic—; la vista solo lo muestra y lo consume.
+    val aviso = uiState.avisoFavorito
+    LaunchedEffect(aviso) {
+        if (aviso != null) {
+            Toast.makeText(context, aviso.mensajeRes, Toast.LENGTH_SHORT).show()
+            viewModel.onAvisoFavoritoMostrado()
+        }
+    }
+
+    // Un favorito reabierto rellena el formulario. El ViewModel es idempotente, así que una
+    // recomposición por cambio de configuración no machaca lo que el joyero llevara editado.
+    LaunchedEffect(favoritoId) {
+        favoritoId?.let(viewModel::cargarFavorito)
+    }
 
     OroContent(
         uiState = uiState,
@@ -69,12 +89,7 @@ fun OroScreen(
         onLeySeleccionada = viewModel::onLeySeleccionada,
         onColorSeleccionado = viewModel::onColorSeleccionado,
         onLimpiar = viewModel::onLimpiar,
-        onGuardarFavoritos = {
-            viewModel.onGuardarFavoritos()
-            // Aviso efímero del sistema: los Toast se reemplazan solos y no se
-            // acumulan por muchas pulsaciones que haya. El ViewModel no lo conoce.
-            Toast.makeText(context, R.string.aviso_proximamente, Toast.LENGTH_SHORT).show()
-        },
+        onGuardarFavoritos = viewModel::onGuardarFavoritos,
         onInfo = onInfo,
         onBack = onBack,
         modifier = modifier,
@@ -228,33 +243,8 @@ private fun TarjetaEntrada(
     }
 }
 
-// --- Cómo se pinta cada valor de dominio. Vive aquí y no en los enums para que ---
-// --- `domain/` siga libre de Android, igual que `ModulePresentation` en Home.  ---
-
-private val LeyOro.etiquetaRes: Int
-    get() = when (this) {
-        LeyOro.LEY_18K -> R.string.oro_ley_18k
-        LeyOro.LEY_14K -> R.string.oro_ley_14k
-        LeyOro.LEY_12K -> R.string.oro_ley_12k
-        LeyOro.LEY_9K -> R.string.oro_ley_9k
-    }
-
-private val ColorOro.etiquetaRes: Int
-    get() = when (this) {
-        ColorOro.AMARILLO -> R.string.oro_color_amarillo
-        ColorOro.BLANCO -> R.string.oro_color_blanco
-        ColorOro.ROSA -> R.string.oro_color_rosa
-        ColorOro.ROJO -> R.string.oro_color_rojo
-    }
-
-/** El tono con el que se pinta cada color de oro al seleccionarlo. */
-private val ColorOro.acento: Color
-    get() = when (this) {
-        ColorOro.AMARILLO -> JewelryColors.GoldPrimary
-        ColorOro.BLANCO -> JewelryColors.TealPrimary
-        ColorOro.ROSA -> JewelryColors.RoseGold
-        ColorOro.ROJO -> JewelryColors.RedGold
-    }
+// --- Los mapeos de ley, color y acento viven en `PresentacionOro.kt` desde la feature 009: ---
+// --- la pantalla de Favoritos es su segundo consumidor.                                    ---
 
 private data class MetalPresentacion(
     val imagenRes: Int,
