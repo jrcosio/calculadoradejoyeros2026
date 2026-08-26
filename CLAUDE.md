@@ -35,6 +35,8 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ./gradlew :app:testDebugUnitTest    # tests unitarios (JVM)
 ./gradlew :app:lint                 # lint de Android; puerta de calidad desde la 008
                                     # (MissingTranslation / ExtraTranslation)
+./gradlew :app:connectedDebugAndroidTest   # instrumentados; puerta desde la 009, donde el
+                                    # índice único de favoritos solo se prueba de verdad
 
 # un solo test o una sola clase
 ./gradlew :app:testDebugUnitTest --tests "*HomeViewModelTest"
@@ -56,7 +58,7 @@ Todo cuelga de `app/src/main/java/com/jrblanco/calculadoradejoyeros2021/`.
 |---|---|---|
 | `domain/` | `model/`, `repository/` (interfaces), `usecase/` | `android.*`, `androidx.*`, `com.google.firebase.*`, `data.*` |
 | `data/` | `source/remote/`, `source/local/`, `repository/` (implementaciones) | `ui.*` |
-| `ui/` | `navigation/`, `theme/`, `components/` (reutilizables), `placeholder/`, y una carpeta por pantalla | `data.*` |
+| `ui/` | `navigation/`, `theme/`, `components/` (reutilizables), y una carpeta por pantalla | `data.*` |
 | `core/` | `di/` (módulos Koin), `ui/UiState.kt`, `util/DispatcherProvider.kt` | — |
 
 Los SDK externos están confinados: **`FirebaseAnalyticsDataSource` es el único
@@ -101,12 +103,14 @@ depender de un tipo que por dentro lleve el nombre de otro metal.
   de 60 s entre reintentos (300 s tras un 429) y solo se consultan los metales sin precio
   vigente. Es la pieza que decide cuándo se gasta cuota, y se prueba sin corrutinas.
 
-Los diecinueve casos de uso se registran en `domainModule` con `factoryOf`;
+Los veinticuatro casos de uso se registran en `domainModule` con `factoryOf`;
 `ObtenerCotizacionesUseCase` es el primero `suspend` y delega en `CotizacionesRepository`, y
 `ObservarIdiomaUseCase` (008) el primero que devuelve un `Flow`. Uno de ellos,
 `CalcularSoldaduraLeyUseCase` (mezcla desde la base disponible), **no tiene UI**: existe
 y se prueba por mandato de su documento, el mismo precedente que el modo inverso de plata
-en la 005.
+en la 005. `ResumirFavoritoUseCase` (009) es **el primero que depende de otros casos de uso**:
+recibe los once motores y despacha con un `when` sobre las entradas del favorito, porque los
+resultados de un favorito no se guardan, se rehacen.
 
 **El redondeo de vista es exclusivo del ViewModel, y no es el mismo en las cinco
 calculadoras**: `OroViewModel` y los dos ViewModels de soldaduras redondean a la media
@@ -163,6 +167,14 @@ de `onDrawBehind`, construcción con `PathMeasure`); en las `@Preview` arranca y
 («Automático» más los cinco idiomas) sobre `TarjetaAcento`, con `FilaIdioma` privada del fichero.
 `ui/idioma/` es el octavo y **el primer paquete de `ui/` sin ruta ni pantalla**: no es de nadie en
 particular, es del árbol entero (ver la sección de idioma).
+`ui/favoritos/` es el noveno (009) y el que más cosas estrena: `TarjetaFavorito` con **dos zonas
+pulsables** (la tarjeta abre, la estrella quita), el **primer diálogo de la app**
+(`DialogoConfirmacion` y `BotonPlano`, privados de `FavoritosScreen.kt`) y `FormatoFavoritos`, que
+duplica a propósito las cuatro políticas de redondeo. Su enum `TipoFavorito` tiene **cinco** valores
+y las entradas de dominio **siete**: las tres familias de soldadura comparten pantalla y sección, la
+BASE tiene ruta propia. Ojo con `EstrellaFavorito`: lleva su propio
+`semantics(mergeDescendants = true)` y eso **no es decoración** — sin él, la fusión de la tarjeta se
+lo traga y un lector de pantalla no puede quitar un favorito.
 
 ### Componentes compartidos
 
@@ -188,7 +200,9 @@ particular, es del árbol entero (ver la sección de idioma).
   privado en la portada; lo comparten ahora la portada y las tarjetas de información.
   `widthFraction` lo ajusta al hueco: 0.7 en pantalla completa, 1 dentro de una tarjeta.
 - **`TarjetaAcento`** (en `Tarjetas.kt`) — envoltorio de tarjeta con degradado y borde
-  del color de acento (dorado por defecto). Nació privada en Info como `TarjetaDorada`;
+  del color de acento (dorado por defecto). Desde la 009 acepta un `onClick` opcional, y su
+  `.clip(shape)` es **condicional** a que no sea nulo: aplicarlo siempre cambiaría el pintado de los
+  consumidores actuales, y uno de ellos lleva dentro el `Canvas` de chapas con cotas que sobresalen. Nació privada en Info como `TarjetaDorada`;
   la comparten Info y las dos calculadoras: oro la usa en dorado y en el tono del oro
   elegido, plata en plateado (entrada y total) y en teal (resultado).
 - **`SelectorSegmentado`** — fila de opciones excluyentes con píldora degradada y check
@@ -227,6 +241,16 @@ cada pantalla la que mapea sus enums a imágenes y textos.
   tarjeta de total con balanza. En `TarjetaTotal` el acento tiñe icono, cifra y unidad; la
   etiqueta se queda en `TextPrimary`.
 - **`LineaPunteada`** (en `Ornamentos.kt`) — los puntos que guían del nombre a la cifra.
+- **`fechaLocal` / `horaLocal` / `fechaHoraLocal`** (en `Fechas.kt`) — la **única excepción** a «el
+  ViewModel formatea todo»: los instantes viajan como `Long` y se formatean aquí, con
+  `DateFormat.getMediumDateFormat`/`getTimeFormat` sobre el contexto localizado. Nacieron en
+  `ui/herramientas/precios/` y subieron con la 009, cuando Favoritos pidió la fecha sin la hora.
+  **No uses `DateUtils.formatDateTime`**: toma el orden de la fecha del locale del sistema.
+- **`GoldSeparator`** (en `JewelryTopBar.kt`) — filete dorado fino. Tercer consumidor desde la 009.
+- Los mapeos enum→recurso de oro y plata viven en `ui/oro/PresentacionOro.kt` y
+  `ui/plata/PresentacionPlata.kt` desde la 009, y los de familia, tipo y dureza de soldaduras en
+  `ui/soldaduras/PresentacionSoldadura.kt`: nacieron privados en sus pantallas y subieron cuando la
+  tarjeta de favoritos pidió los mismos para componer su título.
 
 `JewelryBottomBar` y el botón de la portada **no usan los componentes de Material**:
 `NavigationBar` impone su propia altura y una píldora tras el icono activo, y `Button`
@@ -240,20 +264,12 @@ que `Icons.Default.*` no compila. Los iconos son vectores propios en `res/drawab
 (`ic_home`, `ic_favoritos`, `ic_ajustes`, `ic_chevron`, `ic_info`, `ic_atras`,
 `ic_linkedin`, `ic_instagram`, `ic_enlace_externo`, `ic_check`, `ic_aviso`, `ic_refrescar`,
 `ic_estrella`, `ic_balanza`, `ic_lingotes`, `ic_paleta`, `ic_grafica`, `ic_capas`, `ic_ancho`,
-`ic_espesor`, `ic_regla`, `ic_idioma`), de trazo
+`ic_espesor`, `ic_regla`, `ic_idioma`, `ic_estrella_llena`), de trazo
 1.5–1.8 y tintados en tiempo de ejecución con `Icon(tint = ...)`. Las **cinco banderas**
 (`ic_bandera_es`, `_en`, `_fr`, `_de`, `_it`) también son vectores propios, pero de relleno y en
 3:2: la de España va sin escudo y la británica está redibujada con paths de relleno, porque
 `<use>` no existe en VectorDrawable y su `clip-path` sobre un trazo no se reproduce. Si necesitas uno
 nuevo, dibújalo ahí en lugar de añadir la librería, que está deprecada.
-
-### Pantallas aún sin desarrollar
-
-`ui/placeholder/PlaceholderScreen` es **un composable parametrizado**. Desde la 008 le queda un
-solo destino, Favoritos: Ajustes ya tiene pantalla propia. Recibe
-`title` (traducible) y `analyticsName` (identificador estable para telemetría, que no
-debe traducirse). Cuando un destino reciba su feature
-real, cambia solo su cableado en `AppNavHost`.
 
 ### Contrato de ViewModel
 
@@ -349,6 +365,73 @@ elección guardada en Preferences DataStore y aplicada al instante.
   lo que el sistema entrega a la app y **no necesita root**, al contrario que
   `setprop persist.sys.locale`, que en una imagen de producción falla en silencio.
 
+## Favoritos: Room, una tabla y una firma
+
+La feature 009 estrenó **Room** y, con él, el primer procesador de anotaciones del proyecto. La
+constitución 1.1.0 lo autoriza **solo** para Room: jamás para inyección de dependencias.
+
+- **Lo que se guarda son las entradas, nunca los resultados.** Los cuatro motores son Kotlin puro y
+  rehacer el cálculo es aritmética; guardar texto formateado lo congelaría en un idioma, y la app
+  habla cinco. Lo rehace `ResumirFavoritoUseCase`. Coste asumido y documentado en su KDoc: si un día
+  cambia una receta de `RecetasSoldadura` o una densidad de `MaterialChapa`, los favoritos viejos
+  mostrarán las cifras nuevas. Un favorito es una receta, no un recibo.
+- **`EntradasFavorito` tiene siete variantes**, una por formulario, con los campos en el orden de los
+  parámetros de su motor. Siete y no una con el tipo dentro por el mismo criterio que
+  `CalcularSoldaduraClasicaUseCase`: una variante única obligaría a un color nulable en las clásicas,
+  que es justo lo que §8.1 prohíbe. **Ojo con `equals`**: `BigDecimal` compara la escala, así que
+  `Oro("30")` y `Oro("30.0")` **no** son iguales. La identidad es la firma, nunca `equals`: prohibido
+  `distinctBy`, `contains` o `indexOf` sobre entradas.
+- **Una tabla, `favoritos`, con las entradas en JSON.** Las siete formas no comparten campos, y así el
+  esquema no se toca cuando una calculadora gane una entrada: no hay migración, solo una firma nueva.
+- **La firma es la clave de todo.** El índice único va sobre la columna `firma`, **nunca sobre
+  `datosJson`**: el texto que produce `kotlinx.serialization` depende del orden de declaración del
+  DTO, así que indexarlo dejaría de detectar duplicados **en silencio** el día que alguien reordene un
+  campo. La escribe un `when` a mano en `CodificadorFavorito`, con formato `tipo|v1|campo=valor|…` y
+  cinco reglas: la coma ya no existe (la normaliza `parsearDecimalPositivo`), decimales con
+  `stripTrailingZeros().toPlainString()`, enums por **`name`** y nunca por `analyticsId` (que colisiona:
+  `LeyOro.LEY_12K` y `MaterialChapa.ORO_12K` valen los dos `"12k"`), orden de campos escrito a mano
+  —**sin reflexión y sin `::class.simpleName`**, que R8 ofusca y dejaría ilegibles todos los favoritos
+  en release— y separadores `|` y `=`, imposibles en un `name` y en un decimal canónico. Hay un test
+  dorado con las siete cadenas literales.
+- **El duplicado no es un error, es un valor**: `ResultadoGuardado.Guardado` / `YaExistia`. Se resuelve
+  con `@Insert(onConflict = IGNORE)` —que devuelve `-1`— más un `SELECT id WHERE firma`, y **solo en la
+  rama del duplicado**, dentro de `withTransaction`. `INSERT … RETURNING` lo haría en un viaje pero pide
+  API 34, y el `minSdk` es 24. De ahí sale gratis la idempotencia de la doble pulsación.
+- **`JournalMode.TRUNCATE` y no WAL**, y no es un detalle: los favoritos entran en la copia de
+  seguridad, y con WAL una restauración puede llevarse el `.db` sin su `-wal`. Los dos XML de
+  `res/xml/` lo dicen en un comentario.
+- **Nunca `fallbackToDestructiveMigration`**. El esquema exportado (`app/schemas/…/1.json`) **se
+  commitea**: sin él no hay migración verificable el día que haya una versión 2, y ese día se estrena
+  `room-testing`.
+- **La base nace `by lazy` dentro de `RoomFavoritosLocalDataSource` y no se registra en Koin**, igual
+  que el `DataStore` de la 008: `verify()` solo inspecciona constructores del tipo primario y meterla
+  en `extraTypes` debilitaría el test para todo el proyecto.
+- **Ese data source es el único de `data/` sin `DispatcherProvider`**, a propósito: los `suspend` de un
+  DAO y los `Flow` de Room ya corren en el executor de Room, y `setQueryExecutor` con un dispatcher de
+  un solo hilo se bloquea en una transacción.
+- **Lo que no se entiende se descarta de la lista pero no se borra** (al contrario que la caché de
+  cotizaciones): puede venir de una versión más nueva y es una decisión del joyero. Residuo asumido:
+  esa fila es invisible e imborrable desde la app.
+- **`ModoEntradaSoldadura` vive en `domain/model/` desde la 009**: dejó de ser «concepto de UI» cuando
+  `ResumirFavoritoUseCase` empezó a recibirlo. `FamiliaSoldadura`, `IngredienteSoldadura` y
+  `MedidaChapa` siguen en `ui/`.
+- **Reabrir un favorito**: las cinco rutas afectadas son `data class` con `favoritoId: Long? = null`
+  —nulable y **sin valor centinela**, que es la doctrina del proyecto—, el id llega como parámetro de
+  la pantalla y un `LaunchedEffect` llama a `cargarFavorito`. Ese método **tiene que ser idempotente**
+  (`favoritoAplicado`, puesto a `true` antes del `launch`): el ViewModel sobrevive al cambio de
+  configuración pero la composición no, así que sin la guarda un cambio de tamaño de letra machacaría
+  lo que el joyero llevara editado. Y `aplicar()` construye el estado **en una sola asignación**: en
+  soldaduras es obligatorio, porque `onFamiliaSeleccionada` borra todo lo demás por FR-023.
+- **El redondeo de la pantalla de Favoritos está duplicado a propósito** en `FormatoFavoritos`, con las
+  cuatro políticas de las calculadoras. No lo unifiques: en plata el truncado lo exige la Ley 17/1985.
+  El guardián es `FavoritosParidadFormatoTest`, que ejecuta los ViewModels reales de las cinco
+  calculadoras y el de Favoritos con las mismas entradas y compara **dígito a dígito**.
+- **Telemetría**: los cinco `*_favoritos_proximamente` **se retiraron, no se renombraron** — medían la
+  intención de usar algo que no existía. Los sustituyen `<screen_name>_favorito_guardado` con
+  `resultado = nuevo | repetido`, y en la pantalla nueva `favoritos_abierto` y `favoritos_borrado` con
+  `tipo`. El `screen_view` sigue siendo `"favoritos"`, el del antiguo placeholder. Nunca se registran
+  cantidades ni medidas.
+
 ## Red y caché: cotizaciones de metales
 
 La feature 007 estrenó red, corrutinas y persistencia **sin dependencias nuevas**. Todo vive en
@@ -415,6 +498,14 @@ sueltas en un `build.gradle.kts`.
 - **La versión de Kotlin la fija AGP**: AGP 9.3.1 trae Kotlin integrado 2.2.10 y por
   eso no existe el plugin `kotlin-android` en este proyecto. No añadas ese plugin ni
   subas `kotlin` por libre en el catálogo.
+- **KSP es plugin, y entra sólo por Room** (feature 009). La constitución lo autoriza
+  para eso y para nada más: jamás para inyección de dependencias. Su versión hay que
+  verla compilar contra el Kotlin que trae AGP, porque las releases de KSP llevaron
+  años atadas a una versión exacta de Kotlin (`2.2.10-2.0.2`) antes de desacoplarse
+  en la línea 2.3.x. La combinación que funciona hoy es **KSP 2.3.11 + Room 2.8.4 +
+  AGP 9.3.1**, verificada con `:app:kspDebugKotlin`, `:app:assembleDebug` y
+  `:app:lint`. Si una subida de AGP la rompe, el escape es la release de KSP cuyo
+  prefijo case con el Kotlin integrado.
 - Compose BOM 2026.08.00 exige `compileSdk 37`. `targetSdk` se queda en 36 a
   propósito: subirlo opta a comportamientos nuevos de runtime y es una decisión
   aparte que requiere probar la app.
