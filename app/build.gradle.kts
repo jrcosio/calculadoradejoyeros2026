@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 // Credencial del proveedor de cotizaciones (feature 007). Se lee de forma compatible con la
@@ -92,7 +94,20 @@ android {
     }
 }
 
+// El esquema de la base de favoritos se commitea: es el contrato con la versión siguiente y sin
+// él no se puede escribir una migración honesta. Se usa el plugin de Room y no
+// `ksp { arg("room.schemaLocation", …) }` porque el argumento de KSP deja la carpeta como salida
+// no declarada de la tarea y rompe la relocalización de la caché de configuración.
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
+    // --- Favoritos: Room (feature 009). Sin room-ktx: `withTransaction`, `databaseBuilder` y el
+    // soporte de Flow resuelven desde room-runtime (specs/009-favoritos/research.md, R6). ---
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+
     // --- Compose (BoM manda las versiones) ---
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
@@ -139,6 +154,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    // Los tests del DAO de favoritos son los primeros instrumentados que no son de Compose.
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.turbine)
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
