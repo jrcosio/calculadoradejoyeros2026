@@ -5,7 +5,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
+import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 
 // --- Cómo se pinta cada valor de dominio en las dos pantallas de soldaduras. Vive ---
@@ -94,3 +98,77 @@ internal val ColorOroSoldadura.acento: Color
         ColorOroSoldadura.BLANCO -> JewelryColors.TealPrimary
         ColorOroSoldadura.ROSA -> JewelryColors.RoseGold
     }
+
+// --- Los seis mapeos de abajo nacieron privados en `SoldadurasScreen.kt` y subieron aquí con  ---
+// --- la feature 009, cuando la pantalla de Favoritos pidió los mismos para componer el título ---
+// --- de sus tarjetas. La regla del proyecto: en cuanto hay un segundo consumidor, dejan de    ---
+// --- ser privados.                                                                           ---
+
+internal val FamiliaSoldadura.etiquetaRes: Int
+    get() = when (this) {
+        FamiliaSoldadura.ORO_LEY -> R.string.soldadura_familia_oro_ley
+        FamiliaSoldadura.CLASICA -> R.string.soldadura_familia_clasica
+        FamiliaSoldadura.PLATA -> R.string.soldadura_familia_plata
+    }
+
+/** La etiqueta del modo directo, que nombra el metal de entrada de cada familia. */
+internal val FamiliaSoldadura.etiquetaModoDirectoRes: Int
+    get() = when (this) {
+        FamiliaSoldadura.ORO_LEY -> R.string.soldadura_modo_tengo_oro18k
+        FamiliaSoldadura.CLASICA -> R.string.soldadura_modo_tengo_oro
+        FamiliaSoldadura.PLATA -> R.string.soldadura_modo_tengo_plata
+    }
+
+/** Las dos familias de oro en dorado y la de plata en plateado, como el mockup. */
+internal val FamiliaSoldadura.acento: Color
+    get() = when (this) {
+        FamiliaSoldadura.ORO_LEY -> JewelryColors.GoldPrimary
+        FamiliaSoldadura.CLASICA -> JewelryColors.GoldPrimary
+        FamiliaSoldadura.PLATA -> JewelryColors.SilverPrimary
+    }
+
+internal val TipoSoldaduraPlata.etiquetaRes: Int
+    get() = when (this) {
+        TipoSoldaduraPlata.MUY_FLOJA -> R.string.soldadura_plata_muy_floja
+        TipoSoldaduraPlata.FLOJA -> R.string.soldadura_plata_floja
+        TipoSoldaduraPlata.NORMAL -> R.string.soldadura_plata_normal
+        TipoSoldaduraPlata.FUERTE -> R.string.soldadura_plata_fuerte
+    }
+
+internal val TipoSoldaduraClasica.etiquetaRes: Int
+    get() = when (this) {
+        TipoSoldaduraClasica.FLOJA -> R.string.soldadura_clasica_floja
+        TipoSoldaduraClasica.FUERTE -> R.string.soldadura_clasica_fuerte
+        TipoSoldaduraClasica.MUY_FLOJA_LEY -> R.string.soldadura_clasica_muy_floja_ley
+    }
+
+internal val DurezaSoldaduraLey.etiquetaRes: Int
+    get() = when (this) {
+        DurezaSoldaduraLey.MUY_FLOJA -> R.string.soldadura_dureza_muy_floja
+        DurezaSoldaduraLey.FLOJA -> R.string.soldadura_dureza_floja
+        DurezaSoldaduraLey.MEDIA -> R.string.soldadura_dureza_media
+        DurezaSoldaduraLey.FUERTE -> R.string.soldadura_dureza_fuerte
+        DurezaSoldaduraLey.MUY_FUERTE -> R.string.soldadura_dureza_muy_fuerte
+    }
+
+/**
+ * La etiqueta del modo de una soldadura, que en el directo depende de la familia («Tengo oro 18K»,
+ * «Tengo el oro», «Tengo la plata») y en el inverso es siempre la misma.
+ *
+ * No existía: las cuatro claves `soldadura_modo_*` se usaban en línea dentro de la pantalla, porque
+ * hasta ahora nadie necesitaba nombrar un modo fuera del selector. El título de una tarjeta de
+ * favoritos sí, y sin el modo «10 gr» sería ambiguo entre el metal de partida y el peso final.
+ */
+internal fun etiquetaModoRes(
+    familia: FamiliaSoldadura,
+    modo: ModoEntradaSoldadura,
+): Int = when (modo) {
+    ModoEntradaSoldadura.DESDE_METAL -> familia.etiquetaModoDirectoRes
+    ModoEntradaSoldadura.PESO_FINAL -> R.string.soldadura_modo_peso_final
+}
+
+/** El equivalente para la soldadura BASE, que tiene sus propias dos etiquetas. */
+internal fun etiquetaModoBaseRes(modo: ModoEntradaSoldadura): Int = when (modo) {
+    ModoEntradaSoldadura.DESDE_METAL -> R.string.soldadura_base_modo_tengo_oro
+    ModoEntradaSoldadura.PESO_FINAL -> R.string.soldadura_base_modo_peso
+}

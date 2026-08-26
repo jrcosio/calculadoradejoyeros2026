@@ -36,7 +36,9 @@ El flujo de dependencias es siempre `ui → domain ← data`. No hay atajos.
 
 ### III. Inyección de dependencias solo por Koin
 
-- Koin con DSL manual. Nada de `koin-annotations` ni de KSP.
+- Koin con DSL manual. Nada de `koin-annotations`.
+- KSP se usa **sólo** como procesador de anotaciones de Room. Jamás para
+  inyección de dependencias.
 - Toda dependencia entra por constructor. Prohibido `get()` dentro de una clase,
   y prohibido instanciar dependencias a mano dentro de un Composable.
 - Los repositorios se registran siempre por su interfaz de dominio:
@@ -70,6 +72,9 @@ El flujo de dependencias es siempre `ui → domain ← data`. No hay atajos.
 - **minSdk 24**. Toda API superior va protegida por comprobación de versión.
 - **Idioma**: código, nombres y comentarios en español cuando describen dominio de
   joyería; las convenciones de Kotlin y Android se respetan tal cual.
+- **Persistencia**: preferencias del usuario en DataStore, caché derivada en
+  `SharedPreferences`, y datos que el joyero crea a mano en Room. Prohibido
+  `fallbackToDestructiveMigration`; el esquema exportado se commitea.
 - El `google-services.json` está en `.gitignore` y **no se commitea nunca**.
 
 ## Flujo de trabajo
@@ -102,4 +107,4 @@ Esta constitución prevalece sobre cualquier otra práctica o preferencia.
   que las reglas en tiempo de ejecución no se desincronicen.
 - `CLAUDE.md` es la guía operativa del día a día; este documento es la norma.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-22 | **Last Amended**: 2026-08-22
+**Version**: 1.1.0 | **Ratified**: 2026-08-22 | **Last Amended**: 2026-08-26

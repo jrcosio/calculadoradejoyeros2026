@@ -9,6 +9,10 @@
         El idioma elegido (feature 008, files/datastore/ajustes.preferences_pb) no aparece en
         ninguna exclusión a propósito: entra en la copia y en la transferencia, porque es una
         decisión del joyero y debe acompañarle al móvil nuevo (FR-025).
+
+        Lo mismo con los favoritos (feature 009, databases/favoritos.db): son cálculos que el joyero
+        ha decidido conservar (FR-033), y el journal en TRUNCATE garantiza que la base viaja en un
+        único fichero autocontenido.
     -->
     <cloud-backup>
         <exclude domain="sharedpref" path="cotizaciones.xml" />

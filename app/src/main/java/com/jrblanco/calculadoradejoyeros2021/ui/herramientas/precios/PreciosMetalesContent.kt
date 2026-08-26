@@ -48,6 +48,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
 import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
+import com.jrblanco.calculadoradejoyeros2021.ui.components.fechaHoraLocal
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.CifraGrande
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors

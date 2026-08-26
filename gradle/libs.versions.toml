@@ -20,6 +20,11 @@ lifecycle = "2.11.0"
 navigationCompose = "2.9.8"
 datastorePreferences = "1.2.1"
 
+# Favoritos (feature 009). KSP entra sólo como procesador de Room: verificado contra
+# el Kotlin 2.2.10 que trae AGP 9.3.1 (specs/009-favoritos/research.md, R1).
+room = "2.8.4"
+ksp = "2.3.11"
+
 # Kotlin libs
 coroutines = "1.11.0"
 serializationJson = "1.9.0"
@@ -55,6 +60,10 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 # --- Preferencias del usuario (feature 008) ---
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 
+# --- Favoritos: persistencia local (feature 009) ---
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
 # --- Firebase (versiones vía BoM) ---
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
@@ -86,3 +95,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }

@@ -11,4 +11,9 @@
         El idioma elegido (feature 008, files/datastore/ajustes.preferences_pb) NO se excluye a
         propósito: es una decisión del joyero y debe acompañarle al móvil nuevo (FR-025).
     -->
+    <!--
+        Los favoritos (feature 009, databases/favoritos.db) tampoco se excluyen: son cálculos que el
+        joyero ha decidido conservar y deben viajar con él (FR-033). El journal va en TRUNCATE
+        justamente por esto: sin ficheros -wal/-shm, no hay forma de restaurar la base a medias.
+    -->
 </full-backup-content>

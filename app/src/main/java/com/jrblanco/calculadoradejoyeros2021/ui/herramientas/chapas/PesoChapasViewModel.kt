@@ -1,17 +1,26 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jrblanco.calculadoradejoyeros2021.core.util.DispatcherProvider
 import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoChapa
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
 import com.jrblanco.calculadoradejoyeros2021.domain.model.FamiliaChapa
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MaterialChapa
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularPesoChapaUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.FormatoFavoritos
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
  * Calculadora de peso de chapas: recalcula en cada cambio y solo muestra resultado con las tres
@@ -23,7 +32,10 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class PesoChapasViewModel(
     private val calcularPeso: CalcularPesoChapaUseCase,
+    private val guardarFavorito: GuardarFavoritoUseCase,
+    private val obtenerFavorito: ObtenerFavoritoUseCase,
     private val analytics: AnalyticsRepository,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PesoChapasUiState())
@@ -31,6 +43,9 @@ class PesoChapasViewModel(
 
     /** Deduplicación de telemetría: el recálculo es por pulsación de tecla. */
     private var ultimoMaterialRegistrado: MaterialChapa? = null
+
+    /** Guarda contra la reentrada de [cargarFavorito]; ver el KDoc del homólogo en oro. */
+    private var favoritoAplicado = false
 
     init {
         analytics.logScreenView(SCREEN_NAME)
@@ -51,13 +66,78 @@ class PesoChapasViewModel(
         _uiState.value = PesoChapasUiState()
     }
 
-    /** Favoritos aún no existe: solo telemetría. El aviso efímero lo pone la vista. */
+    /**
+     * Guarda la chapa que hay en pantalla. Sin las tres medidas válidas y en rango no hay nada que
+     * guardar: se avisa igual que si el campo estuviera vacío.
+     */
     fun onGuardarFavoritos() {
-        analytics.logEvent(EVENT_FAVORITOS)
+        val estado = _uiState.value
+        val medidas = MedidaChapa.entries.associateWith { medida ->
+            parsearDecimalPositivo(estado.medidas[medida].orEmpty())
+                ?.takeIf { it <= medida.maximoMm }
+        }
+        val ancho = medidas[MedidaChapa.ANCHO]
+        val largo = medidas[MedidaChapa.LARGO]
+        val espesor = medidas[MedidaChapa.ESPESOR]
+        if (ancho == null || largo == null || espesor == null) {
+            avisar(AvisoFavorito.SIN_DATOS)
+            return
+        }
+
+        viewModelScope.launch(dispatchers.main) {
+            val resultado = guardarFavorito(
+                EntradasFavorito.Chapa(
+                    ancho = ancho,
+                    largo = largo,
+                    espesor = espesor,
+                    material = estado.material,
+                ),
+            )
+            avisar(
+                if (resultado is ResultadoGuardado.Guardado) {
+                    AvisoFavorito.GUARDADO
+                } else {
+                    AvisoFavorito.REPETIDO
+                },
+            )
+            analytics.logEvent(EVENT_FAVORITO, mapOf(PARAM_RESULTADO to resultado.analyticsId))
+        }
+    }
+
+    fun onAvisoFavoritoMostrado() {
+        if (_uiState.value.avisoFavorito == null) return
+        _uiState.value = _uiState.value.copy(avisoFavorito = null)
+    }
+
+    /** Rellena la sub-herramienta con un favorito. Idempotente; lo que no cuadra se ignora. */
+    fun cargarFavorito(id: Long) {
+        if (favoritoAplicado) return
+        favoritoAplicado = true
+
+        viewModelScope.launch(dispatchers.main) {
+            val entradas = obtenerFavorito(id)?.entradas as? EntradasFavorito.Chapa ?: return@launch
+            ultimoMaterialRegistrado = null
+            // Material y las tres medidas de un golpe: nada de encadenar los setters públicos.
+            recalcular {
+                PesoChapasUiState(
+                    material = entradas.material,
+                    medidas = mapOf(
+                        MedidaChapa.ANCHO to FormatoFavoritos.cantidadEntrada(entradas.ancho),
+                        MedidaChapa.ESPESOR to FormatoFavoritos.cantidadEntrada(entradas.espesor),
+                        MedidaChapa.LARGO to FormatoFavoritos.cantidadEntrada(entradas.largo),
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun avisar(aviso: AvisoFavorito) {
+        _uiState.value = _uiState.value.copy(avisoFavorito = aviso)
     }
 
     private fun recalcular(cambio: (PesoChapasUiState) -> PesoChapasUiState) {
-        val estado = cambio(_uiState.value)
+        // El aviso se apaga en cuanto el joyero toca algo.
+        val estado = cambio(_uiState.value).copy(avisoFavorito = null)
         val valores = MedidaChapa.entries.associateWith { medida ->
             parsearDecimalPositivo(estado.medidas[medida].orEmpty())
         }
@@ -114,7 +194,8 @@ class PesoChapasViewModel(
     private companion object {
         const val SCREEN_NAME = "herramientas_chapas"
         const val EVENT_CALCULO = "herramientas_chapa_calculada"
-        const val EVENT_FAVORITOS = "herramientas_chapa_favoritos_proximamente"
+        const val EVENT_FAVORITO = "herramientas_chapa_favorito_guardado"
+        const val PARAM_RESULTADO = "resultado"
         const val PARAM_MATERIAL = "material"
         const val PARAM_LEY = "ley"
         const val ESCALA_PESO = 2

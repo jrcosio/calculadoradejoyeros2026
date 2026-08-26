@@ -1,16 +1,25 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas
 
 import app.cash.turbine.test
+import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeFavoritosRepository
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
 import com.jrblanco.calculadoradejoyeros2021.domain.model.FamiliaChapa
+import com.jrblanco.calculadoradejoyeros2021.domain.model.FavoritosDePrueba
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MaterialChapa
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularPesoChapaUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import io.mockk.mockk
 import io.mockk.verify
 import java.math.BigDecimal
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -22,8 +31,15 @@ import org.junit.Test
 class PesoChapasViewModelTest {
 
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
+    private val favoritos = FakeFavoritosRepository()
 
-    private fun crearViewModel() = PesoChapasViewModel(CalcularPesoChapaUseCase(), analytics)
+    private fun crearViewModel() = PesoChapasViewModel(
+        calcularPeso = CalcularPesoChapaUseCase(),
+        guardarFavorito = GuardarFavoritoUseCase(favoritos),
+        obtenerFavorito = ObtenerFavoritoUseCase(favoritos),
+        analytics = analytics,
+        dispatchers = TestDispatcherProvider(),
+    )
 
     private fun PesoChapasViewModel.teclearReferencia() {
         onMedidaCambiada(MedidaChapa.ANCHO, "10")
@@ -208,14 +224,81 @@ class PesoChapasViewModelTest {
         verify(exactly = 2) { analytics.logEvent("herramientas_chapa_calculada", mapOf("material" to "oro", "ley" to "18k")) }
     }
 
+    // --- Favoritos (009) ---
+
     @Test
-    fun `guardar en favoritos solo registra telemetria y no toca el estado`() {
-        val viewModel = crearViewModel().apply { teclearReferencia() }
-        val antes = viewModel.uiState.value
+    fun `guardar manda las tres medidas y el material`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.teclearReferencia()
 
         viewModel.onGuardarFavoritos()
 
-        assertEquals(antes, viewModel.uiState.value)
-        verify(exactly = 1) { analytics.logEvent("herramientas_chapa_favoritos_proximamente") }
+        assertEquals(
+            EntradasFavorito.Chapa(
+                ancho = BigDecimal("10"),
+                largo = BigDecimal("20"),
+                espesor = BigDecimal("0.5"),
+                material = MaterialChapa.ORO_18K,
+            ),
+            favoritos.guardados.single(),
+        )
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) {
+            analytics.logEvent("herramientas_chapa_favorito_guardado", mapOf("resultado" to "nuevo"))
+        }
+    }
+
+    @Test
+    fun `guardar sin las tres medidas pide completar el calculo`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onMedidaCambiada(MedidaChapa.ANCHO, "10")
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `guardar una medida fuera de rango pide completar el calculo`() = runTest {
+        val viewModel = crearViewModel()
+        viewModel.onMedidaCambiada(MedidaChapa.ANCHO, "20000")
+        viewModel.onMedidaCambiada(MedidaChapa.ESPESOR, "0,5")
+        viewModel.onMedidaCambiada(MedidaChapa.LARGO, "20")
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `cargar un favorito rellena material y medidas y es idempotente`() = runTest {
+        favoritos.flujo.value = listOf(
+            FavoritosDePrueba.favorito(
+                id = 6L,
+                entradas = EntradasFavorito.Chapa(
+                    ancho = BigDecimal("12"),
+                    largo = BigDecimal("40"),
+                    espesor = BigDecimal("1.5"),
+                    material = MaterialChapa.PLATA_925,
+                ),
+            ),
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(6L)
+
+        val estado = viewModel.uiState.value
+        assertEquals(MaterialChapa.PLATA_925, estado.material)
+        assertEquals("12", estado.medidas[MedidaChapa.ANCHO])
+        assertEquals("40", estado.medidas[MedidaChapa.LARGO])
+        assertEquals("1,5", estado.medidas[MedidaChapa.ESPESOR])
+        assertNotNull(estado.resultado)
+
+        viewModel.onMedidaCambiada(MedidaChapa.ANCHO, "99")
+        viewModel.cargarFavorito(6L)
+
+        assertEquals("99", viewModel.uiState.value.medidas[MedidaChapa.ANCHO])
     }
 }

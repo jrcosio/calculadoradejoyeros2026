@@ -1,8 +1,14 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import app.cash.turbine.test
+import com.jrblanco.calculadoradejoyeros2021.core.util.TestDispatcherProvider
+import com.jrblanco.calculadoradejoyeros2021.data.repository.FakeFavoritosRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
+import com.jrblanco.calculadoradejoyeros2021.domain.model.FavoritosDePrueba
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
@@ -12,11 +18,17 @@ import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLeyInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import io.mockk.mockk
 import io.mockk.verify
+import java.math.BigDecimal
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -27,6 +39,7 @@ import org.junit.Test
 class SoldadurasViewModelTest {
 
     private val analytics = mockk<AnalyticsRepository>(relaxed = true)
+    private val favoritos = FakeFavoritosRepository()
 
     private fun crearViewModel() = SoldadurasViewModel(
         calcularLeyDesdeOro = CalcularSoldaduraLeyDesdeOroUseCase(),
@@ -35,7 +48,10 @@ class SoldadurasViewModelTest {
         calcularClasicaInversa = CalcularSoldaduraClasicaInversaUseCase(),
         calcularPlata = CalcularSoldaduraPlataUseCase(),
         calcularPlataInversa = CalcularSoldaduraPlataInversaUseCase(),
+        guardarFavorito = GuardarFavoritoUseCase(favoritos),
+        obtenerFavorito = ObtenerFavoritoUseCase(favoritos),
         analytics = analytics,
+        dispatchers = TestDispatcherProvider(),
     )
 
     private fun crearViewModelEnOroLey() = crearViewModel().apply {
@@ -513,16 +529,83 @@ class SoldadurasViewModelTest {
         }
     }
 
+    // --- Favoritos (009) ---
+
     @Test
-    fun `guardar favoritos solo emite su evento y no altera el estado`() {
+    fun `guardar en oro ley manda la variante de ley con su dureza color y modo`() = runTest {
         val viewModel = crearViewModelEnOroLey()
         viewModel.onCantidadCambiada("2")
-        val antes = viewModel.uiState.value
 
         viewModel.onGuardarFavoritos()
 
-        assertEquals(antes, viewModel.uiState.value)
-        verify(exactly = 1) { analytics.logEvent("soldaduras_favoritos_proximamente") }
+        assertEquals(
+            EntradasFavorito.SoldaduraLey(
+                cantidad = BigDecimal("2"),
+                dureza = DurezaSoldaduraLey.MUY_FLOJA,
+                color = ColorOroSoldadura.AMARILLO,
+                modo = ModoEntradaSoldadura.DESDE_METAL,
+            ),
+            favoritos.guardados.single(),
+        )
+        assertEquals(AvisoFavorito.GUARDADO, viewModel.uiState.value.avisoFavorito)
+        verify(exactly = 1) { analytics.logEvent("soldaduras_favorito_guardado", mapOf("resultado" to "nuevo")) }
+    }
+
+    @Test
+    fun `sin familia elegida no hay nada que guardar`() = runTest {
+        val viewModel = crearViewModel()
+
+        viewModel.onGuardarFavoritos()
+
+        assertTrue(favoritos.guardados.isEmpty())
+        assertEquals(AvisoFavorito.SIN_DATOS, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `guardar lo mismo dos veces avisa de que ya estaba`() = runTest {
+        val viewModel = crearViewModelEnOroLey()
+        viewModel.onCantidadCambiada("2")
+        viewModel.onGuardarFavoritos()
+
+        favoritos.resultadoGuardar = ResultadoGuardado.YaExistia(1L)
+        viewModel.onGuardarFavoritos()
+
+        assertEquals(AvisoFavorito.REPETIDO, viewModel.uiState.value.avisoFavorito)
+    }
+
+    @Test
+    fun `cargar un favorito de soldadura fija familia modo tipo y cantidad de una vez`() = runTest {
+        favoritos.flujo.value = listOf(
+            FavoritosDePrueba.favorito(
+                id = 3L,
+                entradas = EntradasFavorito.SoldaduraClasica(
+                    cantidad = BigDecimal("8"),
+                    tipo = TipoSoldaduraClasica.FUERTE,
+                    modo = ModoEntradaSoldadura.PESO_FINAL,
+                ),
+            ),
+        )
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(3L)
+
+        val estado = viewModel.uiState.value
+        assertEquals(FamiliaSoldadura.CLASICA, estado.familia)
+        assertEquals(ModoEntradaSoldadura.PESO_FINAL, estado.modo)
+        assertEquals(TipoSoldaduraClasica.FUERTE, estado.tipoClasica)
+        // La cantidad **no** se pierde: fijar la familia con el setter público la habría borrado.
+        assertEquals("8", estado.cantidadTexto)
+        assertNotNull(estado.resultado)
+    }
+
+    @Test
+    fun `cargar un favorito de otra seccion se ignora en silencio`() = runTest {
+        favoritos.flujo.value = listOf(FavoritosDePrueba.favorito(id = 7L, entradas = FavoritosDePrueba.chapa()))
+        val viewModel = crearViewModel()
+
+        viewModel.cargarFavorito(7L)
+
+        assertNull(viewModel.uiState.value.familia)
     }
 
     @Test

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Hermana rellena de ic_estrella, con el mismo pathData. La de trazo dice «guardar»;
+    esta dice «ya está guardado», que es lo que necesita la estrella de una tarjeta de
+    favoritos para que «quitar» tenga sentido. Se tinta en tiempo de ejecución con
+    Icon(tint = ...), por eso el relleno va en blanco puro.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3.8 L14.17,9.01 L19.8,9.47 L15.52,13.14 L16.82,18.63 L12,15.7 L7.18,18.63 L8.48,13.14 L4.2,9.47 L9.83,9.01 Z" />
+</vector>

@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
 import com.jrblanco.calculadoradejoyeros2021.ui.components.AvisoTecnico
 import com.jrblanco.calculadoradejoyeros2021.ui.components.BotonDorado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.CabeceraSeccion
@@ -43,6 +45,7 @@ import com.jrblanco.calculadoradejoyeros2021.ui.components.OpcionSegmento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.SelectorSegmentado
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaAcento
 import com.jrblanco.calculadoradejoyeros2021.ui.components.TarjetaTotal
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.mensajeRes
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelryColors
 import com.jrblanco.calculadoradejoyeros2021.ui.theme.JewelrySpacing
@@ -57,21 +60,35 @@ fun SoldaduraBaseScreen(
     onInfo: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    favoritoId: Long? = null,
     viewModel: SoldaduraBaseViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // Aviso efímero del sistema: los Toast se reemplazan solos y no se acumulan por muchas
+    // pulsaciones que haya. El ViewModel decide **qué** decir —el guardado va a almacenamiento y su
+    // resultado no se sabe en el momento del clic—; la vista solo lo muestra y lo consume.
+    val aviso = uiState.avisoFavorito
+    LaunchedEffect(aviso) {
+        if (aviso != null) {
+            Toast.makeText(context, aviso.mensajeRes, Toast.LENGTH_SHORT).show()
+            viewModel.onAvisoFavoritoMostrado()
+        }
+    }
+
+    // Un favorito reabierto rellena el formulario. El ViewModel es idempotente, así que una
+    // recomposición por cambio de configuración no machaca lo que el joyero llevara editado.
+    LaunchedEffect(favoritoId) {
+        favoritoId?.let(viewModel::cargarFavorito)
+    }
 
     SoldaduraBaseContent(
         uiState = uiState,
         onModoCambiado = viewModel::onModoCambiado,
         onCantidadCambiada = viewModel::onCantidadCambiada,
         onLimpiar = viewModel::onLimpiar,
-        onGuardarFavoritos = {
-            viewModel.onGuardarFavoritos()
-            // Aviso efímero del sistema; el ViewModel no lo conoce.
-            Toast.makeText(context, R.string.aviso_proximamente, Toast.LENGTH_SHORT).show()
-        },
+        onGuardarFavoritos = viewModel::onGuardarFavoritos,
         onInfo = onInfo,
         onBack = onBack,
         modifier = modifier,

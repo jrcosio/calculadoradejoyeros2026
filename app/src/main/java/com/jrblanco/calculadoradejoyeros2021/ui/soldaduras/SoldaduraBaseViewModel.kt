@@ -1,22 +1,35 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jrblanco.calculadoradejoyeros2021.core.util.DispatcherProvider
 import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.FormatoFavoritos
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SoldaduraBaseViewModel(
     private val calcularBase: CalcularSoldaduraBaseUseCase,
     private val calcularBaseInversa: CalcularSoldaduraBaseInversaUseCase,
+    private val guardarFavorito: GuardarFavoritoUseCase,
+    private val obtenerFavorito: ObtenerFavoritoUseCase,
     private val analytics: AnalyticsRepository,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SoldaduraBaseUiState())
@@ -28,6 +41,9 @@ class SoldaduraBaseViewModel(
      * nunca con la cantidad (FR-027).
      */
     private var ultimoModoRegistrado: ModoEntradaSoldadura? = null
+
+    /** Guarda contra la reentrada de [cargarFavorito]; ver el KDoc del homólogo en oro. */
+    private var favoritoAplicado = false
 
     init {
         // Pantalla nueva: estrena su propia serie de telemetría.
@@ -44,7 +60,8 @@ class SoldaduraBaseViewModel(
     }
 
     fun onCantidadCambiada(texto: String) {
-        val estado = _uiState.value.copy(cantidadTexto = texto)
+        // El aviso se apaga en cuanto el joyero toca algo.
+        val estado = _uiState.value.copy(cantidadTexto = texto, avisoFavorito = null)
         _uiState.value = estado.copy(resultado = calcular(estado))
     }
 
@@ -54,9 +71,57 @@ class SoldaduraBaseViewModel(
         _uiState.value = SoldaduraBaseUiState()
     }
 
-    /** Favoritos aún no existe: solo telemetría. El aviso efímero lo pone la vista. */
+    /** Guarda el cálculo que hay en pantalla; el resultado llega por el estado. */
     fun onGuardarFavoritos() {
-        analytics.logEvent(EVENT_FAVORITOS)
+        val cantidad = parsearCantidad(_uiState.value.cantidadTexto)
+        if (cantidad == null) {
+            avisar(AvisoFavorito.SIN_DATOS)
+            return
+        }
+
+        val modo = _uiState.value.modo
+        viewModelScope.launch(dispatchers.main) {
+            val resultado = guardarFavorito(
+                EntradasFavorito.SoldaduraBase(cantidad = cantidad, modo = modo),
+            )
+            avisar(
+                if (resultado is ResultadoGuardado.Guardado) {
+                    AvisoFavorito.GUARDADO
+                } else {
+                    AvisoFavorito.REPETIDO
+                },
+            )
+            analytics.logEvent(EVENT_FAVORITO, mapOf(PARAM_RESULTADO to resultado.analyticsId))
+        }
+    }
+
+    fun onAvisoFavoritoMostrado() {
+        if (_uiState.value.avisoFavorito == null) return
+        _uiState.value = _uiState.value.copy(avisoFavorito = null)
+    }
+
+    /**
+     * Rellena la pantalla con un favorito. El modo y la cantidad van en **una sola asignación**: la
+     * ruta pública `onModoCambiado` vacía la cantidad por FR-023, así que encadenarlas la perdería.
+     */
+    fun cargarFavorito(id: Long) {
+        if (favoritoAplicado) return
+        favoritoAplicado = true
+
+        viewModelScope.launch(dispatchers.main) {
+            val entradas = obtenerFavorito(id)?.entradas as? EntradasFavorito.SoldaduraBase
+                ?: return@launch
+            ultimoModoRegistrado = null
+            val estado = SoldaduraBaseUiState(
+                modo = entradas.modo,
+                cantidadTexto = FormatoFavoritos.cantidadEntrada(entradas.cantidad),
+            )
+            _uiState.value = estado.copy(resultado = calcular(estado))
+        }
+    }
+
+    private fun avisar(aviso: AvisoFavorito) {
+        _uiState.value = _uiState.value.copy(avisoFavorito = aviso)
     }
 
     private fun calcular(estado: SoldaduraBaseUiState): ResultadoSoldaduraBase? {
@@ -114,7 +179,8 @@ class SoldaduraBaseViewModel(
     private companion object {
         const val SCREEN_NAME = "soldadura_base"
         const val EVENT_CALCULO = "soldadura_base_calculado"
-        const val EVENT_FAVORITOS = "soldadura_base_favoritos_proximamente"
+        const val EVENT_FAVORITO = "soldadura_base_favorito_guardado"
+        const val PARAM_RESULTADO = "resultado"
         const val PARAM_MODO = "modo"
     }
 }

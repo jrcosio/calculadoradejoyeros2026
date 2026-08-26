@@ -3,9 +3,12 @@ package com.jrblanco.calculadoradejoyeros2021.core.di
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionInversaOroUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionInversaPlataUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionOroUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.BorrarFavoritoUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularPesoChapaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ConvertirCotizacionUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerCotizacionesUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ResumirFavoritoUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionPlataUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraBaseUseCase
@@ -16,7 +19,9 @@ import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLeyUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarIdiomaUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObservarFavoritosUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObservarIdiomaUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -41,6 +46,13 @@ val domainModule = module {
     factoryOf(::CalcularPesoChapaUseCase)
     factoryOf(::ConvertirCotizacionUseCase)
     factoryOf(::ObtenerCotizacionesUseCase)
+    // Favoritos (009): los cuatro de la lista y el que rehace las cifras.
+    factoryOf(::ObservarFavoritosUseCase)
+    factoryOf(::GuardarFavoritoUseCase)
+    factoryOf(::BorrarFavoritoUseCase)
+    factoryOf(::ObtenerFavoritoUseCase)
+    factoryOf(::ResumirFavoritoUseCase)
+
     // Ajustes (008): el idioma de la app.
     factoryOf(::ObservarIdiomaUseCase)
     factoryOf(::GuardarIdiomaUseCase)

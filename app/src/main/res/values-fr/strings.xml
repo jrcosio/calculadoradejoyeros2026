@@ -36,9 +36,6 @@
     <string name="topbar_info">Informations sur l\'application</string>
     <string name="topbar_atras">Retour</string>
 
-    <!-- Pantallas aún sin desarrollar -->
-    <string name="placeholder_pendiente">Écran en construction</string>
-
     <!-- Pantalla de información -->
     <string name="info_titulo">Informations</string>
     <string name="info_perfil_descripcion">La technologie et la tradition se rejoignent dans une application créée par José Ramón Blanco, développeur et bijoutier artisan, avec l\'idée d\'offrir aux professionnels de la bijouterie du monde entier des outils utiles, modernes et accessibles.</string>
@@ -73,7 +70,10 @@
     <string name="metal_rodio_imagen">Tas de grenaille de rhodium</string>
     <string name="accion_limpiar">Effacer</string>
     <string name="accion_guardar_favoritos">Ajouter aux favoris</string>
-    <string name="aviso_proximamente">Bientôt disponible</string>
+    <string name="favoritos_aviso_guardado">Ajouté aux favoris</string>
+    <string name="favoritos_aviso_repetido">Déjà dans les favoris</string>
+    <string name="favoritos_aviso_sin_datos">Terminez le calcul avant d’enregistrer</string>
+    <string name="accion_cancelar">Annuler</string>
 
     <!-- Calculadora de aleaciones de oro -->
     <string name="oro_entrada_titulo">Saisissez l\'or 24K</string>
@@ -218,4 +218,14 @@
     <string name="ajustes_idioma_automatico">Automatique</string>
     <string name="ajustes_idioma_automatico_detalle">Suit la langue de l\'appareil · %1$s</string>
     <string name="ajustes_idioma_activo">Langue sélectionnée</string>
+
+    <!-- Favoris -->
+    <string name="favoritos_vacio_titulo">Aucun favori pour l’instant</string>
+    <string name="favoritos_vacio_texto">Enregistrez n’importe quel calcul avec « %1$s » et vous le retrouverez ici, prêt à refaire.</string>
+    <string name="favoritos_quitar">Retirer des favoris</string>
+    <string name="favoritos_guardado_el">Enregistré le %1$s</string>
+    <string name="favoritos_mas_lineas">+%1$d de plus</string>
+    <string name="favoritos_borrar_titulo">Retirer des favoris ?</string>
+    <string name="favoritos_borrar_mensaje">« %1$s » sera retiré. Vous pourrez l’enregistrer à nouveau quand vous voudrez.</string>
+    <string name="favoritos_borrar_confirmar">Retirer</string>
 </resources>

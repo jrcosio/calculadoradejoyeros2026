@@ -1,6 +1,7 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.chapas
 
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MaterialChapa
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
 import java.math.BigDecimal
 
 /**
@@ -49,4 +50,9 @@ data class PesoChapasUiState(
     val fueraDeRango: Set<MedidaChapa> = emptySet(),
     val dibujo: DibujoChapaUiState = DibujoChapaUiState(),
     val resultado: ResultadoChapa? = null,
+    /**
+     * Lo que hay que decirle al joyero tras pulsar «Guardar en favoritos», de un solo uso: la vista
+     * lo muestra y llama a `onAvisoFavoritoMostrado()`. Nulo mientras no hay nada que decir.
+     */
+    val avisoFavorito: AvisoFavorito? = null,
 )

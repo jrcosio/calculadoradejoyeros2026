@@ -1,19 +1,31 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.plata
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jrblanco.calculadoradejoyeros2021.core.util.DispatcherProvider
 import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
 import com.jrblanco.calculadoradejoyeros2021.domain.model.LeyPlata
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularAleacionPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.FormatoFavoritos
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class PlataViewModel(
     private val calcularAleacion: CalcularAleacionPlataUseCase,
+    private val guardarFavorito: GuardarFavoritoUseCase,
+    private val obtenerFavorito: ObtenerFavoritoUseCase,
     private val analytics: AnalyticsRepository,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlataUiState())
@@ -25,6 +37,9 @@ class PlataViewModel(
      * cuando la entrada vuelve a ser válida.
      */
     private var ultimaLeyRegistrada: LeyPlata? = null
+
+    /** Guarda contra la reentrada de [cargarFavorito]; ver el KDoc del homólogo en oro. */
+    private var favoritoAplicado = false
 
     init {
         // El mismo nombre que emitía el placeholder: conserva la serie histórica.
@@ -41,13 +56,56 @@ class PlataViewModel(
         _uiState.value = PlataUiState()
     }
 
-    /** Favoritos aún no existe: solo telemetría. El aviso efímero lo pone la vista. */
+    /** Guarda el cálculo que hay en pantalla; el resultado llega por el estado. */
     fun onGuardarFavoritos() {
-        analytics.logEvent(EVENT_FAVORITOS)
+        val masa = parsearCantidad(_uiState.value.cantidadTexto)
+        if (masa == null) {
+            avisar(AvisoFavorito.SIN_DATOS)
+            return
+        }
+
+        val ley = _uiState.value.ley
+        viewModelScope.launch(dispatchers.main) {
+            val resultado = guardarFavorito(EntradasFavorito.Plata(masaOrigen = masa, ley = ley))
+            avisar(
+                if (resultado is ResultadoGuardado.Guardado) {
+                    AvisoFavorito.GUARDADO
+                } else {
+                    AvisoFavorito.REPETIDO
+                },
+            )
+            analytics.logEvent(EVENT_FAVORITO, mapOf(PARAM_RESULTADO to resultado.analyticsId))
+        }
+    }
+
+    fun onAvisoFavoritoMostrado() {
+        if (_uiState.value.avisoFavorito == null) return
+        _uiState.value = _uiState.value.copy(avisoFavorito = null)
+    }
+
+    /** Rellena la calculadora con un favorito. Idempotente; lo que no cuadra se ignora en silencio. */
+    fun cargarFavorito(id: Long) {
+        if (favoritoAplicado) return
+        favoritoAplicado = true
+
+        viewModelScope.launch(dispatchers.main) {
+            val entradas = obtenerFavorito(id)?.entradas as? EntradasFavorito.Plata ?: return@launch
+            ultimaLeyRegistrada = null
+            val estado = PlataUiState(
+                cantidadTexto = FormatoFavoritos.cantidadEntrada(entradas.masaOrigen),
+                ley = entradas.ley,
+            )
+            _uiState.value = estado.copy(resultado = calcular(estado))
+        }
+    }
+
+    private fun avisar(aviso: AvisoFavorito) {
+        _uiState.value = _uiState.value.copy(avisoFavorito = aviso)
     }
 
     private fun recalcular(cambio: (PlataUiState) -> PlataUiState) {
-        val estado = cambio(_uiState.value)
+        // El aviso se apaga en cuanto el joyero toca algo.
+        val estado = cambio(_uiState.value).copy(avisoFavorito = null)
         _uiState.value = estado.copy(resultado = calcular(estado))
     }
 
@@ -96,7 +154,8 @@ class PlataViewModel(
     private companion object {
         const val SCREEN_NAME = "plata"
         const val EVENT_CALCULO = "plata_calculado"
-        const val EVENT_FAVORITOS = "plata_favoritos_proximamente"
+        const val EVENT_FAVORITO = "plata_favorito_guardado"
+        const val PARAM_RESULTADO = "resultado"
         const val PARAM_LEY = "ley"
     }
 }

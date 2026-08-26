@@ -7,16 +7,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.ui.ajustes.AjustesScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.components.JewelryBottomBar
 import com.jrblanco.calculadoradejoyeros2021.ui.components.MainTab
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.FavoritosScreen
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.TipoFavorito
 import com.jrblanco.calculadoradejoyeros2021.ui.herramientas.HerramientasScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeModule
 import com.jrblanco.calculadoradejoyeros2021.ui.home.HomeScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.info.InfoScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.oro.OroScreen
-import com.jrblanco.calculadoradejoyeros2021.ui.placeholder.PlaceholderScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.plata.PlataScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.soldaduras.SoldaduraBaseScreen
 import com.jrblanco.calculadoradejoyeros2021.ui.soldaduras.SoldadurasScreen
@@ -73,13 +75,10 @@ fun AppNavHost(
         }
 
         composable<Route.Favoritos> {
-            PlaceholderScreen(
-                title = stringResource(R.string.nav_favoritos),
-                analyticsName = "favoritos",
+            FavoritosScreen(
+                onAbrirFavorito = { favorito -> goTo(favorito.tipo.ruta(favorito.id)) },
+                onTabSelect = ::goToTab,
                 onInfo = onInfo,
-                bottomBar = {
-                    JewelryBottomBar(selected = MainTab.FAVORITOS, onSelect = ::goToTab)
-                },
             )
         }
 
@@ -89,24 +88,41 @@ fun AppNavHost(
 
         // --- Secciones de módulo: pantalla completa, con flecha de retroceso ---
 
-        composable<Route.Oro> {
-            OroScreen(onInfo = onInfo, onBack = onBack)
+        composable<Route.Oro> { entrada ->
+            OroScreen(
+                onInfo = onInfo,
+                onBack = onBack,
+                favoritoId = entrada.toRoute<Route.Oro>().favoritoId,
+            )
         }
-        composable<Route.Plata> {
-            PlataScreen(onInfo = onInfo, onBack = onBack)
+        composable<Route.Plata> { entrada ->
+            PlataScreen(
+                onInfo = onInfo,
+                onBack = onBack,
+                favoritoId = entrada.toRoute<Route.Plata>().favoritoId,
+            )
         }
-        composable<Route.Soldaduras> {
+        composable<Route.Soldaduras> { entrada ->
             SoldadurasScreen(
                 onInfo = onInfo,
                 onBack = onBack,
-                onSoldaduraBase = { goTo(Route.SoldaduraBase) },
+                onSoldaduraBase = { goTo(Route.SoldaduraBase()) },
+                favoritoId = entrada.toRoute<Route.Soldaduras>().favoritoId,
             )
         }
-        composable<Route.SoldaduraBase> {
-            SoldaduraBaseScreen(onInfo = onInfo, onBack = onBack)
+        composable<Route.SoldaduraBase> { entrada ->
+            SoldaduraBaseScreen(
+                onInfo = onInfo,
+                onBack = onBack,
+                favoritoId = entrada.toRoute<Route.SoldaduraBase>().favoritoId,
+            )
         }
-        composable<Route.Herramientas> {
-            HerramientasScreen(onInfo = onInfo, onBack = onBack)
+        composable<Route.Herramientas> { entrada ->
+            HerramientasScreen(
+                onInfo = onInfo,
+                onBack = onBack,
+                favoritoId = entrada.toRoute<Route.Herramientas>().favoritoId,
+            )
         }
 
         // --- Otros ---
@@ -128,8 +144,21 @@ private val MainTab.route: Route
 /** Destino de cada módulo del menú. */
 private val HomeModule.route: Route
     get() = when (this) {
-        HomeModule.ORO -> Route.Oro
-        HomeModule.PLATA -> Route.Plata
-        HomeModule.SOLDADURAS -> Route.Soldaduras
-        HomeModule.HERRAMIENTAS -> Route.Herramientas
+        HomeModule.ORO -> Route.Oro()
+        HomeModule.PLATA -> Route.Plata()
+        HomeModule.SOLDADURAS -> Route.Soldaduras()
+        HomeModule.HERRAMIENTAS -> Route.Herramientas()
     }
+
+/**
+ * A dónde lleva cada tarjeta de favorito. Hermana de las dos extensiones de arriba: la sección del
+ * favorito **es** su destino, y por eso `TipoFavorito` tiene cinco valores y no siete — la BASE
+ * tiene ruta propia y las tres familias de soldadura comparten la suya.
+ */
+private fun TipoFavorito.ruta(favoritoId: Long): Route = when (this) {
+    TipoFavorito.ORO -> Route.Oro(favoritoId)
+    TipoFavorito.PLATA -> Route.Plata(favoritoId)
+    TipoFavorito.SOLDADURA -> Route.Soldaduras(favoritoId)
+    TipoFavorito.SOLDADURA_BASE -> Route.SoldaduraBase(favoritoId)
+    TipoFavorito.CHAPA -> Route.Herramientas(favoritoId)
+}

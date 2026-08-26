@@ -1,11 +1,16 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.soldaduras
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jrblanco.calculadoradejoyeros2021.core.util.DispatcherProvider
 import com.jrblanco.calculadoradejoyeros2021.core.util.parsearDecimalPositivo
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.CalculoSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.model.ColorOroSoldadura
 import com.jrblanco.calculadoradejoyeros2021.domain.model.DurezaSoldaduraLey
+import com.jrblanco.calculadoradejoyeros2021.domain.model.EntradasFavorito
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ModoEntradaSoldadura
+import com.jrblanco.calculadoradejoyeros2021.domain.model.ResultadoGuardado
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraClasica
 import com.jrblanco.calculadoradejoyeros2021.domain.model.TipoSoldaduraPlata
 import com.jrblanco.calculadoradejoyeros2021.domain.repository.AnalyticsRepository
@@ -15,11 +20,16 @@ import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLey
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraLeyInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataInversaUseCase
 import com.jrblanco.calculadoradejoyeros2021.domain.usecase.CalcularSoldaduraPlataUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.GuardarFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.domain.usecase.ObtenerFavoritoUseCase
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.AvisoFavorito
+import com.jrblanco.calculadoradejoyeros2021.ui.favoritos.FormatoFavoritos
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SoldadurasViewModel(
     private val calcularLeyDesdeOro: CalcularSoldaduraLeyDesdeOroUseCase,
@@ -28,7 +38,10 @@ class SoldadurasViewModel(
     private val calcularClasicaInversa: CalcularSoldaduraClasicaInversaUseCase,
     private val calcularPlata: CalcularSoldaduraPlataUseCase,
     private val calcularPlataInversa: CalcularSoldaduraPlataInversaUseCase,
+    private val guardarFavorito: GuardarFavoritoUseCase,
+    private val obtenerFavorito: ObtenerFavoritoUseCase,
     private val analytics: AnalyticsRepository,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SoldadurasUiState())
@@ -41,6 +54,9 @@ class SoldadurasViewModel(
      * válida, y nunca con la cantidad (FR-027).
      */
     private var ultimaCombinacionRegistrada: Combinacion? = null
+
+    /** Guarda contra la reentrada de [cargarFavorito]; ver el KDoc del homólogo en oro. */
+    private var favoritoAplicado = false
 
     init {
         // El mismo nombre que emitía el placeholder: conserva la serie histórica.
@@ -82,13 +98,106 @@ class SoldadurasViewModel(
         _uiState.value = SoldadurasUiState(familia = _uiState.value.familia)
     }
 
-    /** Favoritos aún no existe: solo telemetría. El aviso efímero lo pone la vista. */
+    /**
+     * Guarda el cálculo que hay en pantalla. Sin familia elegida no hay formulario, así que tampoco
+     * hay nada que guardar: se avisa igual que con el campo vacío.
+     */
     fun onGuardarFavoritos() {
-        analytics.logEvent(EVENT_FAVORITOS)
+        val estado = _uiState.value
+        val familia = estado.familia
+        val cantidad = parsearCantidad(estado.cantidadTexto)
+        if (familia == null || cantidad == null) {
+            avisar(AvisoFavorito.SIN_DATOS)
+            return
+        }
+
+        val entradas = when (familia) {
+            FamiliaSoldadura.ORO_LEY -> EntradasFavorito.SoldaduraLey(
+                cantidad = cantidad,
+                dureza = estado.dureza,
+                color = estado.colorOro,
+                modo = estado.modo,
+            )
+            FamiliaSoldadura.CLASICA -> EntradasFavorito.SoldaduraClasica(
+                cantidad = cantidad,
+                tipo = estado.tipoClasica,
+                modo = estado.modo,
+            )
+            FamiliaSoldadura.PLATA -> EntradasFavorito.SoldaduraPlata(
+                cantidad = cantidad,
+                tipo = estado.tipoPlata,
+                modo = estado.modo,
+            )
+        }
+
+        viewModelScope.launch(dispatchers.main) {
+            val resultado = guardarFavorito(entradas)
+            avisar(
+                if (resultado is ResultadoGuardado.Guardado) {
+                    AvisoFavorito.GUARDADO
+                } else {
+                    AvisoFavorito.REPETIDO
+                },
+            )
+            analytics.logEvent(EVENT_FAVORITO, mapOf(PARAM_RESULTADO to resultado.analyticsId))
+        }
+    }
+
+    fun onAvisoFavoritoMostrado() {
+        if (_uiState.value.avisoFavorito == null) return
+        _uiState.value = _uiState.value.copy(avisoFavorito = null)
+    }
+
+    /**
+     * Rellena el formulario con un favorito guardado.
+     *
+     * El estado se construye **en una sola asignación**, y aquí no es una preferencia de estilo:
+     * `onFamiliaSeleccionada` reasigna `SoldadurasUiState(familia = familia)` por FR-023 de la 006,
+     * o sea que borra todo lo demás. Encadenar los setters públicos perdería la cantidad y emitiría
+     * eventos `soldaduras_calculado` intermedios que no corresponden a ningún cálculo del joyero.
+     */
+    fun cargarFavorito(id: Long) {
+        if (favoritoAplicado) return
+        favoritoAplicado = true
+
+        viewModelScope.launch(dispatchers.main) {
+            val favorito = obtenerFavorito(id) ?: return@launch
+            ultimaCombinacionRegistrada = null
+
+            val estado = when (val entradas = favorito.entradas) {
+                is EntradasFavorito.SoldaduraLey -> SoldadurasUiState(
+                    familia = FamiliaSoldadura.ORO_LEY,
+                    modo = entradas.modo,
+                    cantidadTexto = FormatoFavoritos.cantidadEntrada(entradas.cantidad),
+                    colorOro = entradas.color,
+                    dureza = entradas.dureza,
+                )
+                is EntradasFavorito.SoldaduraClasica -> SoldadurasUiState(
+                    familia = FamiliaSoldadura.CLASICA,
+                    modo = entradas.modo,
+                    cantidadTexto = FormatoFavoritos.cantidadEntrada(entradas.cantidad),
+                    tipoClasica = entradas.tipo,
+                )
+                is EntradasFavorito.SoldaduraPlata -> SoldadurasUiState(
+                    familia = FamiliaSoldadura.PLATA,
+                    modo = entradas.modo,
+                    cantidadTexto = FormatoFavoritos.cantidadEntrada(entradas.cantidad),
+                    tipoPlata = entradas.tipo,
+                )
+                // Un favorito de otra sección: se ignora en silencio.
+                else -> return@launch
+            }
+            _uiState.value = estado.copy(resultado = calcular(estado))
+        }
+    }
+
+    private fun avisar(aviso: AvisoFavorito) {
+        _uiState.value = _uiState.value.copy(avisoFavorito = aviso)
     }
 
     private fun recalcular(cambio: (SoldadurasUiState) -> SoldadurasUiState) {
-        val estado = cambio(_uiState.value)
+        // El aviso se apaga en cuanto el joyero toca algo.
+        val estado = cambio(_uiState.value).copy(avisoFavorito = null)
         _uiState.value = estado.copy(resultado = calcular(estado))
     }
 
@@ -255,7 +364,8 @@ class SoldadurasViewModel(
     private companion object {
         const val SCREEN_NAME = "soldaduras"
         const val EVENT_CALCULO = "soldaduras_calculado"
-        const val EVENT_FAVORITOS = "soldaduras_favoritos_proximamente"
+        const val EVENT_FAVORITO = "soldaduras_favorito_guardado"
+        const val PARAM_RESULTADO = "resultado"
         const val PARAM_FAMILIA = "familia"
         const val PARAM_MODO = "modo"
         const val PARAM_TIPO = "tipo"

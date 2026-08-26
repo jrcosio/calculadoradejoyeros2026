@@ -34,9 +34,6 @@
     <string name="topbar_info">Información de la app</string>
     <string name="topbar_atras">Volver</string>
 
-    <!-- Pantallas aún sin desarrollar -->
-    <string name="placeholder_pendiente">Pantalla en construcción</string>
-
     <!-- Pantalla de información -->
     <string name="info_titulo">Información</string>
     <string name="info_perfil_nombre" translatable="false">José Ramón Blanco</string>
@@ -84,7 +81,10 @@
     <string name="metal_rodio_imagen">Montón de granalla de rodio</string>
     <string name="accion_limpiar">Limpiar</string>
     <string name="accion_guardar_favoritos">Guardar en favoritos</string>
-    <string name="aviso_proximamente">Próximamente</string>
+    <string name="favoritos_aviso_guardado">Guardado en favoritos</string>
+    <string name="favoritos_aviso_repetido">Ya estaba en favoritos</string>
+    <string name="favoritos_aviso_sin_datos">Completa el cálculo antes de guardar</string>
+    <string name="accion_cancelar">Cancelar</string>
 
     <!-- Calculadora de aleaciones de oro -->
     <string name="oro_entrada_titulo">Introduce el oro de 24K</string>
@@ -252,4 +252,21 @@
     <string name="idioma_fr" translatable="false">Français</string>
     <string name="idioma_de" translatable="false">Deutsch</string>
     <string name="idioma_it" translatable="false">Italiano</string>
+
+    <!-- Favoritos -->
+    <string name="favoritos_vacio_titulo">Aún no hay favoritos</string>
+    <string name="favoritos_vacio_texto">Guarda cualquier cálculo con «%1$s» y aquí lo tendrás listo para repetirlo.</string>
+    <string name="favoritos_quitar">Quitar de favoritos</string>
+    <string name="favoritos_guardado_el">Guardado el %1$s</string>
+    <string name="favoritos_mas_lineas">+%1$d más</string>
+    <string name="favoritos_borrar_titulo">¿Quitar de favoritos?</string>
+    <string name="favoritos_borrar_mensaje">Se quitará «%1$s». Podrás volver a guardarlo cuando quieras.</string>
+    <string name="favoritos_borrar_confirmar">Quitar</string>
+
+    <!--
+        Plantillas de formato: no queda ni una palabra dentro, solo símbolos de unidad.
+        favoritos_cantidad_gramos no duplica unidad_gramos: esa es la unidad sola.
+    -->
+    <string name="favoritos_cantidad_gramos" translatable="false">%1$s gr</string>
+    <string name="favoritos_medidas_chapa" translatable="false">%1$s × %2$s × %3$s mm</string>
 </resources>
