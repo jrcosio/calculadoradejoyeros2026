@@ -551,10 +551,16 @@ desofuscados con nombre de fichero y número de línea.
   mano; hace falta un keystore antes de poder publicar.
 
 ```bash
-# probar un release localmente (firma con la clave de debug, no vale para publicar)
+# probar un release localmente (firma con la clave de debug, no vale para publicar).
+# `apksigner` es un script que invoca `java` desde el PATH, así que con exportar JAVA_HOME no
+# basta: sin esta línea falla con «Unable to locate a Java Runtime».
+export PATH="$JAVA_HOME/bin:$PATH"
 $ANDROID_HOME/build-tools/37.0.0/apksigner sign --ks ~/.android/debug.keystore \
   --ks-pass pass:android --key-pass pass:android --out /tmp/rel.apk \
   app/build/outputs/apk/release/app-release-unsigned.apk
+
+# el APK de release NO es depurable: `adb run-as` no funciona y la base de datos no se puede
+# inspeccionar. Lo que se prueba en un release se prueba por la interfaz.
 
 # desofuscar un stack trace a mano
 $ANDROID_HOME/cmdline-tools/latest/bin/retrace \

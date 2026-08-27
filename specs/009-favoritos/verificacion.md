@@ -98,12 +98,37 @@ Nada de esto está roto: **no se ha comprobado**, y hace falta un humano o un em
 - **Volumen con 50 favoritos** (paso 29, SC-009). El mapeo corre en `dispatchers.main`; si no
   cumpliera, la salida ya está prevista: `.flowOn(dispatchers.default)`.
 - **Copia de seguridad y móvil nuevo** (pasos 26–27, FR-033).
-- **`assembleRelease` firmado a mano** (paso 28). Es el que descarta que R8 rompa el discriminador de
-  tipo, y no hay `signingConfig` de release en el proyecto.
 - **Las otras cuatro calculadoras** se probaron por test (unitario e instrumentado) pero no a mano en
   el emulador: solo se recorrió la de oro de punta a punta.
 - **Abrir un favorito de chapa sin que se componga `PreciosMetalesSection`** (paso 14): el diseño lo
   garantiza por el orden del `when`, y hay test del ViewModel, pero no se miró el log de red.
+
+## Release con R8: verificado
+
+Hecho después, sobre un `assembleRelease` firmado a mano con la clave de debug (el proyecto no tiene
+`signingConfig` de release). Importa porque `app/src/main/keepRules/rules.keep` **no tiene ni una
+regla activa**: R8 corre solo con las que aportan las librerías, y la firma canónica de un favorito
+depende de literales de cadena que la ofuscación podría haberse llevado.
+
+`apksigner` necesita `java` en el `PATH`, que en este proyecto no está; hay que añadir
+`$JAVA_HOME/bin` además de exportar `JAVA_HOME`.
+
+El APK de release **no es depurable**, así que `adb run-as` no sirve y la base no se puede
+inspeccionar: la verificación es toda por interfaz, que es justo el escenario del joyero.
+
+| Comprobación | Resultado |
+|---|---|
+| `:app:assembleRelease` con R8 y subida del mapping a Crashlytics | en verde |
+| Cálculo de 30 g de 18 K blanco | 3,939 / 1,614 / 4,408 / 39,960 — idénticos al debug |
+| Guardar el favorito | la tarjeta aparece en la pestaña, así que **el discriminador de tipo sobrevive a R8** |
+| Las cifras de la tarjeta | idénticas a las de la calculadora: `ResumirFavoritoUseCase` rehace bien |
+| Pulsar la tarjeta | reabre con 30, 18 K y White puestos — el argumento `favoritoId` de la ruta type-safe también sobrevive |
+| Guardar lo mismo otra vez | **una sola tarjeta**: el índice único sobre la firma funciona en release |
+| Crashes en todo el recorrido | ninguno |
+
+Lo que esto descarta de una vez: que R8 se llevara los serializadores de `kotlinx.serialization`, el
+código generado por Room, o los literales del `when` que produce el `tipo` y la `firma`. Los tres
+puntos que el diseño marcó como sensibles a la ofuscación.
 
 ## Desviaciones respecto a `tasks.md`
 
@@ -133,6 +158,6 @@ Nada de esto está roto: **no se ha comprobado**, y hace falta un humano o un em
 
 ## Estado
 
-Las 88 tareas de `tasks.md` están cerradas salvo lo que la sección «Pendiente de verificar» enumera,
-que es verificación manual y no implementación. La feature está completa y las cuatro puertas
-automáticas están en verde.
+Las 88 tareas de `tasks.md` están cerradas salvo lo que la sección «Pendiente de verificar»
+enumera, que es verificación manual y no implementación. La feature está completa y las puertas
+automáticas están en verde, con los instrumentados en **124 de 124** desde el arreglo posterior.
