@@ -12,23 +12,37 @@ Qué se comprobó de verdad, qué queda pendiente y en qué se desvió la implem
 | `./gradlew :app:lint` | **en verde** (`MissingTranslation` / `ExtraTranslation`) |
 | `./gradlew :app:assembleDebug` | **en verde** |
 | `./gradlew :app:compileDebugAndroidTestKotlin` | **en verde** |
-| `./gradlew :app:connectedDebugAndroidTest` | **116 de 124 en verde**; los 8 fallos son **preexistentes** (ver abajo) |
+| `./gradlew :app:connectedDebugAndroidTest` | **124 de 124 en verde** desde el arreglo posterior (ver abajo) |
 
 Los 20 tests instrumentados de esta feature (11 de pantalla, 9 de Room) pasan todos.
 
-### Los 8 fallos instrumentados son de antes de la feature
+### Los 8 fallos instrumentados: lo que dije aquí estaba mal
 
-El emulador de esta máquina está en **`en-US`**, y ocho tests de otras features dependen del idioma
-del dispositivo: `WelcomeScreenTest` busca literales en español, el helper de
-`PreciosMetalesScreenTest` formatea cadenas con y sin argumentos, y dos tests de botones no
-encuentran su nodo con las etiquetas inglesas.
+Al cerrar la feature escribí que los ocho fallos «dependen del idioma del dispositivo». **Era falso
+para siete de los ocho.** Comprobé que fallaban también antes de la 009 (worktree en `e72169a`) y de
+ahí salté a «es el locale» sin verificar la causa de cada uno.
 
-**No es una suposición**: se creó un *worktree* de git en `e72169a` —el commit anterior a esta
-feature— y **los mismos tests fallan igual** allí. Los cuatro comprobados
-(`PesoChapasScreenTest.losBotonesPropaganSusCallbacks`,
-`SoldadurasScreenTest.conFamilia_losBotonesExistenYPropagan` y los dos de `WelcomeScreenTest`)
-fallan en el código base. Es deuda anterior, y arreglarla es una feature aparte: hay que dejar de
-depender del locale del dispositivo en los tests instrumentados.
+El diagnóstico real, hecho después:
+
+| Test | Causa raíz | ¿Idioma? |
+|---|---|---|
+| `WelcomeScreenTest:38` | comparaba contra la plantilla cruda `Desarrollado por %1$s` | No |
+| `WelcomeScreenTest:63` | literales en español a pelo | **Sí**, el único |
+| `PreciosMetalesScreenTest` ×2 | un recurso pintado dos veces → `assertExists` encontraba 2 nodos | No |
+| `PreciosMetalesScreenTest` ×2 | el helper `texto(id)` con `vararg` vacío **formatea**, y dos cadenas llevan `%` | No |
+| `PesoChapasScreenTest:159` | el botón caía fuera de la ventana: nodo de bounds cero y el toque se inyecta en (0,0) | No, geometría |
+| `SoldadurasScreenTest:345` | ídem, recortado por su `verticalScroll` | No, geometría |
+
+Nadie lo había visto porque la suite instrumentada **no fue puerta de calidad hasta esta feature**:
+en la 008 solo se ejecutaron los dos tests nuevos, y entre la 006 y la 009 nadie corrió la suite
+completa. Dos de los ocho llevaban roto desde la 006 y la 007.
+
+Se arreglaron en un cambio aparte, que además ancló el idioma de los trece tests de pantalla con
+`ui/EntornoDeTest.kt`. Al hacerlo salió **un bug de producto de esta feature**: el botón «Cancelar»
+del diálogo de borrado se pintaba en el idioma del dispositivo y no en el elegido, porque un
+`Dialog` abre ventana propia y la plataforma repone allí `LocalContext` y `LocalConfiguration`,
+saltándose `ProveedorIdioma`. El KDoc de `DialogoConfirmacion` afirmaba lo contrario. Corregido
+reponiendo los dos locales dentro de la ventana.
 
 `persist.sys.locale` no se puede cambiar en este AVD (`adbd cannot run as root in production
 builds`), exactamente como advierte `CLAUDE.md`.

@@ -26,10 +26,13 @@ import androidx.compose.material3.Text
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -195,8 +198,14 @@ private fun TarjetaSinFavoritos(modifier: Modifier = Modifier) {
  * `NavigationBar`, `Button` y `SegmentedButton`.
  *
  * De Material 3 se copia a mano lo único que valía la pena: el `paneTitle`, para que el lector de
- * pantalla anuncie el panel al aparecer. Los `CompositionLocal` de `ProveedorIdioma` propagan a la
- * subcomposición del diálogo, así que sale en el idioma elegido sin hacer nada.
+ * pantalla anuncie el panel al aparecer.
+ *
+ * **Un `Dialog` rompe el proveedor de idioma y hay que reponerlo dentro.** Abre una ventana propia,
+ * y la plataforma vuelve a proveer `LocalContext` y `LocalConfiguration` desde ella, así que un
+ * `stringResource` llamado aquí dentro se resolvería con el idioma del **dispositivo** y no con el
+ * que el joyero eligió: el diálogo saldría con el título en italiano y el botón «Cancel» en inglés.
+ * Por eso se capturan los dos locales antes de entrar y se vuelven a proveer dentro. Lo cazó
+ * `FavoritosScreenTest` al anclar el idioma de los tests instrumentados.
  *
  * Privado de este fichero, como `FilaIdioma` en Ajustes: sube a `ui/components/` el día que lo pida
  * un segundo consumidor. La firma ya es genérica para que ese día sea un corta y pega.
@@ -210,51 +219,60 @@ private fun DialogoConfirmacion(
     onCancelar: () -> Unit,
     acento: Color = JewelryColors.Danger,
 ) {
+    // Los dos locales que `ProveedorIdioma` deja puestos, capturados **antes** de abrir la ventana.
+    val contextoDeLaApp = LocalContext.current
+    val configuracionDeLaApp = LocalConfiguration.current
+
     Dialog(
         onDismissRequest = onCancelar,
         // La geometría es nuestra: con el ancho por defecto de la plataforma, no lo sería.
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Box(Modifier.fillMaxWidth().padding(JewelrySpacing.Xl)) {
-            TarjetaAcento(
-                modifier = Modifier.semantics { paneTitle = titulo },
-                acento = acento,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_aviso),
-                        contentDescription = null,
-                        tint = acento,
-                        modifier = Modifier.size(24.dp),
-                    )
-                    Spacer(Modifier.width(JewelrySpacing.Sm))
+        CompositionLocalProvider(
+            LocalContext provides contextoDeLaApp,
+            LocalConfiguration provides configuracionDeLaApp,
+        ) {
+            Box(Modifier.fillMaxWidth().padding(JewelrySpacing.Xl)) {
+                TarjetaAcento(
+                    modifier = Modifier.semantics { paneTitle = titulo },
+                    acento = acento,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_aviso),
+                            contentDescription = null,
+                            tint = acento,
+                            modifier = Modifier.size(24.dp),
+                        )
+                        Spacer(Modifier.width(JewelrySpacing.Sm))
+                        Text(
+                            text = titulo,
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                            color = JewelryColors.TextPrimary,
+                        )
+                    }
+                    Spacer(Modifier.height(JewelrySpacing.Sm))
                     Text(
-                        text = titulo,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
-                        color = JewelryColors.TextPrimary,
+                        text = mensaje,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = JewelryColors.TextSecondary,
                     )
-                }
-                Spacer(Modifier.height(JewelrySpacing.Sm))
-                Text(
-                    text = mensaje,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = JewelryColors.TextSecondary,
-                )
-                Spacer(Modifier.height(JewelrySpacing.Lg))
-                Row(horizontalArrangement = Arrangement.spacedBy(JewelrySpacing.Md)) {
-                    BotonPlano(
-                        texto = stringResource(R.string.accion_cancelar),
-                        onClick = onCancelar,
-                        modifier = Modifier.weight(1f),
-                    )
-                    BotonPlano(
-                        texto = textoConfirmar,
-                        onClick = onConfirmar,
-                        modifier = Modifier.weight(1f),
-                        fondo = acento.copy(alpha = 0.18f),
-                        borde = acento,
-                        colorTexto = acento,
-                    )
+                    Spacer(Modifier.height(JewelrySpacing.Lg))
+                    Row(horizontalArrangement = Arrangement.spacedBy(JewelrySpacing.Md)) {
+                        BotonPlano(
+                            texto = stringResource(R.string.accion_cancelar),
+                            onClick = onCancelar,
+                            modifier = Modifier.weight(1f),
+                        )
+                        BotonPlano(
+                            texto = textoConfirmar,
+                            onClick = onConfirmar,
+                            modifier = Modifier.weight(1f),
+                            fondo = acento.copy(alpha = 0.18f),
+                            borde = acento,
+                            colorTexto = acento,
+                        )
+                    }
                 }
             }
         }

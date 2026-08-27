@@ -1,20 +1,22 @@
 package com.jrblanco.calculadoradejoyeros2021.ui.herramientas.precios
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
 import com.jrblanco.calculadoradejoyeros2021.R
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MetalCotizado
 import com.jrblanco.calculadoradejoyeros2021.domain.model.MotivoErrorCotizacion
 import com.jrblanco.calculadoradejoyeros2021.domain.model.OrigenDatos
 import com.jrblanco.calculadoradejoyeros2021.domain.model.Tendencia
 import com.jrblanco.calculadoradejoyeros2021.domain.model.UnidadPrecio
-import com.jrblanco.calculadoradejoyeros2021.ui.theme.Calculadoradejoyeros2021Theme
+import com.jrblanco.calculadoradejoyeros2021.ui.EnIdiomaDeTest
+import com.jrblanco.calculadoradejoyeros2021.ui.contextoDeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +27,8 @@ class PreciosMetalesScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val contexto = InstrumentationRegistry.getInstrumentation().targetContext
+    private val contexto = contextoDeTest()
+    private fun texto(id: Int) = contexto.getString(id)
     private fun texto(id: Int, vararg args: Any) = contexto.getString(id, *args)
 
     private val filas = listOf(
@@ -67,7 +70,7 @@ class PreciosMetalesScreenTest {
         onReintentar: () -> Unit = {},
     ) {
         composeRule.setContent {
-            Calculadoradejoyeros2021Theme {
+            EnIdiomaDeTest {
                 PreciosMetalesContent(
                     uiState = uiState,
                     onUnidadSeleccionada = onUnidadSeleccionada,
@@ -87,7 +90,9 @@ class PreciosMetalesScreenTest {
         composeRule.onNodeWithText("148,10").assertExists()
         composeRule.onNodeWithText("0,0089").assertExists()
         composeRule.onNodeWithText("152,30").assertExists()
-        composeRule.onNodeWithText("AU").assertExists()
+        // El símbolo se pinta dos veces —en la fila y en la píldora del detalle—, así que se
+        // acota a la fila del oro en vez de exigir que sea único.
+        composeRule.onNode(hasText("AU") and hasText(texto(R.string.metal_oro))).assertExists()
     }
 
     @Test
@@ -95,7 +100,9 @@ class PreciosMetalesScreenTest {
         montar(estadoListo)
 
         composeRule.onNodeWithText(texto(R.string.precios_nota_orientativos)).assertExists()
-        composeRule.onNodeWithText(texto(R.string.precios_fuente)).assertExists()
+        composeRule.onNodeWithText(
+            texto(R.string.precios_fuente, texto(R.string.precios_fuente_nombre)),
+        ).assertExists()
         composeRule.onAllNodesWithText(texto(R.string.precios_accion_reintentar)).assertCountEquals(0)
     }
 
@@ -114,9 +121,16 @@ class PreciosMetalesScreenTest {
     fun listo_lasTresUnidadesEstanEnElSelector() {
         montar(estadoListo)
 
-        composeRule.onNodeWithText(texto(R.string.precios_unidad_gramo)).assertExists()
-        composeRule.onNodeWithText(texto(R.string.precios_unidad_kilo)).assertExists()
-        composeRule.onNodeWithText(texto(R.string.precios_unidad_onza)).assertExists()
+        // Cada etiqueta de unidad aparece dos veces: en su chip y como valor de la celda
+        // «Unidad» del detalle. Se desambigua por semántica —solo el chip es pulsable— en vez
+        // de por texto.
+        listOf(
+            R.string.precios_unidad_gramo,
+            R.string.precios_unidad_kilo,
+            R.string.precios_unidad_onza,
+        ).forEach { unidad ->
+            composeRule.onNode(hasText(texto(unidad)) and hasClickAction()).assertExists()
+        }
     }
 
     @Test
@@ -155,7 +169,11 @@ class PreciosMetalesScreenTest {
             R.string.precios_detalle_ask, R.string.precios_detalle_bid, R.string.precios_detalle_maximo,
             R.string.precios_detalle_minimo, R.string.precios_detalle_variacion, R.string.precios_detalle_variacion_pct,
             R.string.precios_detalle_unidad, R.string.precios_detalle_actualizacion,
-        ).forEach { composeRule.onNodeWithText(texto(it)).assertExists() }
+            // `onFirst` y no `onNodeWithText`: «Unidad» es el texto de dos claves distintas
+            // —`precios_seccion_unidad`, la cabecera del selector, y `precios_detalle_unidad`, la
+            // etiqueta de la celda—, así que lo que se prueba es que la etiqueta está, no que sea
+            // única en la pantalla.
+        ).forEach { composeRule.onAllNodesWithText(texto(it)).onFirst().assertExists() }
         composeRule.onNodeWithText("148,13").assertExists()
         composeRule.onNodeWithText("148,07").assertExists()
         composeRule.onNodeWithText("-0,97").assertExists()
