@@ -103,7 +103,7 @@ depender de un tipo que por dentro lleve el nombre de otro metal.
   de 60 s entre reintentos (300 s tras un 429) y solo se consultan los metales sin precio
   vigente. Es la pieza que decide cuándo se gasta cuota, y se prueba sin corrutinas.
 
-Los veinticuatro casos de uso se registran en `domainModule` con `factoryOf`;
+Los veintitrés casos de uso se registran en `domainModule` con `factoryOf`;
 `ObtenerCotizacionesUseCase` es el primero `suspend` y delega en `CotizacionesRepository`, y
 `ObservarIdiomaUseCase` (008) el primero que devuelve un `Flow`. Uno de ellos,
 `CalcularSoldaduraLeyUseCase` (mezcla desde la base disponible), **no tiene UI**: existe
@@ -302,8 +302,8 @@ La feature 008 hizo la app multilingüe: **español, inglés, francés, alemán 
 elección guardada en Preferences DataStore y aplicada al instante.
 
 - **Cinco `strings.xml`**: `values/` es el **español y la fuente de verdad** —aquí se añade y se
-  borra—, más `values-en`, `values-fr`, `values-de` y `values-it`. 217 cadenas, de las que **33 son
-  `translatable="false"`** y 184 se traducen. La regla de lo no traducible: **no queda ni una palabra
+  borra—, más `values-en`, `values-fr`, `values-de` y `values-it`. 229 cadenas, de las que **35 son
+  `translatable="false"`** y 194 se traducen. La regla de lo no traducible: **no queda ni una palabra
   dentro** (marca, nombres propios, «Ask»/«Bid», símbolos del SI, cifras con su quilate, plantillas
   de formato y los cinco endónimos de idioma). Cuando una cadena mezcla palabra y nombre propio se
   parte en `%1$s`: así están `precios_fuente` + `precios_fuente_nombre` y `welcome_developer` +
